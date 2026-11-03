@@ -74,9 +74,23 @@ this.routers=[
   /* test page */
   ['test.js','Test Page',async function(query,app,env){
     app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    /**
+    let db=(new idb).create();
+    //db.set('test.txt','yang takkan pernah terlupakan selamanya');
+    let data=await db.get('test.txt');
+    //let data=await db.index('');
+    await app.alert(app.likeJSON(data,2));
+    //await app.alert(data);
+    //*/
+    localStorage.setItem('test','testing');
     let qindex=await fetch(GLOBALS.host+'files/db/qindex.json')
       .then(r=>r.json()),
     anakUmmu=['Ayyub','Isa','Malik','Rifa','Ulfa','Zayd'],
+    lsSize=(
+      new Blob(Object.values(localStorage)).size +
+      new Blob(Object.keys(localStorage)).size +
+      localStorage.length
+    ),
     qlist={
       '30':[],
       '29':[],
@@ -154,6 +168,7 @@ this.routers=[
         '<a target="_blank" href="gblog/">G-Blog</a>',
       ].join(' -- ')
       +'<br />'
+      +lsSize+'<br />'
       +env.text+'<br />'+env.gas()
       +'<br />Sample of unavailable file --> <a href="#euweuh.html">euweuh.html</a> -- <br /><br />'
       +'<h3 id="surat">Juz 30</h3>'

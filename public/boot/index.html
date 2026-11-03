@@ -43,23 +43,57 @@ const GLOBALS={
     return;
   }btag.textContent=bscript;
   /* load files */
+  // https://github.com/9r3i/static/archive/refs/heads/master.zip
+  // https://codeload.github.com/9r3i/static/zip/refs/heads/master
+  //let host='https://raw.githubusercontent.com/9r3i/mia/master/public/files/',
   let host='https://rawfo.vercel.app/9r3i/mia/master/public/files/',
+  //let host='https://relfo.vercel.app/9r3i/static/mia.test.01/',
+  //let host='https://sabunjelly.com/files/cleanjelly/',
+  //let host='https://sabunjelly.com/files/image/jpeg/',
+  //let host='http://127.0.0.1:9301/files/',
   app=new boot(host),
   files=[
+    /**/
     'text/mia.css',
     'text/mblog.css',
     'js/mia.js',
     'js/parser.js',
+    'js/oltest.js',
     'js/mblog.js',
+    'html/home.html',
+    'html/login.html',
+    'font/consola.ttf',
+    'font/segoeuil.ttf',
+    //*/
+    /**
+    'mia.css',
+    'mblog.css',
+    'mia.js',
+    'parser.js',
+    'mblog.js',
+    //*/
+    /**
+    'badr-battle-field-01.jpg',
+    'badr-battle-field-02.jpg',
+    'badr-battle-field-03.jpg',
+    'badr-battle-field-04.jpg',
+    'badr-battle-field-05.jpg',
+    //*/
   ],
+  file='spanduk.jpg',
   progress=document.querySelector('.progress'),
   span=document.querySelector('span'),
   loaded=await app.bulk(files,e=>{
-    progress.setAttribute('max',e.total);
-    progress.setAttribute('value',e.loaded);
-    span.innerText=Math.floor(e.loaded/e.total*100)
-      +'% Loading...';
+    if(e.total&&e.total>0){
+      progress.setAttribute('max',e.total);
+      progress.setAttribute('value',e.loaded);
+      span.innerText=Math.floor(e.loaded/e.total*100)
+        +'% Loading...';
+    }else{
+      span.innerText=Math.floor(e.loaded/1024)+'KB - Loading...';
+    }
   });
+  span.innerText='Completed -- '+(typeof loaded);
   return new mblog;
 })();
   </script>

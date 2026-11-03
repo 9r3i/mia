@@ -3,21 +3,29 @@
 this.version='1.0.0';
 this.host=typeof host==='string'?host
   :'https://raw.githubusercontent.com/9r3i/.bug/master/';
-/* load files -- @return: */
+/* load files -- @return: object */
 this.bulk=async function(a,b){
   a=Array.isArray(a)?a:[];
   b=typeof b==='function'?b:function(){};
   let h={
     type:'progress',
     loaded:0,
-    total:a.length,
+    total:100,
     isTrusted:true,
   },
+  c=0,
+  d=Math.floor(1/a.length*100),
   r={};
   b(h);
   for(let i of a){
-    r[i]=await this.load(i);
-    h.loaded++;
+    r[i]=await this.load(i,e=>{
+      if(e.total&&e.total>0){
+        h.loaded=(d*c)+Math.floor(e.loaded/e.total*d);
+        b(h);
+      }
+    });
+    c++;
+    h.loaded=d*c;
     b(h);
   }
   h.loaded=h.total;
@@ -25,9 +33,9 @@ this.bulk=async function(a,b){
   return r;
 };
 /* load a file -- @return: mixed (object, string, bool) */
-this.load=async function(f){
+this.load=async function(f,b){
   let u=this.host+(typeof f==='string'?f:''),
-  c=await fetch(u).then(r=>r.text()).catch(e=>false);
+  c=await this.fetch(u,b);
   if(typeof c!=='string'){return false;}
   if(f.match(/\.css$/)){
     return this.exec(c,'style',f);
@@ -51,5 +59,36 @@ this.exec=function(s,t,i){
   c.id=typeof i==='string'?i:new Date().getTime();
   document.head.appendChild(c);
   return c;
+};
+/* fetch with progress -- @return: string or false */
+this.fetch=async function(u,b){
+  u=typeof u==='string'?u:'';
+  b=typeof b==='function'?b:function(){};
+  let r=await fetch(u),
+  t=parseInt(r.headers.get('content-length'),10),
+  h={
+    type:'progress',
+    loaded:0,
+    total:t?t:-1,
+    isTrusted:true,
+  };
+  b(h);
+  if(!r.ok){return false;}
+  let z=new Response(new ReadableStream({
+    async start(c){
+      let d=r.body.getReader();
+      for(;;){
+        let {done,value}=await d.read();
+        if(done){break;}
+        h.loaded+=value.byteLength;
+        b(h);
+        c.enqueue(value);
+      }
+      c.close();
+      h.loaded=h.total;
+      b(h);
+    },
+  }));
+  return await z.text()||false;
 };
 };
