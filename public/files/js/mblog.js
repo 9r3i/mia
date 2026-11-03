@@ -168,7 +168,8 @@ this.routers=[
         '<a target="_blank" href="gblog/">G-Blog</a>',
       ].join(' -- ')
       +'<br />'
-      +lsSize+'<br />'
+      +env.target(app)
+      +'Size of localStorage: '+(lsSize/1024).toFixed(2)+' KB<br />'
       +env.text+'<br />'+env.gas()
       +'<br />Sample of unavailable file --> <a href="#euweuh.html">euweuh.html</a> -- <br /><br />'
       +'<h3 id="surat">Juz 30</h3>'
@@ -225,6 +226,20 @@ this.routers=[
     }).html('thumb.jpg').appendTo(GLOBALS.content);
   },{
     text:'yang takkan pernah terlupakan selamanya dalam hidupku',
+    target:function(app){
+      let ul=app.element('ul'),
+      list=[
+        'One file app like mhtml',
+        'boot.js and idb.js as iboot.js',
+        'Assessment app',
+        '',
+        '',
+      ];
+      for(let i of list){
+        let li=app.element('li').text(i).appendTo(ul);
+      }
+      return ul.outerHTML;
+    },
     gas:function(){
       return 'test function for env subject';
     },

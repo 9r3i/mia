@@ -1,18 +1,3 @@
-
-/* font-face */
-@font-face{
-  font-family:'consolas';
-  src:url('../font/consola.ttf') format('truetype');
-  src:local('Consolas'), url('../font/consola.ttf') format('truetype');
-  font-weight:normal;
-  font-style:normal;
-}
-@font-face{
-  font-family:'Segoe UI Lite';
-  src:url('../font/segoeuil.ttf');
-  src:url('../font/segoeuil.ttf') format('truetype');
-}
-
 /* reset */
 *,*:before,*:after{
   -webkit-box-sizing:border-box;
