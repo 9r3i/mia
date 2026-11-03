@@ -3,7 +3,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>9r3i\boot</title>
-  <script id="files/js/boot.js"></script>
+  <script id="boot.js"></script>
   <script>
 /* error message -- for development only */
 window.addEventListener('error',function(e){
@@ -35,7 +35,7 @@ const GLOBALS={
 (async function(){
   /* execute the boot script */
   let bname='boot.js',
-  bhost='boot.js',
+  bhost='files/js/boot.js',
   btag=document.getElementById(bname),
   bscript=await fetch(bhost).then(r=>r.text());
   if(!bscript||!bscript.match(/function\sboot/)){
@@ -45,8 +45,8 @@ const GLOBALS={
   /* load files */
   // https://github.com/9r3i/static/archive/refs/heads/master.zip
   // https://codeload.github.com/9r3i/static/zip/refs/heads/master
-  //let host='https://raw.githubusercontent.com/9r3i/mia/master/public/files/',
-  let host='https://rawfo.vercel.app/9r3i/mia/master/public/files/',
+  let host='https://raw.githubusercontent.com/9r3i/mia/master/public/files/',
+  //let host='https://rawfo.vercel.app/9r3i/mia/master/public/files/',
   //let host='https://relfo.vercel.app/9r3i/static/mia.test.01/',
   //let host='https://sabunjelly.com/files/cleanjelly/',
   //let host='https://sabunjelly.com/files/image/jpeg/',

@@ -232,7 +232,7 @@ this.routers=[
         'One file app like mhtml',
         'boot.js and idb.js as iboot.js',
         'Assessment app',
-        '',
+        'ChatSSE',
         '',
       ];
       for(let i of list){
@@ -746,9 +746,10 @@ this.routers=[
       app.title('Edit Post #'+def.id);
       GLOBALS.title.text('Edit Post #'+def.id);
     }else{
+      let increment=Math.min(Math.max(Math.ceil(Math.random()*9),1),9);
       for(let post of posts){
         if(parseInt(post.id)>=def.id){
-          def.id=parseInt(post.id)+1;
+          def.id=parseInt(post.id)+increment;
         }
       }
       app.title('New Post #'+def.id);
