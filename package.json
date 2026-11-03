@@ -1,0 +1,14 @@
+{
+  "name": "@9r3i/mia",
+  "version": "1.1.4",
+  "description": "m... i... a...",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server",
+    "start": "node server.js"
+  },
+  "author": "9r3i",
+  "license": "MIT",
+  "dependencies": {
+  }
+}

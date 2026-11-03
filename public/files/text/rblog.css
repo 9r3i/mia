@@ -1,0 +1,91 @@
+/* reset */
+*,*:before,*:after{
+  -webkit-box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -o-box-sizing:border-box;
+  box-sizing:border-box;
+  font-family:monospace !important;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -o-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+  outline:none;
+  -webkit-text-size-adjust:none;
+  text-size-adjust:none;
+}
+input,textarea{
+  -webkit-user-select:initial;
+  -moz-user-select:initial;
+  -o-user-select:initial;
+  user-select:initial;
+}
+input:focus,
+textarea:focus,
+select:focus{
+  -webkit-outline:none;
+  -moz-outline:none;
+  -o-outline:none;
+  outline:none;
+}
+
+body{
+  margin:0px auto;
+  padding:10px;
+  font-size:13px;
+  overflow-x:hidden;
+  max-width:500px;
+  white-space:pre-wrap;
+  word-break:break-all;
+}
+pre{
+  font-size:13px;
+  background-color:#eed;
+  padding:10px;
+  white-space:pre-wrap;
+  word-break:break-all;
+}
+input{
+  padding:10px 3px;
+  border:0px none;
+  background-color:#fff;
+  width:calc(100% - 72px);
+  margin-right:2px;
+}
+button{
+  padding:10px 15px;
+  border:0px none;
+  background-color:#fff;
+  width:70px;
+  font-weight:bold;
+}
+
+/* loader */
+.loader{
+  background-image:url('../image/preloader.gif');
+  background-position:center center;
+  background-repeat:no-repeat;
+  min-height:200px;
+  line-height:150px;
+  text-align:center;
+  vertical-align:center;
+}
+.loader:before{
+  content:"Loading...";
+  animation:cloading 1.5s infinite 0s;
+}
+@keyframes cloading{
+  0%{content:"";}
+  10%{content:"L";}
+  20%{content:"Lo";}
+  30%{content:"Loa";}
+  40%{content:"Load";}
+  50%{content:"Loadi";}
+  60%{content:"Loadin";}
+  70%{content:"Loading";}
+  80%{content:"Loading.";}
+  90%{content:"Loading..";}
+  100%{content:"Loading...";}
+}
+
+
