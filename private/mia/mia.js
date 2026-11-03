@@ -5,10 +5,11 @@ const FS   = require("fs");
 /* mia exec requirement files */
 const MIAX={
   files:['file','post','test'],
+  dir:__dirname.replace(/\/[^\/]+$/,'')+'/exec/',
   exec:{},
 };
 for(let file of MIAX.files){
-  let exec=require(__dirname+'/exec/'+file);
+  let exec=require(MIAX.dir+file);
   MIAX.exec[file]=exec[file];
 }
 
@@ -27,7 +28,7 @@ exports.mia=function(port=9301,host='127.0.0.1',root){
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:114,
+  value:115,
   writable:false,
 });
 /* the version */
@@ -38,9 +39,9 @@ Object.defineProperty(this,'version',{
 this.port=port;
 this.host=host;
 this.root=typeof root==='string'?root
-  :[__dirname.replace(/\/[^\/]+$/,''),'public'].join('/');
+  :[__dirname.replace(/(\/[^\/]+){2}$/,''),'public'].join('/');
 this.private=[
-  __dirname.replace(/\/[^\/]+$/,''),
+  __dirname.replace(/(\/[^\/]+){2}$/,''),
   'private'
 ].join('/');
 this.fs=FS.promises;
