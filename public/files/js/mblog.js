@@ -168,6 +168,12 @@ this.routers=[
         '<a target="_blank" href="gblog/">G-Blog</a>',
       ].join(' -- ')
       +'<br />'
+      +[
+        '<a target="_blank" href="boot.html">Boot</a>',
+        '<a target="_blank" href="quiz.html">Quiz</a>',
+      ].join(' -- ')
+      +'<br />'
+      +'<br />'
       +env.target(app)
       +'Size of localStorage: '+(lsSize/1024).toFixed(2)+' KB<br />'
       +env.text+'<br />'+env.gas()
@@ -217,8 +223,8 @@ this.routers=[
     bass+='height: '+window.innerHeight+' px \n';
     bass+='width out: '+window.outerWidth+' px \n';
     bass+='height out: '+window.outerHeight+' px \n';
-    bass+='GLOBALS: '+buss+'  \n';
-    bass+='Q-List: '+bussList+'  \n';
+    //bass+='GLOBALS: '+buss+'  \n';
+    //bass+='Q-List: '+bussList+'  \n';
     bell.text(bass+'\n\n'+boss);
     GLOBALS.content.append(app.element());
     app.element('a',{
@@ -254,6 +260,8 @@ this.routers=[
       });
     },
     boss:async function(app){
+      //app.key='9r3i\\mia\\key(niner:tnzvcb)@iNmd65Gd6IXZulmb';
+      //app.user='niner';
       let res='';
       if(app.key){
         res=await app.post('test',{'test':'just testing'});
@@ -1110,6 +1118,9 @@ this.headers=[
 this.footers=[
   async function(query,app,page){
     GLOBALS.footer.text('Powered by 9r3i');
+    setTimeout(()=>{
+      hljs.highlightAll();
+    },500);
   },
 ];
 /* main elements */

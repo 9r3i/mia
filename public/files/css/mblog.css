@@ -63,10 +63,11 @@ pre{
   font-family:consolas,monospace;
   font-size:0.8rem;
   white-space:pre-wrap;
-  background-color:#eef;
+  background:linear-gradient(#fff 0%,#fed 100%);
   word-break:break-all;
   padding:0.5rem;
-  border:0.1rem dotted #777;
+  border:0.01rem solid #999;
+  border-left:0.5rem solid #d95;
 }
 video,audio{max-width:100%;}
 progress{
@@ -99,15 +100,9 @@ progress[value]::-moz-progress-bar{
   background:var(--color);
 }
 iframe{
-  width:100vw;
-  height:100vh;
+  width:100%;
+  height:auto;
   border:0px none;
-  position:fixed;
-  z-index:99;
-  top:0rem;
-  left:0rem;
-  right:0rem;
-  bottom:0rem;
   background-color:#fff;
 }
 
@@ -234,15 +229,14 @@ iframe{
   margin:1rem auto;
   display:block;
 }
-.post-content pre{
+.post-content code{
+  background-color:transparent;
   font-family:consolas,monospace;
   font-size:0.8rem;
-  white-space:pre-wrap;
-  background:linear-gradient(#fff 0%,#fed 100%);
-  word-break:break-all;
-  padding:0.5rem;
-  border:0.01rem solid #999;
-  border-left:0.5rem solid #d95;
+  font-weight:normal;
+}
+.post-content pre{
+  background-color:#def;
 }
 .post-content-image{
   text-align:center;

@@ -4,13 +4,20 @@ const FS   = require("fs");
 
 /* mia exec requirement files */
 const MIAX={
-  files:['file','post','test'],
-  dir:__dirname.replace(/\/[^\/]+$/,'')+'/exec/',
+  execFiles:['file','post','test'],
+  execDir:__dirname.replace(/\/[^\/]+$/,'')+'/exec/',
   exec:{},
+  libFiles:[],
+  libDir:__dirname.replace(/\/[^\/]+$/,'')+'/lib/',
+  lib:{},
 };
-for(let file of MIAX.files){
-  let exec=require(MIAX.dir+file);
+for(let file of MIAX.execFiles){
+  let exec=require(MIAX.execDir+file);
   MIAX.exec[file]=exec[file];
+}
+for(let file of MIAX.libFiles){
+  let lib=require(MIAX.libDir+file);
+  MIAX.lib[file]=lib[file];
 }
 
 /**
@@ -48,6 +55,7 @@ this.fs=FS.promises;
 this.fso=FS;
 this.http=HTTP;
 this.exec=MIAX.exec;
+this.lib=MIAX.lib;
 /* start server */
 this.start=function(){
   let server=this.http.createServer((req,res)=>{
@@ -76,6 +84,13 @@ this.requestListener=async function(req,res){
   console.log(
     accessed?200:404,
     req.method,
+    [
+      (new Date).getHours().toString().padStart(2,'0'),
+      (new Date).getMinutes().toString().padStart(2,'0'),
+      (new Date).getSeconds().toString().padStart(2,'0'),
+      ((new Date).getTime()/1000).toFixed(3)
+      .toString().split('.')[1].padStart(3,'0'),
+    ].join(':'),
     req.url,
   );
 
@@ -89,7 +104,7 @@ this.requestListener=async function(req,res){
     delete post.key;
     delete post.user;
     delete post.exec;
-    console.log('post',post);
+    console.log('   ','POST',post);
 
     /* login */
     if(exec=='login'&&key=='9r3i\\mia'
