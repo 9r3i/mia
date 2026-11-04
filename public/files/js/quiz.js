@@ -5,71 +5,349 @@ this.host='';
 this.app=null;
 /* routers */
 this.routers=[
-  ['','Home',function(query,app,env){
-      GLOBALS.content.text('this is home, welcome home!');
-    
-  }],
-  /* admin page */
-  ['admin.js','Admin',async function(query,app,env){
-    if(!app.key){
-      return app.go('login.js');
-    }
+  ['','Home',async function(query,app,env){
+    /* load data */
     app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
-    let json=await app.get('files/db/posts.json'),
+    let json=await app.get('files/db/topic.json'),
     data=app.parseJSON(json),
     posts=Array.isArray(data)?data:[];
     posts.reverse();
     GLOBALS.content.html();
     /* search form */
-    let search=app.element('input',{
-      name:'search',
-      placeholder:'Search...',
-      maxlength:100,
-      value:'',
-    });
-    search.onkeyup=function(){
-      let rg=new RegExp(this.value,'i'),
-      nm=document.querySelectorAll('div[data-title]');
-      for(let i=0;i<nm.length;i++){
-        if(nm[i].dataset.title.match(rg)){
-          nm[i].style.removeProperty('display');
-        }else{
-          nm[i].style.display='none';
-        }
-      }
-    };
-    app.element('div',{'class':'post-search'},[
-      search,
-    ]).appendTo(GLOBALS.content);
+    app.searchForm().appendTo(GLOBALS.content);
     /* post loop */
     for(let post of posts){
       app.element('div',{
         'class':'post',
         'data-title':post.title,
       },[
-        app.element('div',{
-          'class':'post-image post-image-hidden',
-        },[
-          app.element('img',{
-            id:'post-image-'+post.id,
-          }),
-        ]),
-        app.element('img',{
-          alt:'',
-          src:GLOBALS.host+'files/image/preloader.gif',
-          'class':'post-image-loader',
-          id:'post-image-loader-'+post.id,
-        }),
         app.element('div',{'class':'post-title'})
-          .html('#'+post.id+' -- '+post.title),
+          .html(post.title),
         app.element('div',{'class':'post-time'})
-          .html(app.parseDatetime(post.date+' '+post.time)),
+          .html(app.parseDatetime(parseInt(post.time,10))),
         app.element('div',{'class':'post-button'},[
           app.element('button',{
             'class':'button-tosca',
             'data-id':post.id
           }).text('View').clickOn(function(){
-            app.go('post.js?id='+this.dataset.id);
+            app.go('topic.js?id='+this.dataset.id);
+          }),
+          app.element('span',{
+            id:'qspan-'+post.id
+          }).text('Loading...'),
+        ]),
+      ]).appendTo(GLOBALS.content);
+    }
+    for(let post of posts){
+      let path='files/db/quiz/'+post.id+'.json',
+      json=await app.get(path),
+      data=app.parseJSON(json),
+      qdata=Array.isArray(data)?data:[],
+      span=document.getElementById('qspan-'+post.id),
+      text=qdata.length==0?'No question yet'
+        :qdata.length+' question'
+          +(qdata.length>1?'s':'');
+      if(span){span.text(text);}
+    }
+    
+    
+    
+    
+    
+    /**
+    app.element('pre').content(
+      app.likeJSON(posts,2)
+    ).appendTo(GLOBALS.content);
+    //*/
+    
+    //await app.alert(app.likeJSON({data,res,json},3));
+  }],
+  /* sxore page */
+  ['score.js','Score',async function(query,app,env){
+    /* load data */
+    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    let json=await app.get('files/db/score.json'),
+    data=app.parseJSON(json),
+    posts=typeof data==='object'&&data!==null?data:{};
+    GLOBALS.content.html();
+    /* search form */
+    app.searchForm().appendTo(GLOBALS.content);
+    
+    
+  }],
+  /* topic page */
+  ['topic.js','Topic',async function(query,app,env){
+    /* check the query id */
+    if(!query.hasOwnProperty('id')){
+      return app.error('Not Found',404);
+    }
+    /* load data */
+    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    let json=await app.get('files/db/topic.json'),
+    data=app.parseJSON(json),
+    posts=Array.isArray(data)?data:[],
+    key=posts.findIndex(r=>r.id==query.id),
+    post=key>=0?posts[key]:false;
+    GLOBALS.content.html();
+    if(!post){
+      let text='404 - Not Found';
+      app.title(text);
+      app.element('h1').text('Error: '+text).appendTo(GLOBALS.content);
+      return;
+    }
+    app.title(post.title);
+    app.element('h3').text(post.title).appendTo(GLOBALS.content);
+    app.element('div').text(post.description).appendTo(GLOBALS.content);
+
+    /* admin button */
+    let button=app.element('button',{
+      'class':'button-light-blue post-edit',
+      'data-id':post.id,
+    }).text('Edit').clickOn(function(){
+      this.mia.go('edit.js?id='+this.dataset.id);
+    });
+    if(app.key){
+      GLOBALS.content.append(button);
+    }
+  }],
+  /* question page -- topic */
+  ['question.js','Question',async function(query,app,env){
+    if(!app.key){
+      return app.go('login.js');
+    }
+    /* check the query tid */
+    if(!query.hasOwnProperty('tid')){
+      return app.error('Not Found',404);
+    }
+    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    let def={
+      id:1,
+      q:'',
+      a:'',
+      b:'',
+      c:'',
+      d:'',
+      x:0, 
+      tid:query.tid,
+      method:'add',
+      table:'quiz',
+    },
+    data=await env.load(app,query.tid);
+    GLOBALS.content.html();
+    if(data.topic===null||data.topic.username!=app.user){
+      return app.error('Unauthorized',401);
+    }
+    
+  },{
+    load:async function(app,tid){
+      let result={quiz:[],topic:null},
+      json=await app.get('files/db/quiz/'+tid+'.json'),
+      data=app.parseJSON(json),
+      posts=Array.isArray(data)?data:[];
+      result.quiz=posts;
+      json=await app.get('files/db/topic.json'),
+      data=app.parseJSON(json),
+      posts=Array.isArray(data)?data:[];
+      for(let post of posts){
+        if(post.id==tid){
+          result.topic=post;
+          break;
+        }
+      }
+      return result;
+    },
+  }],
+  /* edit page -- topic */
+  ['edit.js','Edit',async function(query,app,env){
+    if(!app.key){
+      return app.go('login.js');
+    }
+    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    let def={
+      id:1,
+      username:app.user,
+      title:'',
+      description:'',
+      time:(new Date).getTime(),
+      method:'add',
+      table:'topic',
+    },
+    json=await app.get('files/db/topic.json'),
+    data=app.parseJSON(json),
+    posts=Array.isArray(data)?data:[];
+    GLOBALS.content.html();
+    /* find new id */
+    if(query.hasOwnProperty('id')){
+      for(let post of posts){
+        if(query.id==post.id){
+          def=post;
+          def.method='edit';
+          def.table='topic';
+          break;
+        }
+      }
+      app.title('Edit Topic #'+def.id);
+      GLOBALS.header.text('Edit Topic #'+def.id);
+    }else{
+      let increment=Math.min(Math.max(Math.ceil(Math.random()*9),1),9);
+      for(let post of posts){
+        if(parseInt(post.id)>=def.id){
+          def.id=parseInt(post.id)+increment;
+        }
+      }
+      app.title('New Topic #'+def.id);
+      GLOBALS.header.text('New Topic #'+def.id);
+    }
+    /* check user */
+    if(def.username!=app.user){
+      return app.error('Unauthorized',401);
+    }
+    /* set the form */
+    let form=app.element('div',{'class':'editor'},[
+      app.element('input',{
+        type:'hidden',
+        name:'id',
+        value:def.id,
+      }),
+      app.element('input',{
+        type:'hidden',
+        name:'username',
+        value:def.username,
+      }),
+      app.element('input',{
+        type:'hidden',
+        name:'time',
+        value:def.time,
+      }),
+      app.element('input',{
+        type:'hidden',
+        name:'method',
+        value:def.method,
+      }),
+      app.element('input',{
+        type:'hidden',
+        name:'table',
+        value:def.table,
+      }),
+      app.element().text('Title'),
+      app.element('input',{
+        type:'text',
+        name:'title',
+        maxlength:100,
+        placeholder:'Title',
+        value:def.title,
+      }),
+      app.element().text('Description'),
+      app.element('textarea',{
+        name:'description',
+        placeholder:'Description',
+        row:3,
+        id:'editor-content',
+        style:'height:5rem;',
+      }).content(def.description),
+      app.element('div',{'class':'editor-row'},[
+        app.element('button',{
+          'class':'button-orange',
+        }).text('-')
+          .clickOn(function(){
+            return env.setRow(true);
+        }),
+        app.element('input',{
+          type:'number',
+          readonly:'readonly',
+          value:5,
+          id:'editor-row-size'
+        }),
+        app.element('button',{
+          'class':'button-orange',
+        }).text('+')
+          .clickOn(function(){
+            return env.setRow();
+        }),
+      ]),
+    ]).appendTo(GLOBALS.content),
+    save=app.element('button',{'class':'button-blue'})
+      .text('Save').appendTo(form),
+    view=app.element('button',{
+      'class':'button-tosca other-button',
+      'data-id':def.id,
+    }).text('View').appendTo(form)
+      .clickOn(async function(){
+        await this.save.click();
+        await this.mia.sleep(500);
+        this.mia.go('topic.js?id='+this.dataset.id);
+      });
+    view.save=save;
+    /* save the post */
+    save.clickOn(async function(e){
+      let stext=this.innerText;
+      this.disabled=true;
+      this.text('Saving...');
+      let data=app.formSerialize(),
+      json=await app.post('quiz',data),
+      res=app.parseJSON(json);
+      this.disabled=false;
+      this.text(stext);
+      if(!res){
+        let pre=app.element('pre').text('Failed to save!');
+        form.insertBefore(pre,save);
+        await app.sleep(2000);
+        pre.remove();
+        return;
+      }
+      if(!query.hasOwnProperty('id')){
+        app.go('admin.js');
+        return;
+      }
+      let pre=app.element('pre').text('Saved!');
+      form.insertBefore(pre,save);
+      await app.sleep(2000);
+      pre.remove();
+    });
+  },{
+    setRow:function(minus=false){
+      let ec=document.getElementById('editor-content'),
+      ers=document.getElementById('editor-row-size');
+      if(!ec||!ers){return;}
+      let cmh=ec.style.height,
+      mh=parseFloat(ers.value),
+      vh=minus?mh-0.1:mh+0.1;
+      if(vh<3||vh>30){return;}
+      vh=Math.min(Math.max(3,vh),30);
+      ec.style.height=vh+'rem';
+      ers.value=vh;
+    },
+  }],
+  /* admin page -- topic */
+  ['admin.js','Admin',async function(query,app,env){
+    if(!app.key){
+      return app.go('login.js');
+    }
+    /* load data */
+    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    let json=await app.get('files/db/topic.json'),
+    data=app.parseJSON(json),
+    posts=Array.isArray(data)?data:[];
+    posts.reverse();
+    GLOBALS.content.html();
+    /* search form */
+    app.searchForm().appendTo(GLOBALS.content);
+    /* post loop */
+    for(let post of posts){
+      app.element('div',{
+        'class':'post',
+        'data-title':post.title,
+      },[
+        app.element('div',{'class':'post-title'})
+          .html('#'+post.id+' -- '+post.title),
+        app.element('div',{'class':'post-time'})
+          .html(app.parseDatetime(parseInt(post.time,10))),
+        app.element('div',{'class':'post-button'},[
+          app.element('button',{
+            'class':'button-tosca',
+            'data-id':post.id
+          }).text('View').clickOn(function(){
+            app.go('topic.js?id='+this.dataset.id);
           }),
           app.element('button',{
             'class':'button-blue',
@@ -86,36 +364,24 @@ this.routers=[
             let stext=this.innerText;
             this.disabled=true;
             this.text('Deleting...');
-            let json=await app.post('post',{
+            let json=await app.post('quiz',{
+              table:'topic',
+              method:'delete',
               id:this.dataset.id,
-              'delete':true,
             }),
             res=app.parseJSON(json);
             this.disabled=false;
             this.text(stext);
             app.go('admin.js');
           }),
+          app.element('button',{
+            'class':'button-yellow',
+            'data-id':post.id
+          }).text('Question').clickOn(function(){
+            app.go('question.js?tid='+this.dataset.id);
+          }),
         ]),
       ]).appendTo(GLOBALS.content);
-      /* image renderer */
-      let img=new Image;
-      img.src=GLOBALS.host+post.picture;
-      img.dataset.pid=post.id;
-      img.dataset.thumb=GLOBALS.host+'files/image/thumb.jpg';
-      img.onerror=function(){
-        this.src=this.dataset.thumb;
-      };
-      img.onload=function(){
-        let pimg=document.querySelector('img#post-image-'+this.dataset.pid),
-        limg=document.querySelector('img#post-image-loader-'+this.dataset.pid);
-        if(pimg){
-          pimg.src=this.src;
-          pimg.parentNode.classList.remove('post-image-hidden');
-        }
-        if(limg){
-          limg.remove();
-        }
-      };
     }
   }],
   /* login page */
@@ -180,8 +446,9 @@ this.headers=[
   async function(query,app,page){
     GLOBALS.header.html(page.title);
     GLOBALS.content.html();
-    
+    /* logged in */
     if(app.key){
+      /* logout */
       app.element('button',{
         'class':'button-red button-float-right',
       }).text('Logout')
@@ -192,6 +459,14 @@ this.headers=[
         app.key=null;
         app.user=null;
         app.go('');
+      };
+      /* new topic */
+      app.element('button',{
+        'class':'button-green button-float-right',
+      }).text('New Topic')
+      .appendTo(GLOBALS.header)
+      .onclick=async function(){
+        app.go('edit.js');
       };
     }
     return true;
@@ -228,7 +503,7 @@ this.footers=[
       cellpadding:0,
       border:0,
       width:'100%',
-      background:'tansparent',
+      backgroundColor:'transparent',
       'class':'table-deck',
     },[
       app.element('tbody',{},[
@@ -240,14 +515,10 @@ this.footers=[
       ])
     ]).appendTo(GLOBALS.footer);
     button.topic.clickOn(async function(){
-      let loader=app.loader();
-      await app.sleep(1000);
-      loader.remove();
-      GLOBALS.content.text('topic '.repeat(300));
+      app.go('');
     });
     button.score.clickOn(function(){
-      GLOBALS.content.text('score ');
-      
+      app.go('score.js');
     });
     button.account.clickOn(function(){
       app.go('admin.js');
@@ -265,6 +536,7 @@ this.elements=function(){
   GLOBALS.content=this.app.element('div',{'class':'content'}).appendTo(GLOBALS.main);
   GLOBALS.footer=this.app.element('div',{'class':'footer'}).appendTo(GLOBALS.main);
   this.app.loader=this.loader;
+  this.app.searchForm=this.searchForm;
 };
 /* initialize */
 this.init=async function(){
@@ -289,6 +561,29 @@ this.loader=function(load=true){
   el.id='loader';
   document.body.append(el);
   return el;
+};
+/* search form */
+this.searchForm=function(){
+  let search=this.element('input',{
+    name:'search',
+    placeholder:'Search...',
+    maxlength:100,
+    value:'',
+  });
+  search.onkeyup=function(){
+    let rg=new RegExp(this.value,'i'),
+    nm=document.querySelectorAll('div[data-title]');
+    for(let i=0;i<nm.length;i++){
+      if(nm[i].dataset.title.match(rg)){
+        nm[i].style.removeProperty('display');
+      }else{
+        nm[i].style.display='none';
+      }
+    }
+  };
+  return this.element('div',{'class':'content-search'},[
+    search,
+  ]);
 };
 /* initialize the app */
 return this.init();

@@ -4,7 +4,7 @@ const FS   = require("fs");
 
 /* mia exec requirement files */
 const MIAX={
-  execFiles:['file','post','test'],
+  execFiles:['file','post','test','quiz'],
   execDir:__dirname.replace(/\/[^\/]+$/,'')+'/exec/',
   exec:{},
   libFiles:[],
