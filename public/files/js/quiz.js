@@ -1,4 +1,4 @@
-/* quiz.js -- requires: mia.js*/
+/* quiz.js -- requires: mia.js (mia:client) */
 ;const quiz=function(){
 this.version='1.0.0';
 this.host='';
@@ -51,9 +51,6 @@ this.routers=[
     }
     
     
-    
-    
-    
     /**
     app.element('pre').content(
       app.likeJSON(posts,2)
@@ -62,7 +59,7 @@ this.routers=[
     
     //await app.alert(app.likeJSON({data,res,json},3));
   }],
-  /* sxore page */
+  /* score page */
   ['score.js','Score',async function(query,app,env){
     /* load data */
     app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
@@ -74,6 +71,57 @@ this.routers=[
     app.searchForm().appendTo(GLOBALS.content);
     
     
+  }],
+  /* exam page */
+  ['exam.js','Exam',async function(query,app,env){
+    /* check the query id */
+    if(!query.hasOwnProperty('id')){
+      return app.error('Not Found',404);
+    }
+    /* check the user id */
+    if(!app.key||!app.user){
+      let next=encodeURIComponent('exam.js?id='+query.id);
+      return app.go('login.js?next='+next);
+    }
+    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    
+    
+  },{
+    load:async function(app,tid){
+      /* question */
+      let result={
+        quiz:[],
+        topic:null,
+        score:null,
+        exam:null
+      },
+      json=await app.get('files/db/quiz/'+tid+'.json'),
+      data=app.parseJSON(json),
+      posts=Array.isArray(data)?data:[];
+      result.quiz=posts;
+      /* topic */
+      json=await app.get('files/db/topic.json'),
+      data=app.parseJSON(json),
+      posts=Array.isArray(data)?data:[];
+      for(let post of posts){
+        if(post.id==tid){
+          result.topic=post;
+          break;
+        }
+      }
+      /* score */
+      json=await app.get('files/db/score.json'),
+      data=app.parseJSON(json),
+      posts=typeof data==-'object'&&data!==null?data:{};
+      for(let post in posts){
+        if(post==tid){
+          result.score=post;
+          break;
+        }
+      }
+      /* result */
+      return result;
+    },
   }],
   /* topic page */
   ['topic.js','Topic',async function(query,app,env){
@@ -97,17 +145,46 @@ this.routers=[
     }
     app.title(post.title);
     app.element('h3').text(post.title).appendTo(GLOBALS.content);
+    app.element('div',{
+      'class':'post-author',
+    }).text(
+      'Authored by '+post.username+' '
+    ).appendTo(GLOBALS.content);
     app.element('div').text(post.description).appendTo(GLOBALS.content);
-
+    let qspan=app.element('div',{
+      id:'qspan-'+post.id,
+    }).text('Loading...').appendTo(GLOBALS.content),
+    path='files/db/quiz/'+post.id+'.json';
+    json=await app.get(path),
+    data=app.parseJSON(json),
+    qdata=Array.isArray(data)?data:[],
+    text=qdata.length==0?'No question yet'
+      :qdata.length+' question'
+        +(qdata.length>1?'s':'');
+    qspan.text('\nTotal: '+text);
     /* admin button */
     let button=app.element('button',{
       'class':'button-light-blue post-edit',
       'data-id':post.id,
     }).text('Edit').clickOn(function(){
       this.mia.go('edit.js?id='+this.dataset.id);
+    }),
+    exam=app.element('button',{
+      'class':'button-red post-edit',
+      'data-id':post.id,
+    }).text('Exam').clickOn(async function(){
+      let text='Do you want to exam this topic?\n\n'
+        +'Warning! This is one time ticket.\n'
+        +'You won\'t be able to do this exam twice.',
+      yes=await app.confirm(text);
+      if(!yes){return;}
+      this.mia.go('exam.js?id='+this.dataset.id);
     });
-    if(app.key){
+    if(app.key&&app.user==post.username){
       GLOBALS.content.append(button);
+    }
+    if(app.user!=post.username){
+      GLOBALS.content.append(exam);
     }
   }],
   /* question page -- topic */
@@ -127,7 +204,7 @@ this.routers=[
       b:'',
       c:'',
       d:'',
-      x:0, 
+      x:'a', 
       tid:query.tid,
       method:'add',
       table:'quiz',
@@ -137,7 +214,132 @@ this.routers=[
     if(data.topic===null||data.topic.username!=app.user){
       return app.error('Unauthorized',401);
     }
-    
+    /* find new id */
+    if(query.hasOwnProperty('id')){
+      for(let post of data.quiz){
+        if(query.id==post.id){
+          def=post;
+          def.method='edit';
+          def.table='quiz';
+          def.tid=query.tid;
+          break;
+        }
+      }
+      app.title('Edit Question #'+def.id);
+      GLOBALS.header.text('Edit Question #'+def.id);
+    }else{
+      let increment=Math.min(Math.max(Math.ceil(Math.random()*9),1),9);
+      for(let post of data.quiz){
+        if(parseInt(post.id)>=def.id){
+          def.id=parseInt(post.id)+increment;
+        }
+      }
+      app.title('New Question #'+def.id);
+      GLOBALS.header.text('New Question #'+def.id);
+    }
+    /* set the form */
+    let select=app.element('select',{name:'x'}),
+    form=app.element('div',{'class':'editor'},[
+      app.element('input',{
+        type:'hidden',
+        name:'id',
+        value:def.id,
+      }),
+      app.element('input',{
+        type:'hidden',
+        name:'tid',
+        value:def.tid,
+      }),
+      app.element('input',{
+        type:'hidden',
+        name:'method',
+        value:def.method,
+      }),
+      app.element('input',{
+        type:'hidden',
+        name:'table',
+        value:def.table,
+      }),
+      app.element().text('Question'),
+      app.element('textarea',{
+        name:'q',
+        placeholder:'Question',
+        row:3,
+        id:'editor-content',
+        style:'height:5rem;',
+      }).content(def.q),
+      app.element().text('A'),
+      app.element('input',{
+        type:'text',
+        name:'a',
+        maxlength:100,
+        placeholder:'...',
+        value:def.a,
+      }),
+      app.element().text('B'),
+      app.element('input',{
+        type:'text',
+        name:'b',
+        maxlength:100,
+        placeholder:'...',
+        value:def.b,
+      }),
+      app.element().text('C'),
+      app.element('input',{
+        type:'text',
+        name:'c',
+        maxlength:100,
+        placeholder:'...',
+        value:def.c,
+      }),
+      app.element().text('D'),
+      app.element('input',{
+        type:'text',
+        name:'d',
+        maxlength:100,
+        placeholder:'...',
+        value:def.d,
+      }),
+      app.element().text('Answer'),
+      select,
+      app.element().text(' . '),
+    ]).appendTo(GLOBALS.content),
+    save=app.element('button',{'class':'button-blue'})
+      .text('Save').appendTo(form);
+    save.dataset.tid=query.tid;
+    for(let i of ['a','b','c','d']){
+      let opt=app.element('option',{value:i})
+        .content(i.toUpperCase()).appendTo(select);
+      if(i==def.x){
+        opt.selected='selected';
+      }
+    }
+    /* save the post */
+    save.clickOn(async function(e){
+      let stext=this.innerText;
+      this.disabled=true;
+      this.text('Saving...');
+      let data=app.formSerialize(),
+      json=await app.post('quiz',data),
+      res=app.parseJSON(json);
+      this.disabled=false;
+      this.text(stext);
+      if(!res){
+        let pre=app.element('pre').text('Failed to save!');
+        form.insertBefore(pre,save);
+        await app.sleep(2000);
+        pre.remove();
+        return;
+      }
+      if(!query.hasOwnProperty('id')){
+        app.go('edit.js?id='+this.dataset.tid);
+        return;
+      }
+      let pre=app.element('pre').text('Saved!');
+      form.insertBefore(pre,save);
+      await app.sleep(2000);
+      pre.remove();
+    });
   },{
     load:async function(app,tid){
       let result={quiz:[],topic:null},
@@ -245,26 +447,7 @@ this.routers=[
         id:'editor-content',
         style:'height:5rem;',
       }).content(def.description),
-      app.element('div',{'class':'editor-row'},[
-        app.element('button',{
-          'class':'button-orange',
-        }).text('-')
-          .clickOn(function(){
-            return env.setRow(true);
-        }),
-        app.element('input',{
-          type:'number',
-          readonly:'readonly',
-          value:5,
-          id:'editor-row-size'
-        }),
-        app.element('button',{
-          'class':'button-orange',
-        }).text('+')
-          .clickOn(function(){
-            return env.setRow();
-        }),
-      ]),
+      app.element().text(' . '),
     ]).appendTo(GLOBALS.content),
     save=app.element('button',{'class':'button-blue'})
       .text('Save').appendTo(form),
@@ -276,7 +459,14 @@ this.routers=[
         await this.save.click();
         await this.mia.sleep(500);
         this.mia.go('topic.js?id='+this.dataset.id);
-      });
+    }),
+    qbut=app.element('button',{
+      'class':'button-green other-button',
+      'data-tid':query.id,
+    }).text('Add Question')
+      .appendTo(form).clickOn(function(){
+      this.mia.go('question.js?tid='+this.dataset.tid)
+    });
     view.save=save;
     /* save the post */
     save.clickOn(async function(e){
@@ -304,7 +494,75 @@ this.routers=[
       await app.sleep(2000);
       pre.remove();
     });
+    if(def.method=='add'){return;}
+    /* ---------- [QUESTION] ---------- */
+    let loader=app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content),
+    ganjel=app.element('div',{'class':'content-separator'}).appendTo(GLOBALS.content),
+    search=app.searchForm().appendTo(GLOBALS.content),
+    qdata=await env.load(app,query.id);
+    loader.remove();
+    if(qdata.topic===null||qdata.topic.username!=app.user){
+      return app.error('Unauthorized',401);
+    }
+    for(let post of qdata.quiz){
+      app.element('div',{
+        'class':'post',
+        'data-title':post.q,
+      },[
+        app.element('div',{'class':'post-title'})
+          .html('#'+post.id+' -- '+post.q),
+        app.element('div',{'class':'post-button'},[
+          app.element('button',{
+            'class':'button-blue',
+            'data-id':post.id,
+            'data-tid':query.id,
+          }).text('Edit').clickOn(function(){
+            app.go('question.js?tid='
+              +this.dataset.tid+'&id='+this.dataset.id);
+          }),
+          app.element('button',{
+            'class':'button-red',
+            'data-id':post.id,
+            'data-tid':query.id,
+          }).text('Delete').clickOn(async function(){
+            let yes=await app.confirm('Delete the question?');
+            if(!yes){return;}
+            let stext=this.innerText;
+            this.disabled=true;
+            this.text('Deleting...');
+            let json=await app.post('quiz',{
+              table:'quiz',
+              method:'delete',
+              id:this.dataset.id,
+              tid:this.dataset.tid,
+            }),
+            res=app.parseJSON(json);
+            this.disabled=false;
+            this.text(stext);
+            app.go('edit.js?id='+this.dataset.tid);
+          }),
+        ]),
+      ]).appendTo(GLOBALS.content);
+      
+    }
   },{
+    load:async function(app,tid){
+      let result={quiz:[],topic:null},
+      json=await app.get('files/db/quiz/'+tid+'.json'),
+      data=app.parseJSON(json),
+      posts=Array.isArray(data)?data:[];
+      result.quiz=posts;
+      json=await app.get('files/db/topic.json'),
+      data=app.parseJSON(json),
+      posts=Array.isArray(data)?data:[];
+      for(let post of posts){
+        if(post.id==tid){
+          result.topic=post;
+          break;
+        }
+      }
+      return result;
+    },
     setRow:function(minus=false){
       let ec=document.getElementById('editor-content'),
       ers=document.getElementById('editor-row-size');
@@ -327,13 +585,22 @@ this.routers=[
     app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
     let json=await app.get('files/db/topic.json'),
     data=app.parseJSON(json),
-    posts=Array.isArray(data)?data:[];
+    posts=Array.isArray(data)?
+      data.filter(r=>r.username==app.user):[];
     posts.reverse();
     GLOBALS.content.html();
     /* search form */
     app.searchForm().appendTo(GLOBALS.content);
+    /* no post */
+    if(posts.length<1){
+      app.element('h3',{
+        'class':'content-empty'
+      }).appendTo(GLOBALS.content);
+      return;
+    }
     /* post loop */
     for(let post of posts){
+      if(post.username!=app.user){continue;}
       app.element('div',{
         'class':'post',
         'data-title':post.title,
@@ -359,7 +626,7 @@ this.routers=[
             'class':'button-red',
             'data-id':post.id
           }).text('Delete').clickOn(async function(){
-            let yes=await app.confirm('Delete the post?');
+            let yes=await app.confirm('Delete the topic?');
             if(!yes){return;}
             let stext=this.innerText;
             this.disabled=true;
@@ -373,12 +640,6 @@ this.routers=[
             this.disabled=false;
             this.text(stext);
             app.go('admin.js');
-          }),
-          app.element('button',{
-            'class':'button-yellow',
-            'data-id':post.id
-          }).text('Question').clickOn(function(){
-            app.go('question.js?tid='+this.dataset.id);
           }),
         ]),
       ]).appendTo(GLOBALS.content);
@@ -437,6 +698,9 @@ this.routers=[
       }
       app.key=key;
       app.user=data.username;
+      if(query.hasOwnProperty('next')){
+        return app.go(query.next);
+      }
       return app.go('admin.js');
     };
   }],

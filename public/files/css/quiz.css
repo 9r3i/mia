@@ -145,6 +145,20 @@ iframe{
 .content-search{
   margin-bottom:1rem;
 }
+.content-separator{
+  height:2rem;
+}
+.content-empty{
+  min-height:9rem;
+  line-height:9rem;
+  text-align:center;
+  vertical-align:middle;
+  color:#aaa;
+  background-color:#eee;
+}
+.content-empty:before{
+  content:"Empty Content";
+}
 
 /* content loader */
 .content-loader{
@@ -154,7 +168,7 @@ iframe{
   min-height:9rem;
   line-height:6rem;
   text-align:center;
-  vertical-align:center;
+  vertical-align:middle;
 }
 .content-loader:before{
   content:"Loading...";
