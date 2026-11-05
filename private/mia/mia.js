@@ -35,7 +35,7 @@ exports.mia=function(port=9301,host='127.0.0.1',root){
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:115,
+  value:116,
   writable:false,
 });
 /* the version */
@@ -99,7 +99,8 @@ this.requestListener=async function(req,res){
     let {post,files}=await this.parseFormData(req),
     exec=post.hasOwnProperty('exec')?post.exec.toString():'',
     key=post.hasOwnProperty('key')?post.key.toString():'',
-    result=null;
+    result=null,
+    isGood=false;
     /* delete credentials */
     delete post.key;
     delete post.user;
@@ -112,6 +113,7 @@ this.requestListener=async function(req,res){
       &&post.hasOwnProperty('password')){
       if(await this.verify(post.username,post.password)){
         result=this.ukey(post.username);
+        isGood=true;
       }
     }
     /* verify key and check exec */
@@ -119,10 +121,11 @@ this.requestListener=async function(req,res){
       let obj=new this.exec[exec];
       if(typeof obj.init==='function'){
         result=await obj.init(post);
+        isGood=true;
       }
     }
     /* result statement */
-    if(result){
+    if(isGood){
       return this.result(res,JSON.stringify(result),200);
     }
     /* last statement */

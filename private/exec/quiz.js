@@ -11,6 +11,7 @@ this.fso=FS;
 this.topicFile=this.root+'topic.json';
 this.scoreFile=this.root+'score.json';
 this.quizDir=this.root+'quiz/';
+this.examDir=this.root+'exam/';
 /* init */
 this.init=async function(post){
   if(!post.hasOwnProperty('table')){
@@ -36,12 +37,26 @@ this.init=async function(post){
 };
 /* exam */
 this.exam=async function(post){
-  if(!post.hasOwnProperty('method')
-    ||!post.hasOwnProperty('tid')){
+  if(!post.hasOwnProperty('username')
+    ||!post.hasOwnProperty('tid')
+    ||!post.hasOwnProperty('method')){
     return false;
   }
-  let path=this.quizDir+post.tid+'.json';
-  if(!await this.isFile(path)){return false;}
+  let now=(new Date).getTime(),
+  def={
+    username:post.username,
+    tid:post.tid,
+    time:now,
+    expired:now+(10*60*1000),
+  },
+  path=this.examDir+post.username+'.'+post.tid+'.json';
+  if(await this.isFile(path)){
+    /* create the file */
+    await this.fs.writeFile(
+      path,
+      JSON.stringify(def)
+    );
+  }
   let content=await this.fs.readFile(path)
     .then(r=>r).catch(e=>null);
   if(!content){return false;}
@@ -51,9 +66,20 @@ this.exam=async function(post){
   }catch(e){
     return false;
   }
-  data=Array.isArray(data)?data:[];
-  
-  
+  if(typeof data!=='object'&&data===null){
+    return false;
+  }
+  if(data.expired<now){
+    return false;
+  }
+  if(post.method=='start'){
+    return data;
+  }
+  else if(post.method=='verify'){
+    
+    
+  }
+  return false;
 };
 /* quiz -- question */
 this.quiz=async function(post){

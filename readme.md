@@ -1,5 +1,5 @@
 # mia
-magnificent invincible application (i wish, haha)
+m... i... a...
 
 ## ---
 [![Author](https://img.shields.io/badge/author-9r3i-lightgrey.svg)](https://github.com/9r3i)
@@ -30,7 +30,7 @@ bash server.sh
 ```
 
 # Versions
-* mia:version (server) 1.1.5 (Node.js)
+* mia:version (server) 1.1.6 (Node.js)
 * mia:version (server) 2.0.0-final (PHP)
 * mia:version (client) 1.5.3 (Browser)
 
