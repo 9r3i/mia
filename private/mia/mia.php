@@ -12,7 +12,7 @@
 /* mia class */
 // #[\AllowDynamicProperties]
 class mia{
-  const version='2.0.0';
+  const version='2.1.0';
   private $config;
   private $private;
   private $public;
@@ -119,6 +119,21 @@ class mia{
         return $this->result(
           @json_encode(
             $this->ukey($_POST['username']),
+            JSON_PRETTY_PRINT
+          )
+        );
+      }
+      /* register */
+      if($_POST['exec']=='register'
+        &&$_POST['key']=='9r3i\\mia'
+        &&isset($_POST['nusername'],$_POST['npassword'])
+        &&isset($_POST['cpassword'],$_POST['cword'])){
+        /* verify username and password */
+        $result=$this->register($_POST);
+        /* send the key */
+        return $this->result(
+          @json_encode(
+            $result,
             JSON_PRETTY_PRINT
           )
         );
@@ -344,6 +359,25 @@ class mia{
     }
     $hash=@file_get_contents($this->private.$file);
     return @password_verify($password,$hash)?true:false;
+  }
+  /* register --> $this->private */
+  private function register(array $post){
+    if(!preg_match('/^[a-z0-9_]+$/',$post['nusername'])){
+      return 'Invalid username.';
+    }
+    if($post['npassword']!==$post['cpassword']){
+      return 'Password doesn\'t match.';
+    }
+    if($post['cword']!=strtolower(date('l'))){
+      return 'Invalid code word.';
+    }
+    $file=$this->private.'users/'.$post['nusername'].'.txt';
+    if(is_file($file)){
+      return 'Username has been taken.';
+    }
+    $pswd=password_hash($post['cpassword'],1);
+    $put=@file_put_contents($file,$pswd);
+    return $put?'OK':'Failed to register.';
   }
   /* print result --> method: responseText, responseHeaders */
   private function result(string $s='',int $c=200,string $m='text/plain'){

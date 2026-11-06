@@ -31,7 +31,7 @@ bash server.sh
 
 # Versions
 * mia:version (server) 1.2.0 (Node.js)
-* mia:version (server) 2.0.0-final (PHP)
+* mia:version (server) 2.1.0 (PHP)
 * mia:version (client) 1.6.0 (Browser)
 
 # Sample
