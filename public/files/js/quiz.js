@@ -744,8 +744,7 @@ this.routers=[
     qbut=app.element('button',{
       'class':'button-green other-button',
       'data-tid':query.id,
-    }).text('Add Question')
-      .appendTo(form).clickOn(function(){
+    }).text('Add Question').clickOn(function(){
       this.mia.go('question.js?tid='+this.dataset.tid)
     });
     view.save=save;
@@ -776,6 +775,9 @@ this.routers=[
       pre.remove();
     });
     if(def.method=='add'){return;}
+    if(def.method=='edit'){
+      qbut.appendTo(form);
+    }
     /* ---------- [QUESTION] ---------- */
     let loader=app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content),
     ganjel=app.element('div',{'class':'content-separator'}).appendTo(GLOBALS.content),
