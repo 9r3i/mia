@@ -30,9 +30,9 @@ bash server.sh
 ```
 
 # Versions
-* mia:version (server) 1.1.6 (Node.js)
+* mia:version (server) 1.2.0 (Node.js)
 * mia:version (server) 2.0.0-final (PHP)
-* mia:version (client) 1.5.3 (Browser)
+* mia:version (client) 1.6.0 (Browser)
 
 # Sample
 [Sample Demo](https://rawfo.vercel.app/9r3i/mia/master/public/index.html)

@@ -415,6 +415,57 @@ iframe{
   
 }
 
+/* exam */
+.exam-timer{
+  background-color:#f9f9f9;
+  color:#333;
+  font-weight:bold;
+  position:fixed;
+  z-index:99;
+  right:1rem;
+  top:1rem;
+}
+.exam-error{
+  font-size:1.1rem;
+}
+.exam-question{
+  font-size:1.1rem;
+  margin-bottom:1rem;
+}
+.exam-answer{
+  padding:0.5rem;
+  margin-bottom:0.5rem;
+  background-color:#eee;
+}
+.exam-answer:hover{
+  background-color:#ddd;
+}
+.exam-answered{
+  background-color:#b73;
+  color:#fff;
+  animation:blink 0.3s infinite 0s;
+}
+@keyframes blink{
+  0%{background-color:#fff;color:#333;}
+  25%{background-color:#b73;color:#fff;}
+  50%{background-color:#fff;color:#333;}
+  75%{background-color:#b73;color:#fff;}
+  100%{background-color:#fff;color:#333;}
+}
+
+/* score */
+.score{
+  margin-bottom:0.5rem;
+  border:0.01rem solid #ddd;
+}
+.score:hover{
+  background-color:#fed;
+}
+.score-content{
+  font-size:0.9rem;
+  margin:0.3rem;
+}
+
 /* editor */
 .editor{
   margin:0rem;
@@ -478,6 +529,9 @@ iframe{
 }
 .login-shake{
   animation:shake 0.3s ease 0s;
+}
+.login .other-button{
+  margin-left:1rem;
 }
 @keyframes shake{
   0%{margin:4rem auto 5rem;}

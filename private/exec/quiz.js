@@ -39,18 +39,20 @@ this.init=async function(post){
 this.exam=async function(post){
   if(!post.hasOwnProperty('username')
     ||!post.hasOwnProperty('tid')
+    ||!post.hasOwnProperty('minute')
     ||!post.hasOwnProperty('method')){
     return false;
   }
   let now=(new Date).getTime(),
+  minute=parseInt(post.minute,10),
   def={
     username:post.username,
     tid:post.tid,
     time:now,
-    expired:now+(10*60*1000),
+    expired:now+(minute*60*1000),
   },
   path=this.examDir+post.username+'.'+post.tid+'.json';
-  if(await this.isFile(path)){
+  if(!await this.isFile(path)){
     /* create the file */
     await this.fs.writeFile(
       path,
@@ -70,7 +72,7 @@ this.exam=async function(post){
     return false;
   }
   if(data.expired<now){
-    return false;
+    //return false;
   }
   if(post.method=='start'){
     return data;

@@ -13,7 +13,7 @@
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:153,
+  value:160,
   writable:false,
 });
 /* the version */
@@ -233,6 +233,20 @@ this.__proto__.login=async function(data={}){
     body.append(k,data[k]);
   }
   body.append('exec','login');
+  body.append('key','9r3i\\mia');
+  return await fetch(this.host,{
+    mode:'cors',
+    method:'POST',
+    body,
+  }).then(r=>r.text());
+};
+/* register request, @return: string of key */
+this.__proto__.register=async function(data={}){
+  let body=new FormData;
+  for(let k in data){
+    body.append(k,data[k]);
+  }
+  body.append('exec','register');
   body.append('key','9r3i\\mia');
   return await fetch(this.host,{
     mode:'cors',

@@ -35,7 +35,7 @@ exports.mia=function(port=9301,host='127.0.0.1',root){
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:116,
+  value:120,
   writable:false,
 });
 /* the version */
@@ -105,7 +105,7 @@ this.requestListener=async function(req,res){
     delete post.key;
     delete post.user;
     delete post.exec;
-    console.log('   ','POST',post);
+    console.log('post',post);
 
     /* login */
     if(exec=='login'&&key=='9r3i\\mia'
@@ -115,6 +115,15 @@ this.requestListener=async function(req,res){
         result=this.ukey(post.username);
         isGood=true;
       }
+    }
+    /* register */
+    if(exec=='register'&&key=='9r3i\\mia'
+      &&post.hasOwnProperty('cword')
+      &&post.hasOwnProperty('nusername')
+      &&post.hasOwnProperty('npassword')
+      &&post.hasOwnProperty('cpassword')){
+      result=await this.register(post);
+      isGood=true;
     }
     /* verify key and check exec */
     if(this.vkey(key)&&this.exec.hasOwnProperty(exec)){
@@ -155,6 +164,33 @@ this.requestListener=async function(req,res){
 
   /* send the response */
   return this.result(res,content,200,mime);
+};
+/* register */
+this.register=async function(post){
+  if(!post.nusername.match(/^[a-z0-9_]+$/)){
+    return 'Invalid username.';
+  }
+  if(post.npassword!==post.cpassword){
+    return 'Password doesn\'t match.';
+  }
+  let today=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][(new Date).getDay()];
+  if(post.cword!==today){
+    return 'Invalid code word.';
+  }
+  let path=[
+    this.private,
+    'user',
+    post.nusername+'.xp',
+  ].join('/'),
+  accessed=await this.fs
+    .access(path,this.fso.constants.F_OK)
+    .then(e=>e?false:true)
+    .catch(e=>false);
+  if(accessed){
+    return 'Username has been taken.';
+  }
+  await this.vilify(post.nusername,post.npassword);
+  return 'OK';
 };
 /* verify key */
 this.vkey=function(key){

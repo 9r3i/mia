@@ -69,8 +69,48 @@ this.routers=[
     GLOBALS.content.html();
     /* search form */
     app.searchForm().appendTo(GLOBALS.content);
-    
-    
+    /* each loop */
+    res=[];
+    for(let username in posts){
+      let post=posts[username],
+      length=Object.values(post).length,
+      total=Object.values(post)
+        .reduce((b,c)=>parseInt(b,10)+parseInt(c,10),0),
+      bend=length*100,
+      score=(total/bend*100).toFixed(2);
+      res.push({
+        username,
+        score,
+        length,
+      });
+    }
+    res.sort(function(a,b){
+      if(a.score>b.score){
+        return -1;
+      }
+      if(a.score<b.score){
+        return 1;
+      }
+      if(a.length>b.length){
+        return -1;
+      }
+      if(a.length<b.length){
+        return 1;
+      }
+      return 0;
+    });
+    let counter=0;
+    for(let r of res){
+      counter++;
+      app.element('div',{
+        'class':'score',
+        'data-title':r.username,
+      },[
+        app.element('div',{
+          'class':'score-content',
+        }).text(counter+'. '+r.username+' --> '+r.score+' ('+r.length+' exams)'),
+      ]).appendTo(GLOBALS.content);
+    }
   }],
   /* exam page */
   ['exam.js','Exam',async function(query,app,env){
@@ -83,22 +123,182 @@ this.routers=[
       let next=encodeURIComponent('exam.js?id='+query.id);
       return app.go('login.js?next='+next);
     }
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
-    
-    
+    /* check the timer */
+    let timer=document.getElementById('exam-timer');
+    if(timer&&timer.dataset.tid!=query.id){
+      setTimeout(e=>{
+        app.go('exam.js?id='+timer.dataset.tid);
+      },2000);
+      return env.text(
+        app,
+        'The exam is stil runing.\n'
+        +'Redirecting now...'
+      );
+    }
+    /* send the warning */
+    if(timer){
+      return await env.start(timer);
+    }
+    else{
+      let text='Do you want to exam this topic?\n\n'
+        +'Warning! This is one time ticket.\n'
+        +'You won\'t be able to do this exam twice.',
+      yes=await app.confirm(text);
+      if(!yes){
+        return app.go('topic.js?id='+query.id);
+      }
+    }
+    /* load all data */
+    let loader=app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content),
+    data=await env.load(app,query.id);
+    loader.remove();
+    /* check all data */
+    if(!data.quiz||!data.topic||!data.exam){
+      return env.text(app,'Error: Failed to load data.');
+    }
+    if(data.topic.username==app.user){
+      return env.text(app,'Error: Unable to exam your own topic.');
+    }
+    if(data.score&&data.score.hasOwnProperty(query.id)){
+      return env.text(
+        app,
+        'You\'ve been scored this exam with: '
+          +data.score[query.id]+' score'
+      );
+    }
+    if(parseInt(data.exam.expired,10)<(new Date).getTime()){
+      return env.text(
+        app,
+        'The time is up.\n'
+        +'Expired on '+app.parseDatetime(data.exam.expired)
+      );
+    }
+    let header=app.element('h3')
+      .text(data.topic.title)
+      .appendTo(GLOBALS.content);
+    if(!timer){
+      timer=app.element('button',{
+        'class':'exam-timer',
+        'id':'exam-timer',
+        'data-tid':query.id,
+      }).text('Starting...').appendTo(document.body);
+      timer.answer={};
+      timer.data=data;
+      timer.timing=env.timing(app,timer,data.exam.expired,env.done);
+      timer.clickOn(async function(){
+        let yes=await app.confirm('End the exam now?');
+        if(!yes){return;}
+        env.done(app,this.dataset.tid,this.answer,this.data);
+        clearInterval(this.timing);
+        this.remove();
+        return await app.alert('Time\'s up!');
+      });
+    }
+    return await env.start(timer);
   },{
+    start:async function(timer,i=0){
+      let gc=GLOBALS.content,
+      quiz=timer.data.quiz,
+      answer=timer.answer,
+      id=i!=0?parseInt(i,10):0,
+      post=quiz[id],
+      app=timer.mia,
+      next=quiz.length-1>id?id+1:0,
+      qoer=(id+1)+'/'+quiz.length;
+      gc.html();
+      let question=app.element('div',{
+        'class':'exam-question',
+      }).text(qoer+' - '+post.q).appendTo(gc);
+      for(let a of ['a','b','c','d']){
+        let opt=app.element('div',{
+          'class':'exam-answer',
+          'data-answer':a,
+          'data-id':post.id,
+        }).text(a.toUpperCase()+'. '+post[a]).appendTo(gc);
+        opt.env=this;
+        opt.next=next;
+        opt.timer=timer;
+        opt.clickOn(async function(){
+          this.timer.answer[this.dataset.id]=this.dataset.answer;
+          this.classList.add('exam-answered');
+          await this.mia.sleep(500);
+          if(this.next===0){
+            this.env.done(
+              this.timer.mia,
+              this.timer.dataset.tid,
+              this.timer.answer,
+              this.timer.data,
+            );
+            clearInterval(this.timer.timing);
+            this.timer.remove();
+            return await this.mia.alert('Answers are sent!');
+          }
+          return await this.env.start(this.timer,this.next);
+        });
+      }
+    },
+    done:async function(app,tid,answer,data){
+      let loader=app.loader(),
+      length=data.quiz.length,
+      point=0;
+      for(let q of data.quiz){
+        if(answer.hasOwnProperty(q.id)
+          &&answer[q.id]==q.x){
+          point+=1;
+        }
+      }
+      let score=Math.floor(point/length*100),
+      res=await app.post('quiz',{
+        table:'score',
+        score,
+        tid,
+        username:app.user,
+      }),
+      success=app.parseJSON(res);
+      loader.remove();
+      await app.alert(success?'Answers are sent.':'Failed to send the answer.');
+      return app.go('score.js');
+    },
+    timing:function(app,timer,expire,cb){
+      let res=setInterval(async e=>{
+        let now=(new Date).getTime(),
+        left=parseInt(expire,10)-now;
+        if(left<0){
+          if(typeof cb==='function'){
+            cb(app,timer.dataset.tid,timer.answer,timer.data);
+          }
+          timer.remove();
+          clearInterval(res);
+          return await app.alert('Time\'s up!');
+        }
+        let right=(left/1000).toFixed(3)
+          .toString().split('.'),
+        minute=Math.floor(parseInt(right[0],10)/60),
+        second=parseInt(right[0],10)-(minute*60),
+        read=[
+          minute.toString().padStart(2,'0'),
+          second.toString().padStart(2,'0'),
+        ].join(':')+'.'+right[1];
+        timer.text(read);
+      },193);
+      return res;
+    },
+    text:function(app,text){
+      return app.element('div',{'class':'exam-error'}).text(text).appendTo(GLOBALS.content);
+    },
     load:async function(app,tid){
       /* question */
       let result={
-        quiz:[],
-        topic:null,
+        exam:null,
         score:null,
-        exam:null
+        topic:null,
+        quiz:null,
       },
       json=await app.get('files/db/quiz/'+tid+'.json'),
       data=app.parseJSON(json),
-      posts=Array.isArray(data)?data:[];
-      result.quiz=posts;
+      posts=Array.isArray(data)?data:[],
+      minute=posts.length||1;
+      result.quiz=posts,
       /* topic */
       json=await app.get('files/db/topic.json'),
       data=app.parseJSON(json),
@@ -112,13 +312,23 @@ this.routers=[
       /* score */
       json=await app.get('files/db/score.json'),
       data=app.parseJSON(json),
-      posts=typeof data==-'object'&&data!==null?data:{};
+      posts=typeof data==='object'&&data!==null?data:{};
       for(let post in posts){
-        if(post==tid){
-          result.score=post;
+        if(post==app.user){
+          result.score=posts[post];
           break;
         }
       }
+      /* exam */
+      json=await app.post('quiz',{
+        table:'exam',
+        method:'start',
+        username:app.user,
+        tid,
+        minute,
+      }),
+      data=app.parseJSON(json);
+      result.exam=typeof data==='object'&&data!==null?data:null;
       /* result */
       return result;
     },
@@ -173,11 +383,6 @@ this.routers=[
       'class':'button-red post-edit',
       'data-id':post.id,
     }).text('Exam').clickOn(async function(){
-      let text='Do you want to exam this topic?\n\n'
-        +'Warning! This is one time ticket.\n'
-        +'You won\'t be able to do this exam twice.',
-      yes=await app.confirm(text);
-      if(!yes){return;}
       this.mia.go('exam.js?id='+this.dataset.id);
     });
     if(app.key&&app.user==post.username){
@@ -358,6 +563,82 @@ this.routers=[
       }
       return result;
     },
+  }],
+  /* register page */
+  ['register.js','Register',async function(query,app,env){
+    let username=app.element('input',{
+      value:'',
+      placeholder:'New Username',
+      maxlength:100,
+      type:'text',
+      name:'nusername',
+      autocomplete:'off',
+      required:true,
+    }),
+    password=app.element('input',{
+      value:'',
+      placeholder:'New Password',
+      maxlength:100,
+      type:'password',
+      name:'npassword',
+      autocomplete:'off',
+      required:true,
+    }),
+    cpassword=app.element('input',{
+      value:'',
+      placeholder:'Confirm Password',
+      maxlength:100,
+      type:'password',
+      name:'cpassword',
+      autocomplete:'off',
+      required:true,
+    }),
+    cword=app.element('input',{
+      value:'',
+      placeholder:'Code Word',
+      maxlength:100,
+      type:'text',
+      name:'cword',
+      autocomplete:'off',
+      required:true,
+    }),
+    submit=app.element('button',{'class':'button-tosca'}).text('Register'),
+    login=app.element('div',{'class':'login'},[
+      app.element().text('New Username'),
+      username,
+      app.element().text('New Password'),
+      password,
+      app.element().text('Confirm Password'),
+      cpassword,
+      app.element().text('Code Word'),
+      cword,
+      submit,
+    ]).appendTo(GLOBALS.content);
+    submit.onclick=async ()=>{
+      let stext=submit.innerText;
+      submit.disabled=true;
+      submit.text('Checking...');
+      let data=app.formSerialize(),
+      res=await app.register(data),
+      rtext=app.parseJSON(res);
+      rtext=typeof rtext==='string'?rtext:res;
+      if(rtext.toUpperCase()!='OK'){
+        let pre=app.element('pre').text(rtext);
+        login.insertBefore(pre,submit);
+        submit.text('Failed');
+        login.classList.add('login-shake');
+        await app.sleep(1000);
+        submit.disabled=false;
+        submit.text(stext);
+        pre.remove();
+        login.classList.remove('login-shake');
+        return;
+      }
+      if(query.hasOwnProperty('next')){
+        return app.go(query.next);
+      }
+      return app.go('login.js');
+    };
   }],
   /* edit page -- topic */
   ['edit.js','Edit',async function(query,app,env){
@@ -669,12 +950,20 @@ this.routers=[
       required:true,
     }),
     submit=app.element('button',{'class':'button-orange'}).text('Login'),
+    register=app.element('button',{
+      'class':'button-tosca other-button',
+    }).text('Register').clickOn(function(){
+      let next=query.hasOwnProperty('next')
+        ?'?next='+encodeURIComponent(query.next):'';
+      return app.go('register.js'+next);
+    }),
     login=app.element('div',{'class':'login'},[
       app.element().text('Username'),
       username,
       app.element().text('Password'),
       password,
       submit,
+      register,
     ]).appendTo(GLOBALS.content);
     submit.onclick=async ()=>{
       let stext=submit.innerText;
