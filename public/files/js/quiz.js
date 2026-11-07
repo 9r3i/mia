@@ -49,15 +49,6 @@ this.routers=[
           +(qdata.length>1?'s':'');
       if(span){span.text(text);}
     }
-    
-    
-    /**
-    app.element('pre').content(
-      app.likeJSON(posts,2)
-    ).appendTo(GLOBALS.content);
-    //*/
-    
-    //await app.alert(app.likeJSON({data,res,json},3));
   }],
   /* score page */
   ['score.js','Score',async function(query,app,env){
