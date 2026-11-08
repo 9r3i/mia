@@ -30,12 +30,12 @@ const FBAPP  = initializeApp(config()),
         username: null,
         photo: null,
         online: null,
-      };
-
-/* anonymous function to initialize */
-;(async function(){
+      },
+MIA=new mia;
+MIA.routes.push(['','Login',async function(query,app,env){
+/* clear the field */
 document.body.innerHTML='';
-/* inutial statement */
+loader();
 onAuthStateChanged(FBAUTH,async user=>{
   if(user){
     FBUSER.uid=user.uid;
@@ -46,75 +46,222 @@ onAuthStateChanged(FBAUTH,async user=>{
     FBUSER.admin=data.admin;
     FBUSER.username=data.username;
     FBUSER.online=data.online;
-    await write('users/'+user.uid,data);
-    pre('logged in', data); // goto chat page
+    await onlineUpdate();
+    return friendPage();
   }else{
-    pre('logged out'); // goto login page
+    return loginPage();
   }
 });
+}]);
+MIA.routes.push(['chat','Chat',async function(query,app,env){
+/* clear the field */
+document.body.innerHTML='';
+loader();
+if(!query.hasOwnProperty('uid')){
+  return app.error('Not Found.',404);
+}
+onAuthStateChanged(FBAUTH,async user=>{
+  if(user){
+    FBUSER.uid=user.uid;
+    FBUSER.email=user.email;
+    let data=await read('users/'+user.uid);
+    data.online=(new Date).getTime();
+    FBUSER.photo=data.photo;
+    FBUSER.admin=data.admin;
+    FBUSER.username=data.username;
+    FBUSER.online=data.online;
+    await onlineUpdate();
+    return chatPage(query.uid);
+  }else{
+    return loginPage();
+  }
+});
+}]);
 
+
+/* using anonymous function to initialize */
+;(async function(){
 /* initialize */
-let text='yang takkan pernah terlupakan selamanya dalam hidupku\n'
-    +'meskipun hanya sekejap saja\n'
-    +'meresap dalam jiwa\n'
-    +'mengakar dalam hati\n'
-    +'tertanam dalam sukma\n'
-    +'terpatri dalam sanubari\n';
-
-/**
-pre('write',await write('text/binar',data));
-let ndata=await read('text/binar');
-pre('read',ndata);
-pre('decrypt',bin.decrypt(ndata.encrypted));
-//*/
-
-//pre('test',(new Date).getTime().toString(36));
-let nos=encrypt(text);
-pre('encrypt',nos);
-pre('decrypt',decrypt(nos));
-  
-//pre('isLogin',await isLogin());
+MIA.init();
+/* end of statement */
 })();
 
-/**
--------------
-data.map
--------------
-users/<uid> {
-  email: <email>,
-  username: '',
-  photo: '',
-  admin: false,
-  online: (new Date).getTime(),
+
+/* chat page -- @require: div */
+async function chatPage(uid){
+  document.body.innerHTML='';
+  MIA.title('Chat');
+  const content=div('div',{'class':'content'}),
+  input=div('input',{'data-uid':uid,placeholder:'Message...'}),
+  footer=div('div',{'class':'footer'},[input]),
+  main=div('div',{id:'main'},[content,footer]).appendTo(document.body),
+  user=await read('users/'+uid);
+  listen('chat',function(data){
+    content.innerHTML='';
+    for(let cid in data){
+      chatMessage(content,cid,data[cid],user);
+    }
+    document.body.scrollIntoView({behavior:'smooth',block:'end'});
+  },e=>MIA.alert(e));
+  input.onkeyup=async function(e){
+    if(e.keyCode!==13||this.value==''){return;}
+    this.đisabled=true;
+    await sendChat(this.dataset.uid,this.value);
+    this.đisabled=false;
+    this.value='';
+  };
 }
--------------
-friends/<uid> {
-  uid: <uid>,
-  email: <email>,
+
+/* generate chat message as listening -- @require: div */
+function chatMessage(content,cid,data,user){
+  let time=MIA.parseDatetime(data.time),
+  text=decrypt(data.message),
+  justify=data.to==user.uid?'left':'right',
+  photo=data.to==user.uid?FBUSER.photo:user.photo,
+  username=data.to==user.uid?FBUSER.username:user.username,
+  img=div('img',{src:photo,alt:username}),
+  mimg=div('div',{'class':'message-photo'},[img]),
+  mtext=div('div',{'class':'message-text'}).text(text),
+  mtime=div('div',{'class':'message-time'}).text(time),
+  dm=div('div',{'class':'message message-'+justify,'data-cid':cid},[
+    data.to==user.uid?mimg:'',
+    div('div',{'class':'message-wrap message-wrap-'+justify},[
+      mtime,
+      mtext,
+    ]),
+    data.from==user.uid?mimg:'',
+  ]).appendTo(content);
 }
--------------
-chat/<cid> {
-  to: <uid>,
-  from: <uid>,
-  time: (new Date).getTime(),
-  message: '',
-  received: false,
-  read: false,
+
+/* clear all chat */
+async function clearChat(){
+  return await write('chat',null);
 }
--------------
-**/
+
+/* friend page -- @require: div */
+async function friendPage(){
+  document.body.innerHTML='';
+  MIA.title('Friends');
+  let content=div('div',{'class':'content'}),
+  main=div('div',{id:'main'},[content]).appendTo(document.body);
+  div('button',{'class':'button-red button-float-right'}).text('Logout').appendTo(content).clickOn(async function(){
+    let yes=await MIA.confirm('Logout now?\n'+FBUSER.username);
+    if(!yes){return;}
+    let load=loader();
+    await logout();
+    load.remove();
+  });
+  if(FBUSER.admin){
+    div('button',{'class':'button-purple button-float-right'}).text('Clear').appendTo(content).clickOn(async function(){
+      let yes=await MIA.confirm('Clear all chat?');
+      if(!yes){return;}
+      let load=loader();
+      await clearChat();
+      load.remove();
+    });
+  }
+  div('h1').appendTo(content).text('Friends');
+  let cload=div('div',{'class':'content-loader'}).appendTo(content),
+  data=await read('friends/'+FBUSER.uid);
+  cload.remove();
+  for(let uid in data){
+    let user=data[uid],
+    dimg=div('div',{'class':'post-image'},[
+      div('img',{src:user.photo}),
+    ]),
+    ptitle=div('div',{'class':'post-title'}).text(user.username),
+    pemail=div('div',{'class':'post-time'}).text(
+      user.email+'\n'+MIA.parseDatetime(user.online)
+    ),
+    button=div('button',{'class':'button-tosca','data-uid':uid}).text('Chat').clickOn(function(){
+      MIA.go('chat?uid='+this.dataset.uid);
+    }),
+    post=div('div',{'class':'post'},[
+      dimg,ptitle,pemail,
+      div('div',{'class':'post-button'},[button]),
+    ]).appendTo(content);
+  }
+}
+
+/* login page -- @require: div */
+function loginPage(){
+  document.body.innerHTML='';
+  MIA.title('Login');
+    let email=div('input',{
+      value:'',
+      placeholder:'Email',
+      maxlength:100,
+      type:'email',
+      name:'email',
+      autocomplete:'off',
+      required:true,
+    }),
+    password=div('input',{
+      value:'',
+      placeholder:'Password',
+      maxlength:100,
+      type:'password',
+      name:'password',
+      autocomplete:'off',
+      required:true,
+    }),
+    submit=div('button',{'class':'button-orange'}).text('Login'),
+    loginForm=div('div',{'class':'login'},[
+      div().text('Email'),
+      email,
+      div().text('Password'),
+      password,
+      submit,
+    ]).appendTo(document.body);
+    submit.onclick=async ()=>{
+      let stext=submit.innerText;
+      submit.disabled=true;
+      submit.text('Checking...');
+      let res=await login(email.value,password.value);
+      if(!res){
+        submit.text('Denied');
+        loginForm.classList.add('login-shake');
+        let text='Invalid username or password.',
+        pre=div('pre').text(text);
+        loginForm.insertBefore(pre,submit);
+        await sleep(1000);
+        submit.disabled=false;
+        submit.text(stext);
+        pre.remove();
+        loginForm.classList.remove('login-shake');
+        return;
+      }
+      submit.text('Redirecting...');
+    };
+}
+
+/* online statement update */
+async function onlineUpdate(){
+  FBUSER.online=(new Date).getTime();
+  return await write('users/'+FBUSER.uid,FBUSER);
+}
+
+/* add a friend */
+async function addFriend(uid){
+  let data=await read('users/'+uid);
+  return await write(
+    ['friends',FBUSER.uid,uid].join('/'),
+    data
+  );
+};
 
 /* send chat */
 async function sendChat(to,message){
   let data={
     to,
-    from:uid,
-    time: (new Date).getTime(),
-    message,
-    received: false,
-    read: false,
+    from:FBUSER.uid,
+    time:(new Date).getTime(),
+    message:encrypt(message),
+    received:false,
+    read:false,
   };
-}
+  return await send('chat',data);
+};
 
 /* decrypt -- @require: binar */
 function decrypt(s){
@@ -131,7 +278,7 @@ function decrypt(s){
 /* encrypt -- @require: binar */
 function encrypt(s){
   s=typeof s==='string'?s:JSON.stringify(s);
-  let a=Math.ceil(Math.random()*255),
+  let a=Math.ceil(Math.random()*99),
   b='abcdefghijklmnopqrstuvwxyz',
   c=b.split('').sort(r=>Math.random()-0.5)
     .join('').substr(0,9),
@@ -186,7 +333,71 @@ async function signup(email,pswd){
   return await createUserWithEmailAndPassword(FBAUTH,email,pswd).then(c=>c.user.uid).catch(e=>false);
 };
 
-/* firebase config */
+/* loader -- standalone */
+function loader(load=true){
+  let el=document.getElementById('loader');
+  if(el){el.remove();}
+  if(load===false){return;}
+  el=document.createElement('div');
+  el.classList.add('loader');
+  el.id='loader';
+  document.body.append(el);
+  return el;
+};
+
+/* sleep -- standalone */
+function sleep(ms){
+  return new Promise(resolve=>{
+    setTimeout(resolve,ms);
+  });
+};
+
+/* element creator -- standalone */
+function div(name='div',attr={},children=[]){
+  name=typeof name==='string'?name.toLowerCase():'div';
+  attr=typeof attr==='object'&&attr!==null?attr:{};
+  children=Array.isArray(children)?children:[];
+  let main=document.createElement(name),
+  notext=['option','a'];
+  /* set attributes */
+  for(let k in attr){
+    main.setAttribute(k,attr[k]);
+  }
+  /* add children */
+  for(let child of children){
+    main.append(child);
+  }
+  /* add object property and method */
+  main.attr=attr;
+  main.html=function(html=''){
+    this.innerHTML=html;
+    return this;
+  };
+  main.text=notext.indexOf(name)>=0?''
+    :function(text=''){
+    this.innerText=text;
+    return this;
+  };
+  main.content=function(content=''){
+    this.textContent=content;
+    return this;
+  };
+  main.appendTo=function(el){
+    if(typeof el==='object'&&el!==null
+    &&typeof el.append==='function'){
+      el.append(this);
+    }return this;
+  };
+  main.clickOn=function(cb){
+    if(typeof cb==='function'){
+      this.onclick=cb;
+    }return this;
+  };
+  /* return the element object */
+  return main;
+};
+
+/* firebase config -- standalone */
 function config(i=0){
   let a=[
     'eyJhcGlLZXkiOiJBSXphU3lDSEpBYWw3Q2ZEaDNkU2RUaHZobUUxWld0MTZ6TE16WG8iLCJhdXRoRG9tYWluIjoibW9iaWxlMjAwLmZpcmViYXNlYXBwLmNvbSIsInByb2plY3RJZCI6Im1vYmlsZTIwMCIsImRhdGFiYXNlVVJMIjoiaHR0cHM6Ly9tb2JpbGUyMDAtZGVmYXVsdC1ydGRiLmFzaWEtc291dGhlYXN0MS5maXJlYmFzZWRhdGFiYXNlLmFwcCIsImFwcElkIjoiMToxMTU0MTgzNTUwMjk6d2ViOmUwZjViZTg4NWQ0ZWViNjY4YWNiZGMiLCJzdG9yYWdlQnVja2V0IjoibW9iaWxlMjAwLmFwcHNwb3QuY29tIiwibWVzc2FnaW5nU2VuZGVySWQiOiIxMTU0MTgzNTUwMjkiLCJtZWFzdXJlbWVudElkIjoiRy0zM0c0MFc5OEQ0In0=',
@@ -197,12 +408,13 @@ function config(i=0){
   return c;
 }
 
-/* html pre dom */
-function pre(){
+/* html pre dom -- standalone */
+async function pro(){
   let res=[];
   for(let s of arguments){
     res.push(typeof s==='string'?s:likeJSON(s,3));
   }
+  if(MIA){return await MIA.alert(res.join('\n'));}
   let el=document.createElement('pre');
   document.body.append(el);
   el.innerText=res.join(' -- ');
@@ -214,7 +426,7 @@ function pre(){
   return el;
 }
 
-/* parse object to json string -- stand-alone */
+/* parse object to json string -- standalone */
 function likeJSON(obj,limit,space,pad){
   let rtext='';  
   space=space?parseInt(space,0xa):0x0;
@@ -280,5 +492,10 @@ function likeJSON(obj,limit,space,pad){
     rtext+=(' ').repeat(pad*space)+'"['+(typeof obj)+']"\r\n';
   }return rtext;
 };
+
+/* test word -- standalone */
+function testWord(){
+  return 'yang takkan pernah terlupakan selamanya dalam hidupku\nmeskipun hanya sekejap saja\nmeresap dalam jiwa\nmengakar dalam hati\ntertanam dalam sukma\nterpatri dalam sanubari'
+}
 
 
