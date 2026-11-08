@@ -99,7 +99,10 @@ async function chatPage(uid){
   listen('chat',function(data){
     content.innerHTML='';
     for(let cid in data){
-      chatMessage(content,cid,data[cid],user);
+      if((data[cid].to==FBUSER.uid&&data[cid].from==user.uid)
+        ||(data[cid].from==FBUSER.uid&&data[cid].to==user.uid)){
+        chatMessage(content,cid,data[cid],user);
+      }
     }
     document.body.scrollIntoView({behavior:'smooth',block:'end'});
   },e=>MIA.alert(e));
