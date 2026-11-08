@@ -117,7 +117,7 @@ async function chatPage(uid){
 
 /* generate chat message as listening -- @require: div */
 function chatMessage(content,cid,data,user){
-  let time=MIA.parseDatetime(data.time),
+  let time=chatMessageTime(data.time),
   text=decrypt(data.message),
   justify=data.to==user.uid?'left':'right',
   photo=data.to==user.uid?FBUSER.photo:user.photo,
@@ -134,6 +134,38 @@ function chatMessage(content,cid,data,user){
     ]),
     data.from==user.uid?mimg:'',
   ]).appendTo(content);
+}
+
+function chatMessageTime(time,format='en-US'){
+  let now=new Date(),
+  date=new Date(time),
+  options={
+    weekday:'long',
+    year:'numeric',
+    month:'long',
+    day:'numeric',
+    hour:'numeric',
+    minute:'numeric',
+  },
+  fdate=date.toLocaleDateString(format,options),
+  ndate=now.toLocaleDateString(format,options),
+  ptrn=/^(\w+),\s(\w+)\s(\d+),\s(\d+)\sat\s(\d+:\d+\s\w+)/i,
+  match=fdate.match(ptrn),
+  nope=ndate.match(ptrn);
+  if(match[4]==nope[4]){
+    if(match[2]==nope[2]
+      &&parseInt(nope[3])-parseInt(match[3])<7){
+      if(parseInt(nope[3])-parseInt(match[3])==1){
+        return 'Yesterday at '+match[5];
+      }
+      if(match[3]==nope[3]){
+        return match[5];
+      }
+      return match[1]+' at '+match[5];
+    }
+    return match[2]+' '+match[3]+' at '+match[5];
+  }
+  return fdate;
 }
 
 /* clear all chat */
