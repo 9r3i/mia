@@ -104,7 +104,8 @@ async function chatPage(uid){
   input=div('input',{'data-uid':uid,placeholder:'Message...'}),
   footer=div('div',{'class':'footer'},[input]),
   main=div('div',{id:'main'},[content,footer]).appendTo(document.body),
-  user=await read('users/'+uid);
+  user=FRIENDS.hasOwnProperty(uid)
+    ?FRIENDS[uid]:await read('users/'+uid);
   input.onkeyup=async function(e){
     if(e.keyCode!==13||this.value==''){return;}
     this.đisabled=true;
