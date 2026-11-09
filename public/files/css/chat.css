@@ -246,6 +246,20 @@ iframe{
   font-style:italic;
   color:#777;
 }
+.message .message-time i{
+  font-style:normal;
+  margin-right:0.3rem;
+  margin-left:0.1rem;
+  color:#999;
+}
+.message .message-time i.read{
+  color:#d95;
+}
+.message .message-time i.read:before,
+.message .message-time i.received:before{
+  content:"\2714";
+  margin-right:-0.9rem;
+}
 
 
 

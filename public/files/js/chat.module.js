@@ -31,7 +31,15 @@ const FBAPP  = initializeApp(config()),
         photo: null,
         online: null,
       },
-MIA=new mia;
+MIA=new mia,
+HOST=[
+  'http://127.0.0.1:9301/', // --> 0
+  'http://127.0.0.1:9301/files/', // --> 1
+  'https://raw.githubusercontent.com/9r3i/mia/master/public/files/',
+  'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
+],
+NOTE=new Audio(HOST[1]+'audio/tennis.mp3');
+
 MIA.routes.push(['','Login',async function(query,app,env){
 /* clear the field */
 document.body.innerHTML='';
@@ -98,13 +106,18 @@ async function chatPage(uid){
   user=await read('users/'+uid);
   listen('chat',function(data){
     content.innerHTML='';
+    let lastTo=null;
     for(let cid in data){
       if((data[cid].to==FBUSER.uid&&data[cid].from==user.uid)
         ||(data[cid].from==FBUSER.uid&&data[cid].to==user.uid)){
-        chatMessage(content,cid,data[cid],user);
+        chatMessage(cid,data[cid],user);
+        lastTo=data[cid].to;
       }
     }
     document.body.scrollIntoView({behavior:'smooth',block:'end'});
+    if(lastTo&&lastTo==FBUSER.uid){
+      NOTE.play();
+    }
   },e=>MIA.alert(e));
   input.onkeyup=async function(e){
     if(e.keyCode!==13||this.value==''){return;}
@@ -116,16 +129,23 @@ async function chatPage(uid){
 }
 
 /* generate chat message as listening -- @require: div */
-function chatMessage(content,cid,data,user){
+function chatMessage(cid,data,user){
+  let content=document.querySelector('.content');
+  if(!content){return;}
+  //div('pre').text(likeJSON(data)).appendTo(content);
   let time=chatMessageTime(data.time),
   text=decrypt(data.message),
+  stime=div('span').text(time),
+  itime=div('i').html('&#10004;'),
   justify=data.to==user.uid?'left':'right',
   photo=data.to==user.uid?FBUSER.photo:user.photo,
   username=data.to==user.uid?FBUSER.username:user.username,
   img=div('img',{src:photo,alt:username}),
   mimg=div('div',{'class':'message-photo'},[img]),
   mtext=div('div',{'class':'message-text'}).text(text),
-  mtime=div('div',{'class':'message-time'}).text(time),
+  mtime=div('div',{'class':'message-time'},[
+    data.to==user.uid?itime:'',stime
+  ]),
   dm=div('div',{'class':'message message-'+justify,'data-cid':cid},[
     data.to==user.uid?mimg:'',
     div('div',{'class':'message-wrap message-wrap-'+justify},[
@@ -134,8 +154,31 @@ function chatMessage(content,cid,data,user){
     ]),
     data.from==user.uid?mimg:'',
   ]).appendTo(content);
+  if(data.from==FBUSER.uid){
+    if(data.read==true){
+      itime.classList.add('read');
+    }
+    if(data.received==true){
+      itime.classList.add('received');
+    }
+  }
+  if(data.to==FBUSER.uid&&data.read==false){
+    data.read=true;
+    data.received=true;
+    chatMessageUpdate(cid,data);
+  }
 }
 
+
+/*  */
+
+
+/* chat message update */
+async function chatMessageUpdate(cid,data){
+  return await write('chat/'+cid,data);
+}
+
+/* chat message time */
 function chatMessageTime(time,format='en-US'){
   let now=new Date(),
   date=new Date(time),
@@ -159,7 +202,7 @@ function chatMessageTime(time,format='en-US'){
         return 'Yesterday at '+match[5];
       }
       if(match[3]==nope[3]){
-        return match[5];
+        return 'Today at '+match[5];
       }
       return match[1]+' at '+match[5];
     }
