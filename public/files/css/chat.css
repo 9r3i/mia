@@ -490,6 +490,23 @@ iframe{
 .post-observer{
   
 }
+.post-notif:before{
+  content:attr(data-total);
+}
+.post-notif{
+  font-size:0.7rem;
+  width:1.5rem;
+  height:1.5rem;
+  line-height:1.5rem;
+  text-align:center;
+  vertical-align:middle;
+  background-color:#b33;
+  color:#fff;
+  border-radius:2rem;
+  position:absolute;
+  margin-top:-0.3rem;
+  margin-left:-1rem;
+}
 
 /* exam */
 .exam-timer{

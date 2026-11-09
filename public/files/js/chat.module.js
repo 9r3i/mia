@@ -38,7 +38,8 @@ HOST=[
   'https://raw.githubusercontent.com/9r3i/mia/master/public/files/',
   'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
 ],
-NOTE=new Audio(HOST[1]+'audio/tennis.mp3');
+NOTE=new Audio(HOST[2]+'audio/car-lock.mp3'),
+FRIENDS={};
 
 MIA.routes.push(['','Login',async function(query,app,env){
 /* clear the field */
@@ -99,26 +100,11 @@ MIA.init();
 async function chatPage(uid){
   document.body.innerHTML='';
   MIA.title('Chat');
-  const content=div('div',{'class':'content'}),
+  const content=div('div',{'class':'content','id':'content'}),
   input=div('input',{'data-uid':uid,placeholder:'Message...'}),
   footer=div('div',{'class':'footer'},[input]),
   main=div('div',{id:'main'},[content,footer]).appendTo(document.body),
   user=await read('users/'+uid);
-  listen('chat',function(data){
-    content.innerHTML='';
-    let lastTo=null;
-    for(let cid in data){
-      if((data[cid].to==FBUSER.uid&&data[cid].from==user.uid)
-        ||(data[cid].from==FBUSER.uid&&data[cid].to==user.uid)){
-        chatMessage(cid,data[cid],user);
-        lastTo=data[cid].to;
-      }
-    }
-    document.body.scrollIntoView({behavior:'smooth',block:'end'});
-    if(lastTo&&lastTo==FBUSER.uid){
-      NOTE.play();
-    }
-  },e=>MIA.alert(e));
   input.onkeyup=async function(e){
     if(e.keyCode!==13||this.value==''){return;}
     this.đisabled=true;
@@ -126,11 +112,30 @@ async function chatPage(uid){
     this.đisabled=false;
     this.value='';
   };
+  listen('chat',async function(data){
+    let content=document.querySelector('#content');
+    if(!content||!user){return;}
+    content.innerHTML='';
+    let total=0;
+    for(let cid in data){
+      if((data[cid].to==FBUSER.uid&&data[cid].from==user.uid)
+        ||(data[cid].from==FBUSER.uid&&data[cid].to==user.uid)){
+        if(data[cid].to==FBUSER.uid&&data[cid].received==false){
+          total++;
+        }
+        chatMessage(cid,data[cid],user);
+      }
+    }
+    document.body.scrollIntoView({behavior:'smooth',block:'end'});
+    if(total>0){
+      NOTE.play();
+    }
+  },e=>console.error(e));
 }
 
 /* generate chat message as listening -- @require: div */
 function chatMessage(cid,data,user){
-  let content=document.querySelector('.content');
+  let content=document.querySelector('#content');
   if(!content){return;}
   //div('pre').text(likeJSON(data)).appendTo(content);
   let time=chatMessageTime(data.time),
@@ -168,10 +173,6 @@ function chatMessage(cid,data,user){
     chatMessageUpdate(cid,data);
   }
 }
-
-
-/*  */
-
 
 /* chat message update */
 async function chatMessageUpdate(cid,data){
@@ -247,18 +248,46 @@ async function friendPage(){
     dimg=div('div',{'class':'post-image'},[
       div('img',{src:user.photo}),
     ]),
-    ptitle=div('div',{'class':'post-title'}).text(user.username),
+    ptitle=div('div',{'class':'post-title','data-uid':uid}).text(user.username),
     pemail=div('div',{'class':'post-time'}).text(
       user.email+'\n'+MIA.parseDatetime(user.online)
     ),
     button=div('button',{'class':'button-tosca','data-uid':uid}).text('Chat').clickOn(function(){
-      MIA.go('chat?uid='+this.dataset.uid);
+      return MIA.go('chat?uid='+this.dataset.uid);
     }),
     post=div('div',{'class':'post'},[
       dimg,ptitle,pemail,
       div('div',{'class':'post-button'},[button]),
     ]).appendTo(content);
+    FRIENDS[uid]=user;
   }
+  listen('chat',async function(data){
+    let total={},counter=0;
+    for(let cid in data){
+      let ndata=data[cid];
+      if(!total.hasOwnProperty(ndata.from)){
+        total[ndata.from]=0;
+      }
+      if(data[cid].to==FBUSER.uid&&data[cid].read==false){
+        let uid=data[cid].from,
+        uq='.post-title[data-uid="'+uid+'"]',
+        uel=document.querySelector(uq);
+        if(!uel){continue;}
+        let ux=document.getElementById('post-notif-'+uid);
+        if(!ux){
+          ux=div('div',{'class':'post-notif','id':'post-notif-'+uid,'data-total':'0'}).appendTo(uel);
+        }
+        total[ndata.from]++;
+        ux.dataset.total=total[ndata.from]+'';
+        ndata.received=true;
+        chatMessageUpdate(cid,ndata);
+        counter++;
+      }
+    }
+    if(counter>0){
+      NOTE.play();
+    }
+  },e=>console.error(e));
 }
 
 /* login page -- @require: div */
