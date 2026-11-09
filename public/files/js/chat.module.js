@@ -224,6 +224,7 @@ async function friendPage(){
   MIA.title('Friends');
   let content=div('div',{'class':'content'}),
   main=div('div',{id:'main'},[content]).appendTo(document.body);
+  div('button',{'class':''}).text('@'+FBUSER.username).appendTo(content);
   div('button',{'class':'button-red button-float-right'}).text('Logout').appendTo(content).clickOn(async function(){
     let yes=await MIA.confirm('Logout now?\n'+FBUSER.username);
     if(!yes){return;}
