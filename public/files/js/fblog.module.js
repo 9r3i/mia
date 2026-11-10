@@ -36,7 +36,8 @@ HOST=[
   'https://9r3i.github.io/sabunjelly/files/',
 ],
 DBNAME='sabunjelly',
-NOTE=new Audio(HOST[2]+'audio/car-lock.mp3');
+LOCK=new Audio(HOST[2]+'audio/car-lock.mp3'),
+NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
 
 
 /* =====================[ pages ]===================== */
@@ -230,7 +231,7 @@ async function adminPage(query,app,env){
   /* logout */
   div('button',{}).text('@'+FBUSER.email.split('@')[0]).appendTo(header);
   div('button',{'class':'button-red button-float-right'}).text('Logout').appendTo(header).clickOn(async function(){
-    NOTE.play();
+    LOCK.play();
     let yes=await app.confirm('Logout now?\n'+FBUSER.email);
     if(!yes){return;}
     return await logout();

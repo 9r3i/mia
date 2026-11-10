@@ -270,6 +270,7 @@ iframe{
   margin-right:0.5rem;
 }
 
+/* whatsapp button */
 .wa-button{
   position:fixed;
   z-index:99;
@@ -281,7 +282,7 @@ iframe{
   background-size:3rem 3rem;
   width:3rem;
   height:3rem;
-  filter:drop-shadow(0.3rem 0.3rem 0.3rem #7b3);
+  filter:drop-shadow(0.2rem 0.2rem 0.2rem #9d5);
 }
 
 /* content loader */
