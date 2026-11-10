@@ -230,6 +230,71 @@ async function adminPage(query,app,env){
   div('button',{'class':'button-green button-float-right'}).text('New Post').appendTo(header).clickOn(async function(){
     return MIA.go('admin?add');
   });
+  div('button',{'class':'button-orange button-float-right'}).text('Config').appendTo(header).clickOn(async function(){
+    return MIA.go('admin?config');
+  });
+  /* config */
+  if(query.hasOwnProperty('config')){
+    /* set the form */
+    let scontent=likeJSON(site,9),
+    form=app.element('div',{'class':'editor'},[
+      app.element().text('Site Config'),
+      app.element('textarea',{
+        name:'content',
+        placeholder:'Content',
+        id:'editor-content',
+        style:'height:9rem;',
+      }).content(scontent),
+      app.element('div',{'class':'editor-row'},[
+        app.element('button',{
+          'class':'button-orange',
+        }).text('-')
+          .clickOn(function(){
+            return env.setRow(true);
+        }),
+        app.element('input',{
+          type:'number',
+          readonly:'readonly',
+          value:9,
+          id:'editor-row-size'
+        }),
+        app.element('button',{
+          'class':'button-orange',
+        }).text('+')
+          .clickOn(function(){
+            return env.setRow();
+        }),
+      ]),
+    ]).appendTo(content),
+    save=app.element('button',{'class':'button-blue'}).text('Save').appendTo(form);
+    /* save the post */
+    save.clickOn(async function(e){
+      let serial=app.formSerialize(),
+      data=null;
+      try{
+        data=JSON.parse(serial.content);
+      }catch(e){return false;}
+      if(!data){return await MIA.alert('Invalid JSON format!');}
+      let stext=this.innerText;
+      this.disabled=true;
+      this.text('Saving...');
+      let res=await writeData('site',data);
+      this.disabled=false;
+      this.text(stext);
+      if(!res){
+        let pre=app.element('pre').text('Failed to save!');
+        form.insertBefore(pre,save);
+        await app.sleep(2000);
+        pre.remove();
+        return;
+      }
+      let pre=app.element('pre').text('Saved!');
+      form.insertBefore(pre,save);
+      await app.sleep(2000);
+      pre.remove();
+    });
+    return;
+  }
   /* edit */
   if(query.hasOwnProperty('edit')
     ||query.hasOwnProperty('add')){

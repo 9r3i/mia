@@ -66,9 +66,9 @@ window.addEventListener('error',function(e){
   bhost=[
     'files/js/boot.js', // --> 0
     'https://raw.githubusercontent.com/9r3i/mia/master/public/files/js/boot.js', // --> 1
-  ],
+  ][0],
   btag=document.getElementById(bname),
-  bscript=await fetch(bhost[1]).then(r=>r.text());
+  bscript=await fetch(bhost).then(r=>r.text());
   if(!bscript||!bscript.match(/function\sboot/)){
     alert('Error: Failed to load boot.js');
     return;
@@ -80,7 +80,7 @@ window.addEventListener('error',function(e){
     'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 2
     'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
   ],
-  app=new boot(host[2]),
+  app=new boot(host[1]),
   files=[
     'css/consola.css',
     'css/segoeuil.css',
