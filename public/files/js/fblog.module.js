@@ -89,6 +89,14 @@ MIA.routes.push(['','Home',async function(query,app,env){
   }
   right.text(site.data.address);
   bottom.text('Copyright '+site.date.year+', '+site.name+'. All right reserved.');
+  /* wa-button */
+  let wa=div('div',{'class':'wa-button','data-url':site.data.social.whatsapp}).appendTo(main).clickOn(async function(){
+    let load=loader();
+    NOTE.play();
+    await sleep(1000);
+    window.open(this.dataset.url,'_blank');
+    load.remove();
+  });
 }]);
 
 /* admin page */

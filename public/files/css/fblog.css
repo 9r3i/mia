@@ -270,6 +270,20 @@ iframe{
   margin-right:0.5rem;
 }
 
+.wa-button{
+  position:fixed;
+  z-index:99;
+  bottom:1.5rem;
+  left:1.5rem;
+  background-image:url('https://img.icons8.com/color/512/whatsapp--v4.png');
+  background-repeat:no-repeat;
+  background-position:cover cover;
+  background-size:3rem 3rem;
+  width:3rem;
+  height:3rem;
+  filter:drop-shadow(0.3rem 0.3rem 0.3rem #7b3);
+}
+
 /* content loader */
 .content-loader{
   background-image:url('files/image/preloader.gif');
