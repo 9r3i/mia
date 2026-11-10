@@ -238,7 +238,7 @@ iframe{
   height:1rem;
 }
 .message .message-text{
-  
+  word-break:break-all;
 }
 .message .message-time{
   margin-bottom:0.1rem;
