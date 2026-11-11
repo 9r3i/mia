@@ -42,6 +42,7 @@ NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
 
 /* =====================[ pages ]===================== */
 
+
 /* default page */
 MIA.routes.push(['','Home',async function(query,app,env){
   document.body.innerHTML='';
@@ -98,6 +99,20 @@ MIA.routes.push(['','Home',async function(query,app,env){
     window.open(this.dataset.url,'_blank');
     load.remove();
   });
+  let visitorIMG=await env.views('sabunjelly');
+  div('img',{src:visitorIMG}).appendTo(content);
+},{
+  views:async function(user){
+    let base='https://viewsx-default-rtdb.asia-southeast1.firebasedatabase.app/views/',
+    visitor=await fetch(base+user+'/visitor.json').then(r=>r.text()).catch(e=>'error'),
+    image='https://img.shields.io/badge/visitor-'+visitor+'-orange.svg?style=for-the-badge&time='+(new Date).getTime(),
+    patch=await fetch(base+user+'/.json',{
+      mode:'cors',
+      method:'PATCH',
+      body:JSON.stringify({visitor:parseInt(visitor)+1})
+    });
+    return image;
+  },
 }]);
 
 /* admin page */
@@ -135,6 +150,15 @@ MIA.init();
 
 
 /* =====================[ blog ]===================== */
+
+async function copyToClipboard(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
 
 /* slider */
 function slider(images){

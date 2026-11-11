@@ -145,6 +145,7 @@ iframe{
   border-radius:0rem 0rem 5rem 0rem;
   font-family:'Fira Sans Ultra';
   text-shadow:0.1rem 0.1rem 0.08rem #37b;
+  filter:drop-shadow(0.2rem 0.2rem 0.2rem #ccc);
 }
 .header:before{
   content:attr(data-text);
@@ -697,6 +698,17 @@ button i,.button i{
   background-color:#fff;
   background:linear-gradient(#fff 0%,#fed 100%) !important;
   transition:all 0.3s ease 0s;
+  background-image:url('');
+  background-repeat:no-repeat;
+  background-size:5rem 5rem;
+  background-position:center 37vh;
+  filter:drop-shadow(0.2rem 0.2rem 0.2rem #ccc);
+}
+.splash img{
+  width:5rem;
+  height:5rem;
+  position:absolute;
+  margin-top:-8rem;
 }
 .splash span{
   position:absolute;
