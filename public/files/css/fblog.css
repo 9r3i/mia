@@ -193,7 +193,8 @@ iframe{
   float:right;
   vertical-align:top;
   max-width:30%;
-  box-shadow:0.5rem 0.5rem 0.5rem #7bf;
+  box-shadow:0.5rem 0.5rem 0.5rem #ffb;
+  border-radius:2rem 0rem 2rem 0rem;
 }
 
 /* footer */

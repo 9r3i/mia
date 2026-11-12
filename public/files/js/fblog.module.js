@@ -31,9 +31,9 @@ MIA=new mia,
 HOST=[
   'http://127.0.0.1:9301/', // --> 0
   'http://127.0.0.1:9301/files/', // --> 1
-  'https://raw.githubusercontent.com/9r3i/mia/master/public/files/',
+  'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 2
   'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
-  'https://9r3i.github.io/sabunjelly/files/',
+  'https://9r3i.github.io/sabunjelly/files/', // --> 4
 ],
 DBNAME='sabunjelly',
 LOCK=new Audio(HOST[2]+'audio/car-lock.mp3'),
@@ -160,16 +160,20 @@ onAuthStateChanged(FBAUTH,async user=>{
     },
 }]);
 
+window.MIA=MIA;
+window.readPost=readPost;
+
 /* using anonymous function to initialize */
 ;(async function(){
 /* initialize */
-MIA.init();
+  //MIA.init();
 /* end of statement */
 })();
 
 
 /* =====================[ blog ]===================== */
 
+/* copy to clipboard */
 async function copyToClipboard(text){
   try{
     await navigator.clipboard.writeText(text);
@@ -179,7 +183,7 @@ async function copyToClipboard(text){
   }
 }
 
-/* slider */
+/* slider -- @require: tns (tiny slider) */
 function slider(images){
   images=Array.isArray(images)?images:[];
   var imgs=[],
@@ -225,7 +229,7 @@ function slider(images){
       if(typeof window.tns==='function'){
         return window.tns(this.config);
       }
-      return await MIA.alert('Error: Slider is not loaded.');
+      return alert('Error: Slider is not loaded.');
     },
     element:div,
     images:imgs,
@@ -486,39 +490,6 @@ async function adminPage(query,app,env){
   }
 }
 
-/* read post */
-async function readPost(path){
-  return await readData('post'+(path?'/'+path:''));
-}
-
-/* send post */
-async function sendPost(title,content,author='admin'){
-  let data={
-    title,
-    content,
-    time:(new Date).getTime(),
-    author,
-  };
-  return await sendData('post',data);
-}
-
-/* read data */
-async function readData(path){
-  return await read(DBNAME+'/'+path);
-}
-
-/* send data */
-async function sendData(path,data){
-  return await send(DBNAME+'/'+path,data);
-}
-
-/* write data */
-async function writeData(path,data){
-  return await write(DBNAME+'/'+path,data);
-}
-
-/* =====================[ basic ]===================== */
-
 /* login page -- @require: div */
 function loginPage(){
   document.body.innerHTML='';
@@ -570,6 +541,39 @@ function loginPage(){
       submit.text('Redirecting...');
     };
 }
+
+/* read post */
+async function readPost(path){
+  return await readData('post'+(path?'/'+path:''));
+}
+
+/* send post */
+async function sendPost(title,content,author='admin'){
+  let data={
+    title,
+    content,
+    time:(new Date).getTime(),
+    author,
+  };
+  return await sendData('post',data);
+}
+
+/* read data */
+async function readData(path){
+  return await read(DBNAME+'/'+path);
+}
+
+/* send data */
+async function sendData(path,data){
+  return await send(DBNAME+'/'+path,data);
+}
+
+/* write data */
+async function writeData(path,data){
+  return await write(DBNAME+'/'+path,data);
+}
+
+/* =====================[ firebase ]===================== */
 
 /* listen */
 function listen(path,cb,er){
@@ -662,7 +666,7 @@ function contentLoader(load=true){
     document.body.append(el);
   }
   return el;
-};
+}
 
 /* loader -- standalone */
 function loader(load=true){
@@ -674,14 +678,14 @@ function loader(load=true){
   el.id='loader';
   document.body.append(el);
   return el;
-};
+}
 
 /* sleep -- standalone */
 function sleep(ms){
   return new Promise(resolve=>{
     setTimeout(resolve,ms);
   });
-};
+}
 
 /* element creator -- standalone */
 function div(name='div',attr={},children=[]){
@@ -726,7 +730,7 @@ function div(name='div',attr={},children=[]){
   };
   /* return the element object */
   return main;
-};
+}
 
 /* firebase config -- standalone */
 function config(i=0){
@@ -739,7 +743,7 @@ function config(i=0){
   return c;
 }
 
-/* html pre dom -- standalone */
+/* html pre dom -- @require: likeJSON */
 function pro(){
   let res=[];
   for(let s of arguments){
