@@ -90,7 +90,7 @@ MIA.routes.push(['','Home',async function(query,app,env){
     });
   }
   right.text(site.data.address);
-  bottom.text('Copyright '+site.date.year+', '+site.name+'. All right reserved.');
+  bottom.text('Copyright '+site.date.year+', '+site.name+'. All right reserved.\nPowered by 9r3i');
   /* wa-button */
   let wa=div('div',{'class':'wa-button','data-url':site.data.social.whatsapp}).appendTo(main).clickOn(async function(){
     let load=loader();
@@ -99,8 +99,15 @@ MIA.routes.push(['','Home',async function(query,app,env){
     window.open(this.dataset.url,'_blank');
     load.remove();
   });
-  let visitorIMG=await env.viewsURL('sabunjelly');
-  div('img',{src:visitorIMG}).appendTo(content);
+  let visitorIMG=await env.viewsURL('sabunjelly'),
+  img=new Image;
+  img.src=visitorIMG;
+  img.onload=function(){
+    content.append(this);
+  };
+  img.onerror=function(){
+    content.append(div().text('[Failed to load visitor]'));
+  };
 },{
   viewsURL:async function(user){
     let color=[0xea,0x72,0x33].join(',');
