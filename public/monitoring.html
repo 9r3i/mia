@@ -2,12 +2,7 @@
   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>9r3i</title>
-  <meta name="keywords" content="9r3i, Force, Foxtrot" />
-  <meta name="description" content="The sly eagle doesn't kill at whim" />
-  <meta name="robots" content="follow,index" />
-  <meta name="author" content="9r3i" />
-  <meta name="author-uri" content="https://github.com/9r3i" />
+  <title>9r3i\views\monitoring</title>
 <style type="text/css" media="screen">
 body{
   font-family:system-ui;
@@ -78,11 +73,11 @@ function refresh(id,user,monitor){
   img.onload=function(){
     this.onerror=null;
     this.onload=null;
-    img.src='https://blaster.xo.je/?user='+user
+    img.src='https://views-olive.vercel.app/?user='+user
       +(monitor?'&monitor=true':'')
       +'&random='+Math.ceil(Math.random()*0xffff)
       +'&register=github.com/9r3i/views/tree/master&color='+[
-        0xdd,0x11,0x11,
+        0xdd,0xbb,0x11,
       ].join(',');
   };
 }
@@ -95,7 +90,7 @@ function refreshRandom(id,user,monitor){
   img.onload=function(){
     this.onerror=null;
     this.onload=null;
-    img.src='https://blaster.xo.je/?user='+user
+    img.src='https://views-olive.vercel.app/?user='+user
       +(monitor?'&monitor=true':'')
       +'&random='+Math.ceil(Math.random()*0xffff)
       +'&register=github.com/9r3i/views/tree/master&color='+[
@@ -110,10 +105,9 @@ function refreshOne(){
   refresh(this.dataset.id,this.dataset.user,monitor);
 }
 function viewAll(users){
-  users=Array.isArray(users)?users:[];
   const res=document.createElement('div');
   res.classList.add('views-list');
-  for(let user of users){
+  for(let user in users){
     let img=new Image,
     but=document.createElement('button'),
     div=document.createElement('div');
@@ -135,10 +129,9 @@ function viewAll(users){
   return res;
 }
 function refreshAll(users){
-  users=Array.isArray(users)?users:[];
   let buts=document.querySelectorAll('button[data-id]'),
   isMonitor=buts[0]&&buts[0].dataset.hasOwnProperty('monitor');
-  for(let user of users){
+  for(let user in users){
     refresh('views-'+user,user,isMonitor);
   }
 }
@@ -158,24 +151,18 @@ async function init(){
   document.body.innerHTML='<h1>'
     +'<img src="'+greyLoaderImage()+'" />'
     +' Loading...</h1>';
-  let url='https://blaster.xo.je/?rusers',
+  let url='https://views-olive.vercel.app/?rusers',
   users=false,
-  xhr=new XMLHttpRequest;
-  xhr.open('GET',url,true);
-  xhr.onreadystatechange=r=>{
-    if(xhr.status===200&&xhr.readyState===4){
+  raw=await fetch(url,{mode:'cors'}).then(r=>r.text()).catch(e=>'false');
+  
       try{
-        users=JSON.parse(xhr.responseText);
+        users=JSON.parse(raw);
       }catch(e){}
-      users=Array.isArray(users)?users:[];
-      return wrap(users,xhr.responseText);
-    }
-  };
-  xhr.send();
+      return wrap(users,raw);
 }
 function wrap(users,raw){
   document.body.innerHTML='<h1>Views Monitoring ('
-    +users.length+')</h1>';
+    +Object.keys(users).length+')</h1>';
   vall=viewAll(users);
   document.body.appendChild(vall);
   let ball=document.createElement('button'),

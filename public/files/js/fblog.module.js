@@ -99,14 +99,26 @@ MIA.routes.push(['','Home',async function(query,app,env){
     window.open(this.dataset.url,'_blank');
     load.remove();
   });
-  let visitorIMG=await env.views('sabunjelly');
+  let visitorIMG=await env.viewsURL('sabunjelly');
   div('img',{src:visitorIMG}).appendTo(content);
 },{
-  views:async function(user){
-    let base='https://viewsx-default-rtdb.asia-southeast1.firebasedatabase.app/views/',
-    visitor=await fetch(base+user+'/visitor.json').then(r=>r.text()).catch(e=>'error'),
+  viewsURL:async function(user){
+    let color=[0xea,0x72,0x33].join(',');
+    return 'https://views-olive.vercel.app/?user='+user
+      +'&color='+color+'&time='+(new Date).getTime();
+  },
+  views:async function(user,reg=false){
+    let base='https://viewsx-default-rtdb.asia-southeast1.firebasedatabase.app/views/';
+    if(reg){
+      return await fetch(base+user+'/.json',{
+        mode:'cors',
+        method:'PUT',
+        body:JSON.stringify({visitor:1})
+      }).then(r=>true).catch(e=>false);
+    }
+    let visitor=await fetch(base+user+'/visitor.json').then(r=>r.text()).catch(e=>'error'),
     image='https://img.shields.io/badge/visitor-'+visitor+'-orange.svg?style=for-the-badge&time='+(new Date).getTime(),
-    patch=await fetch(base+user+'/.json',{
+    patch=fetch(base+user+'/.json',{
       mode:'cors',
       method:'PATCH',
       body:JSON.stringify({visitor:parseInt(visitor)+1})

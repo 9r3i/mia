@@ -189,6 +189,12 @@ iframe{
 .content .body-content img{
   max-width:100%;
 }
+.content .body-content img.content-image{
+  float:right;
+  vertical-align:top;
+  max-width:30%;
+  box-shadow:0.5rem 0.5rem 0.5rem #7bf;
+}
 
 /* footer */
 .footer{
