@@ -163,14 +163,10 @@ this.routers=[
       +'And also this is M-Blog that create this blog<br />'
       +'I got more blog sample:<br />'
       +[
-        '<a target="_blank" href="hblog.html">H-Blog</a>',
-        '<a target="_blank" href="rblog.html">R-Blog</a>',
         '<a target="_blank" href="gblog/">G-Blog</a>',
       ].join(' -- ')
       +'<br />'
       +[
-        '<a target="_blank" href="boot.html">Boot</a>',
-        '<a target="_blank" href="quiz.html">Quiz</a>',
       ].join(' -- ')
       +'<br />'
       +'<br />'

@@ -19,7 +19,7 @@ NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
 /* =====================[ pages ]===================== */
 
 /* admin page route */
-let adminRoute=[
+MIA.routes.push([
   'admin',
   'Admin',
   async function(query,app,env){
@@ -47,8 +47,7 @@ let adminRoute=[
       ers.value=vh;
     },
   }
-];
-MIA.routes.push(adminRoute);
+]);
 
 /* home page route */
 MIA.routes.push(['','Home',async function(query,app,env){
@@ -58,6 +57,9 @@ MIA.routes.push(['','Home',async function(query,app,env){
   load.remove();
   app.pre(post);
 }]);
+
+
+/* ===================[ initialize ]=================== */
 
 /* anonymously initialize */
 ;(async function(){
