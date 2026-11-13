@@ -2,7 +2,7 @@
 ;(async function(){
   document.body.innerHTML='Loading...';
   /* get ready */
-  let ready=await onReady('readPost');
+  let ready=await onFunctionReady('pro');
   document.body.innerHTML=JSON.stringify(ready);
   /* initialize */
   if(ready){
@@ -11,13 +11,13 @@
 /* end of statement */
 })();
 
-function onReady(fn){
+function onFunctionReady(fn){
   return new Promise(resolve=>{
-    return onReadyCB(fn,resolve);
+    return onFunctionReadyCB(fn,resolve);
   });
 }
 
-function onReadyCB(fn,cb,i=0){
+function onFunctionReadyCB(fn,cb,i=0){
   cb=typeof cb==='function'?cb:function(){};
   return setTimeout(e=>{
     if(window.hasOwnProperty(fn)
@@ -25,7 +25,7 @@ function onReadyCB(fn,cb,i=0){
       return cb(true);
     }else if(i>3000){
       return cb(false);
-    }return onReadyCB(fn,cb,i+1);
+    }return onFunctionReadyCB(fn,cb,i+1);
   },1);
 }
 

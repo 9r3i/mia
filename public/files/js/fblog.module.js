@@ -161,7 +161,7 @@ onAuthStateChanged(FBAUTH,async user=>{
 }]);
 
 window.MIA=MIA;
-window.readPost=readPost;
+window.pro=pro;
 
 /* using anonymous function to initialize */
 ;(async function(){
@@ -173,17 +173,7 @@ window.readPost=readPost;
 
 /* =====================[ blog ]===================== */
 
-/* copy to clipboard */
-async function copyToClipboard(text){
-  try{
-    await navigator.clipboard.writeText(text);
-    return true;
-  }catch(e){
-    return false;
-  }
-}
-
-/* slider -- @require: tns (tiny slider) */
+/* slider -- @require: tns (tiny slider) and its css */
 function slider(images){
   images=Array.isArray(images)?images:[];
   var imgs=[],
@@ -234,30 +224,6 @@ function slider(images){
     element:div,
     images:imgs,
   };
-};
-
-/* search form */
-function searchForm(){
-  let search=div('input',{
-    name:'search',
-    placeholder:'Search...',
-    maxlength:100,
-    value:'',
-  });
-  search.onkeyup=function(){
-    let rg=new RegExp(this.value,'i'),
-    nm=document.querySelectorAll('div[data-title]');
-    for(let i=0;i<nm.length;i++){
-      if(nm[i].dataset.title.match(rg)){
-        nm[i].style.removeProperty('display');
-      }else{
-        nm[i].style.display='none';
-      }
-    }
-  };
-  return div('div',{'class':'content-search'},[
-    search,
-  ]);
 };
 
 /* admin page */
@@ -459,7 +425,7 @@ async function adminPage(query,app,env){
     return;
   }
   /* search */
-  let search=searchForm(),
+  let search=searchForm('title'),
   end=div().appendTo(content);
   search.appendTo(content);
   /* each post */
@@ -616,7 +582,140 @@ async function signup(email,pswd){
   return await createUserWithEmailAndPassword(FBAUTH,email,pswd).then(c=>c.user.uid).catch(e=>false);
 };
 
-/* ===================[ standalone ]=================== */
+/* firebase config -- standalone */
+function config(i=0){
+  let a=[
+    'eyJhcGlLZXkiOiJBSXphU3lCZ2xXazJrcFdVSHI5V0FPQmpvUUhQLVBoc0ctcS04em8iLCJhdXRoRG9tYWluIjoic2FidW5qZWwuZmlyZWJhc2VhcHAuY29tIiwiZGF0YWJhc2VVUkwiOiJodHRwczovL3NhYnVuamVsLWRlZmF1bHQtcnRkYi5hc2lhLXNvdXRoZWFzdDEuZmlyZWJhc2VkYXRhYmFzZS5hcHAiLCJwcm9qZWN0SWQiOiJzYWJ1bmplbCIsInN0b3JhZ2VCdWNrZXQiOiJzYWJ1bmplbC5maXJlYmFzZXN0b3JhZ2UuYXBwIiwibWVzc2FnaW5nU2VuZGVySWQiOiI0OTI5OTI2MTEyMzkiLCJhcHBJZCI6IjE6NDkyOTkyNjExMjM5OndlYjoxOTg2ODc1MzY1YTc1ODhjZDI2YzgyIiwibWVhc3VyZW1lbnRJZCI6IkctTU1RQlNYQjY4OCJ9',
+  ],
+  b=atob(a[i]),
+  c=null;
+  try{c=JSON.parse(b);}catch(e){return null;}
+  return c;
+}
+
+/* ===================[ basic ]=================== */
+
+/* decrypt -- @require: binar.js */
+function decrypt(s){
+  s=typeof s==='string'?s:JSON.stringify(s);
+  let a=/^([a-z]+):(\d+):/,
+  b=s.match(a);
+  if(!b){return null;}
+  let c=s.replace(a,''),
+  d=new binar(b[1],parseInt(b[2],10)),
+  e=d.decrypt(c);
+  return e||null;
+};
+
+/* encrypt -- @require: binar.js */
+function encrypt(s){
+  s=typeof s==='string'?s:JSON.stringify(s);
+  let a=Math.ceil(Math.random()*99),
+  b='abcdefghijklmnopqrstuvwxyz',
+  c=b.split('').sort(r=>Math.random()-0.5)
+    .join('').substr(0,9),
+  d=new binar(c,a),
+  e=d.encrypt(s);
+  return [c,a,e].join(':');
+};
+
+/* search form -- @require: div */
+function searchForm(key='text'){
+  let search=div('input',{
+    name:'search',
+    placeholder:'Search...',
+    maxlength:100,
+    value:'',
+  });
+  search.onkeyup=function(){
+    let rg=new RegExp(this.value,'i'),
+    nm=document.querySelectorAll('div[data-'+key+']');
+    for(let i=0;i<nm.length;i++){
+      if(nm[i].dataset[key].match(rg)){
+        nm[i].style.removeProperty('display');
+      }else{
+        nm[i].style.display='none';
+      }
+    }
+  };
+  return div('div',{'class':'content-search'},[
+    search,
+  ]);
+};
+
+/* content loader -- @require: loader.css */
+function contentLoader(load=true){
+  let el=document.querySelector('.content-loader'),
+  content=document.querySelector('.content');
+  if(el){el.remove();}
+  if(load===false){return;}
+  el=document.createElement('div');
+  el.classList.add('content-loader');
+  if(content){
+    content.append(el);
+  }else{
+    document.body.append(el);
+  }
+  return el;
+}
+
+/* loader -- @require: loader.css */
+function loader(load=true){
+  let el=document.getElementById('loader');
+  if(el){el.remove();}
+  if(load===false){return;}
+  el=document.createElement('div');
+  el.classList.add('loader');
+  el.id='loader';
+  document.body.append(el);
+  return el;
+}
+
+/* html pre dom -- @require: likeJSON */
+function pro(){
+  let res=[];
+  for(let s of arguments){
+    res.push(typeof s==='string'?s:likeJSON(s,3));
+  }
+  let el=document.createElement('pre'),
+  content=document.querySelector('.content');
+  if(content){
+    content.append(el);
+  }else{
+    document.body.append(el);
+  }
+  el.innerText=res.join(' -- ');
+  el.style.border='1px solid #ccc';
+  el.style.padding='5px';
+  el.style.margin='5px';
+  el.style.color='#555';
+  el.style.whiteSpace='pre-wrap';
+  el.style.wordBreak='break-all';
+  el.style.fontSize='13px';
+  return el;
+}
+
+/* =================[ standalone ]================= */
+
+/* paste from clipboard */
+async function paste(text){
+  try{
+    await navigator.clipboard.readText();
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+/* copy to clipboard */
+async function copy(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
 
 /* time ago [en-US] -- standalone */
 function timeago(time){
@@ -650,34 +749,6 @@ function timeago(time){
     return match[2]+' '+match[3]+' at '+match[5];
   }
   return fdate;
-}
-
-/* content loader -- standalone */
-function contentLoader(load=true){
-  let el=document.querySelector('.content-loader'),
-  content=document.querySelector('.content');
-  if(el){el.remove();}
-  if(load===false){return;}
-  el=document.createElement('div');
-  el.classList.add('content-loader');
-  if(content){
-    content.append(el);
-  }else{
-    document.body.append(el);
-  }
-  return el;
-}
-
-/* loader -- standalone */
-function loader(load=true){
-  let el=document.getElementById('loader');
-  if(el){el.remove();}
-  if(load===false){return;}
-  el=document.createElement('div');
-  el.classList.add('loader');
-  el.id='loader';
-  document.body.append(el);
-  return el;
 }
 
 /* sleep -- standalone */
@@ -725,46 +796,16 @@ function div(name='div',attr={},children=[]){
   };
   main.clickOn=function(cb){
     if(typeof cb==='function'){
-      this.onclick=cb;
+      this.addEventListener('click',cb,false);
     }return this;
+  };
+  main.on=function(ev,cb){
+    cb=typeof cb==='function'?cb:function(){};
+    this.addEventListener(ev,cb,false);
+    return this;
   };
   /* return the element object */
   return main;
-}
-
-/* firebase config -- standalone */
-function config(i=0){
-  let a=[
-    'eyJhcGlLZXkiOiJBSXphU3lCZ2xXazJrcFdVSHI5V0FPQmpvUUhQLVBoc0ctcS04em8iLCJhdXRoRG9tYWluIjoic2FidW5qZWwuZmlyZWJhc2VhcHAuY29tIiwiZGF0YWJhc2VVUkwiOiJodHRwczovL3NhYnVuamVsLWRlZmF1bHQtcnRkYi5hc2lhLXNvdXRoZWFzdDEuZmlyZWJhc2VkYXRhYmFzZS5hcHAiLCJwcm9qZWN0SWQiOiJzYWJ1bmplbCIsInN0b3JhZ2VCdWNrZXQiOiJzYWJ1bmplbC5maXJlYmFzZXN0b3JhZ2UuYXBwIiwibWVzc2FnaW5nU2VuZGVySWQiOiI0OTI5OTI2MTEyMzkiLCJhcHBJZCI6IjE6NDkyOTkyNjExMjM5OndlYjoxOTg2ODc1MzY1YTc1ODhjZDI2YzgyIiwibWVhc3VyZW1lbnRJZCI6IkctTU1RQlNYQjY4OCJ9',
-  ],
-  b=atob(a[i]),
-  c=null;
-  try{c=JSON.parse(b);}catch(e){return null;}
-  return c;
-}
-
-/* html pre dom -- @require: likeJSON */
-function pro(){
-  let res=[];
-  for(let s of arguments){
-    res.push(typeof s==='string'?s:likeJSON(s,3));
-  }
-  let el=document.createElement('pre'),
-  content=document.querySelector('.content');
-  if(content){
-    content.append(el);
-  }else{
-    document.body.append(el);
-  }
-  el.innerText=res.join(' -- ');
-  el.style.border='1px solid #ccc';
-  el.style.padding='5px';
-  el.style.margin='5px';
-  el.style.color='#555';
-  el.style.whiteSpace='pre-wrap';
-  el.style.wordBreak='break-all';
-  el.style.fontSize='13px';
-  return el;
 }
 
 /* parse object to json string -- standalone */
@@ -836,7 +877,7 @@ function likeJSON(obj,limit,space,pad){
 
 /* test word -- standalone */
 function testWord(){
-  return 'yang takkan pernah terlupakan selamanya dalam hidupku\nmeskipun hanya sekejap saja\nmeresap dalam jiwa\nmengakar dalam hati\ntertanam dalam sukma\nterpatri dalam sanubari'
+  return 'yang takkan pernah terlupakan selamanya dalam hidupku\nmeskipun hanya sekejap saja\nmeresap dalam jiwa, mengakar dalam hati\ntertanam dalam sukma, terpatri dalam sanubari';
 }
 
 

@@ -13,7 +13,7 @@
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:160,
+  value:170,
   writable:false,
 });
 /* the version */
@@ -24,14 +24,142 @@ Object.defineProperty(this,'version',{
 this.host=host;
 this.key=null;
 this.user=null;
+/* =================[  ]================= */
+/* =================[  ]================= */
+/* search form -- @require: element */
+this.__proto__.searchForm=function(key='text'){
+  let search=this.element('input',{
+    name:'search',
+    placeholder:'Search...',
+    maxlength:100,
+    value:'',
+  });
+  search.onkeyup=function(){
+    let rg=new RegExp(this.value,'i'),
+    nm=document.querySelectorAll('div[data-'+key+']');
+    for(let i=0;i<nm.length;i++){
+      if(nm[i].dataset[key].match(rg)){
+        nm[i].style.removeProperty('display');
+      }else{
+        nm[i].style.display='none';
+      }
+    }
+  };
+  return this.element('div',{'class':'content-search'},[
+    search,
+  ]);
+};
+/* =================[ loader -- css ]================= */
+/* content loader -- @require: css */
+this.__proto__.contentLoader=function(load=true){
+  let el=document.querySelector('.content-loader'),
+  content=document.querySelector('.content');
+  if(el){el.remove();}
+  if(load===false){return;}
+  el=document.createElement('div');
+  el.classList.add('content-loader');
+  if(content){
+    content.append(el);
+  }else{
+    document.body.append(el);
+  }
+  return el;
+};
+/* loader -- @require: css */
+this.__proto__.loader=function(load=true){
+  let el=document.getElementById('loader');
+  if(el){el.remove();}
+  if(load===false){return;}
+  el=document.createElement('div');
+  el.classList.add('loader');
+  el.id='loader';
+  document.body.append(el);
+  return el;
+};
+/* =================[ basic ]================= */
+/* paste from clipboard */
+this.__proto__.paste=async function(text){
+  try{
+    await navigator.clipboard.readText();
+    return true;
+  }catch(e){
+    return false;
+  }
+};
+/* copy to clipboard */
+this.__proto__.copy=async function(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(e){
+    return false;
+  }
+};
+/* pre dump -- @require: likeJSON */
+this.__proto__.pre=function(){
+  let res=[];
+  for(let s of arguments){
+    res.push(typeof s==='string'?s:this.likeJSON(s,3));
+  }
+  let el=document.createElement('pre'),
+  content=document.querySelector('.content');
+  if(content){
+    content.append(el);
+  }else{
+    document.body.append(el);
+  }
+  el.innerText=res.join(' -- ');
+  el.style.border='1px solid #ccc';
+  el.style.padding='5px';
+  el.style.margin='5px';
+  el.style.color='#555';
+  el.style.whiteSpace='pre-wrap';
+  el.style.wordBreak='break-all';
+  el.style.fontSize='13px';
+  el.style.backgroundColor='#eed';
+  el.style.borderLeft='11px solid #fd5';
+  return el;
+};
+/* serialize a form by elements name -- @require: parseQuery */
+this.__proto__.formSerialize=function(idata=false){
+  let data={},
+  res={},
+  form=document.querySelectorAll('[name]');
+  for(let i=0;i<form.length;i++){
+    if(typeof form[i].value==='undefined'){
+      continue;
+    }else if(form[i].name.match(/^data/)){
+      data[form[i].name]=form[i].value;
+    }else if(form[i].type=='radio'){
+      if(form[i].checked){
+        res[form[i].name]=form[i].value;
+      }
+    }else{
+      res[form[i].name]=form[i].value;
+    }
+  }
+  if(idata){
+    let query=[];
+    for(let k in data){
+      query.push(k+'='+data[k]);
+    }
+    let ndata=this.parseQuery(query.join('&'));
+    if(!ndata.hasOwnProperty('data')){
+      ndata.data={};
+    }
+    res.data=JSON.stringify(ndata.data);
+  }
+  return res;
+};
+/* =================[ fake-loader ]================= */
 /* fake loader -- promise */
-this.fakeLoader=function(dl,s=10){
+this.__proto__.fakeLoader=function(dl,s=10){
   return new Promise(resolve=>{
     this.fakeLoaderCB(resolve,dl,s);
   });
 };
 /* fake loader callback -- no-ui */
-this.fakeLoaderCB=function(cb,dl,s=10,i=0){
+this.__proto__.fakeLoaderCB=function(cb,dl,s=10,i=0){
   i=typeof i==='number'&&i!==NaN?i:0;
   s=typeof s==='number'&&s!==NaN?s:10;
   if(i>=100){
@@ -50,6 +178,7 @@ this.fakeLoaderCB=function(cb,dl,s=10,i=0){
     this.fakeLoaderCB(cb,dl,s,i);
   },s);
 };
+/* =================[ alert -- css ]================= */
 /* prompt */
 this.__proto__.prompt=function(text,value,ok,no){
   return new Promise(resolve=>{
@@ -148,6 +277,7 @@ this.__proto__.alertCB=function(text,cb){
   document.body.style.overflow='hidden';
   return button;
 };
+/* =================[ client ]================= */
 /* get file content, @return: string text */
 this.__proto__.get=async function(file){
   return await fetch(this.host+file)
@@ -254,38 +384,41 @@ this.__proto__.register=async function(data={}){
     body,
   }).then(r=>r.text());
 };
-/* serialize a form by elements name -- @require: query */
-this.__proto__.formSerialize=function(idata=false){
-  let data={},
-  res={},
-  form=document.querySelectorAll('[name]');
-  for(let i=0;i<form.length;i++){
-    if(typeof form[i].value==='undefined'){
-      continue;
-    }else if(form[i].name.match(/^data/)){
-      data[form[i].name]=form[i].value;
-    }else if(form[i].type=='radio'){
-      if(form[i].checked){
-        res[form[i].name]=form[i].value;
+/* =================[ standalone ]================= */
+/* time ago [en-US] -- standalone */
+this.__proto__.timeago=function(time){
+  let now=new Date(),
+  date=new Date(time),
+  format='en-US',
+  options={
+    weekday:'long',
+    year:'numeric',
+    month:'long',
+    day:'numeric',
+    hour:'numeric',
+    minute:'numeric',
+  },
+  fdate=date.toLocaleDateString(format,options),
+  ndate=now.toLocaleDateString(format,options),
+  ptrn=/^(\w+),\s(\w+)\s(\d+),\s(\d+)\sat\s(\d+:\d+\s\w+)/i,
+  match=fdate.match(ptrn),
+  nope=ndate.match(ptrn);
+  if(match[4]==nope[4]){
+    if(match[2]==nope[2]
+      &&parseInt(nope[3])-parseInt(match[3])<7){
+      if(parseInt(nope[3])-parseInt(match[3])==1){
+        return 'Yesterday at '+match[5];
       }
-    }else{
-      res[form[i].name]=form[i].value;
+      if(match[3]==nope[3]){
+        return 'Today at '+match[5];
+      }
+      return match[1]+' at '+match[5];
     }
+    return match[2]+' '+match[3]+' at '+match[5];
   }
-  if(idata){
-    let query=[];
-    for(let k in data){
-      query.push(k+'='+data[k]);
-    }
-    let ndata=this.query(query.join('&'));
-    if(!ndata.hasOwnProperty('data')){
-      ndata.data={};
-    }
-    res.data=JSON.stringify(ndata.data);
-  }
-  return res;
+  return fdate;
 };
-/* file reader -- stand-alone -- with promise */
+/* file reader -- standalone -- with promise */
 this.__proto__.reader=function(file){
   return new Promise(resolve=>{
     let reader=new FileReader;
@@ -295,7 +428,7 @@ this.__proto__.reader=function(file){
     reader.readAsDataURL(file);
   });
 };
-/* fetch -- stand-alone */
+/* fetch -- standalone */
 this.__proto__.fetch=async function(url,dl){
   url=typeof url==='string'?url:'';
   dl=typeof dl==='function'?dl:function(){};
@@ -322,7 +455,7 @@ this.__proto__.fetch=async function(url,dl){
   }));
   return await res.text();
 };
-/* parse date and time -- stand-alone */
+/* parse date and time -- standalone */
 this.__proto__.parseDatetime=function(value,format='en-US'){
   let date=new Date(value),
   options={
@@ -335,7 +468,7 @@ this.__proto__.parseDatetime=function(value,format='en-US'){
   };
   return date.toLocaleDateString(format,options);
 };
-/* parse object to json string -- stand-alone */
+/* parse object to json string -- standalone */
 this.__proto__.likeJSON=function(obj,limit,space,pad){
   let rtext='';  
   space=space?parseInt(space,0xa):0x0;
@@ -401,22 +534,22 @@ this.__proto__.likeJSON=function(obj,limit,space,pad){
     rtext+=(' ').repeat(pad*space)+'"['+(typeof obj)+']"\r\n';
   }return rtext;
 };
-/* parse json to object -- stand-alone */
+/* parse json to object -- standalone */
 this.__proto__.parseJSON=function(data){
-  let res=false;
+  let res=null;
   try{
     res=JSON.parse(data);
   }catch(e){
-    res=false;
+    res=null;
   }return res;
 };
-/* sleep ms - promise -- stand-alone */
+/* sleep ms - promise -- standalone */
 this.__proto__.sleep=function(ms){
   return new Promise(resolve=>{
     setTimeout(resolve,ms);
   });
 };
-/* create element -- stand-alone */
+/* create element -- standalone */
 this.__proto__.element=function(name='div',attr={},children=[]){
   name=typeof name==='string'?name.toLowerCase():'div';
   attr=typeof attr==='object'&&attr!==null?attr:{};
@@ -454,13 +587,19 @@ this.__proto__.element=function(name='div',attr={},children=[]){
   };
   main.clickOn=function(cb){
     if(typeof cb==='function'){
-      this.onclick=cb;
+      this.addEventListener('click',cb,false);
     }return this;
+  };
+  main.on=function(ev,cb){
+    cb=typeof cb==='function'?cb:function(){};
+    this.addEventListener(ev,cb,false);
+    return this;
   };
   main.mia=this;
   /* return the element object */
   return main;
 };
+/* =================[ router ]================= */
 /* array of defined headers and footers
  * add using .push()
  * each contains: a function (query,app,page)
@@ -491,8 +630,9 @@ this.__proto__.init=function(){
  */
 this.__proto__.page=function(){
   this.error(false);
-  let hash=this.hash(),
-  r=this.route(hash.path),
+  let l=window.location.hash.substr(1),
+  h=this.parseURL(l),
+  r=this.route(h.path),
   error='';
   /* check route is exist */
   if(!r){
@@ -512,13 +652,13 @@ this.__proto__.page=function(){
   }
   /* execute headers */
   for(let head of this.headers){
-    head.call(head,hash.query,this,r);
+    head.call(head,h.query,this,r);
   }
   /* execute call function */
-  r.call.call(r.call,hash.query,this,r.env);
+  r.call.call(r.call,h.query,this,r.env);
   /* execute footers */
   for(let foot of this.footers){
-    foot.call(foot,hash.query,this,r);
+    foot.call(foot,h.query,this,r);
   }
   /* return as true */
   return true;
@@ -561,12 +701,8 @@ this.__proto__.route=function(p){
     }
   }return r;
 };
-/* title management
- * @parameters:
- *   s = string of title name
- * @return: always true
- */
-this.__proto__.title=function(s){
+/* title management -- @return: always true */
+this.__proto__.title=function(s=''){
   s=typeof s==='string'?s:'';
   let t=document.getElementsByTagName('title');
   if(t.length>0){
@@ -578,22 +714,6 @@ this.__proto__.title=function(s){
     document.head.appendChild(t);
     t.innerText=s;
   }return true;
-};
-/* parse hash
- * ~ parse location hash from window.location.hash
- * @parameters: none
- * @return: object of parsed hash
- *   - return object contains:
- *     - path  = string of router path
- *     - query = object of router parsed query
- */
-this.__proto__.hash=function(){
-  let h=window.location.hash.substr(1),
-  d=h.split('?'),
-  r={path:d[0],query:{}};
-  if(typeof d[1]==='string'){
-    r.query=this.query(d[1]);
-  }return r;
 };
 /* error statement
  * ~ print out error from string given
@@ -641,33 +761,56 @@ this.__proto__.error=function(s,c){
   document.body.appendChild(n);
   return true;
 };
-/* parse query
- * ~ parse url query into readable object
- * @parameters:
- *   t = string of url query
- * @return: object of parsed query
- */
-this.__proto__.query=function(t){
+/* parse url path -- protocol and hostname are not included */
+this.__proto__.parseURL=function(str){
+  if(typeof str!=='string'){return false;}
+  let obj=str.split('?'),
+  path=obj[0],
+  query=obj.length>1
+    ?this.parseQuery(obj[1]):{};
+  return {path,query};
+};
+/* parse url query -- @return: object */
+this.__proto__.parseQuery=function(t){
   if(typeof t!=='string'){return false;}
   let s=t.split('&'),r={},c={};
   for(let i=0;i<s.length;i++){
     if(!s[i]||s[i]==''){continue;}
     let p=s[i].split('='),
-    k=decodeURIComponent(p[0]);
-    if(k.match(/\[(.*)?\]$/g)){
-      let l=k.replace(/\[(.*)?\]$/g,'');
-      let w=k.replace(/^.*\[(.*)?\]$/g,"$1");
-      c[l]=c[l]?c[l]:0;
-      if(w==''){w=c[l];c[l]+=1;}
-      if(!r[l]){r[l]={};}
-      r[l][w]=decodeURIComponent(p[1]);
+    k=decodeURIComponent(p[0]),
+    m=k.match(/(\[[^\]]*\])/g),
+    v=p[1]?decodeURIComponent(p[1]):'';
+    if(!m){
+      r[k]=v;
       continue;
-    }r[k]=p[1]?decodeURIComponent(p[1]):'';
+    }
+    let l=k.replace(/\[(.*)?\]$/g,'');
+    c[l]=c[l]?c[l]:0;
+    if(!r[l]){r[l]={};}
+    r[l]=this.parseQueryKey(r[l],m,v);
   }return r;
 };
-/* temporary statement
- * @return: always false
- */
+/* parse query key as object keys -- @return: object */
+this.__proto__.parseQueryKey=function(obj,m,v,i){
+  obj=typeof obj==='object'&&obj!==null?obj:{};
+  i=i?parseInt(i,10):0;
+  if(!Array.isArray(m)||!m[i]){
+    return v;
+  }
+  let ml=m.length,
+  mi=m[i].replace(/^\[(.*)\]$/,'$1');
+  if(!obj[mi]){
+    obj[mi]={};
+  }
+  obj[mi]=this.parseQueryKey(obj[mi],m,v,i+1);
+  return obj;
+};
+/* =================[ nothing ]================= */
+/* nothing statement */
+this.__proto__.nothing=function(){
+  return arguments;
+};
+/* temporary statement -- @return: always false */
 this.__proto__.temp=function(){
   return false;
 };
