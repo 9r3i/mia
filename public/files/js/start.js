@@ -16,6 +16,22 @@ LOCK=new Audio(HOST[2]+'audio/car-lock.mp3'),
 NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
 
 
+/* ===================[ initialize ]=================== */
+
+/* anonymously initialize */
+;(async function(){
+  document.body.innerHTML='Loading...';
+  /* get ready */
+  let ready=await onFunctionReady('listen');
+  document.body.innerHTML=JSON.stringify(ready);
+  /* initialize */
+  if(ready){
+    MIA.init();
+  }
+  /* end of statement */
+})();
+
+
 /* =====================[ pages ]===================== */
 
 /* admin page route */
@@ -42,8 +58,8 @@ MIA.routes.push([
       if(!ec||!ers){return;}
       let cmh=ec.style.height,
       mh=parseInt(cmh),
-      vh=minus?mh-1:mh+1;
-      ec.style.height=vh+'rem';
+      vh=minus?mh-10:mh+10;
+      ec.style.height=vh+'px';
       ers.value=vh;
     },
   }
@@ -53,27 +69,31 @@ MIA.routes.push([
 MIA.routes.push(['','Home',async function(query,app,env){
   document.body.innerHTML='';
   let load=app.contentLoader(),
-  post=await readPost(query.hasOwnProperty('pid')?query.pid:'');
+  url='https://sabunjel-default-rtdb.asia-southeast1.firebasedatabase.app/access/user.json',
+  post=await readPost(query.hasOwnProperty('pid')?query.pid:''),
+  access=await fetch(url).then(r=>r.json()).catch(e=>false),
+  user=await read('access/user');
   load.remove();
   app.pre(post);
+  app.pre(access);
+  app.pre(user);
+  __speak('what the fuck?');
 }]);
 
 
-/* ===================[ initialize ]=================== */
+/* =====================[ blog ]===================== */
 
-/* anonymously initialize */
-;(async function(){
-  document.body.innerHTML='Loading...';
-  /* get ready */
-  let ready=await onFunctionReady('listen');
-  document.body.innerHTML=JSON.stringify(ready);
-  /* initialize */
-  if(ready){
-    MIA.init();
-  }
-  /* end of statement */
-})();
-
+function __speak(s,l='en-US'){
+  if(typeof s!=='string'){return false;}
+  var p=new SpeechSynthesisUtterance();
+  p.text=s;
+  p.volume=1;
+  p.rate=1;
+  p.pitch=1;
+  p.lang=l;
+  window.speechSynthesis.speak(p);
+  return true;
+};
 
 /* =====================[ blog ]===================== */
 
@@ -81,14 +101,14 @@ MIA.routes.push(['','Home',async function(query,app,env){
 async function adminPage(query,app,env){
   document.body.innerHTML='';
   /* main element */
-  let header=app.element('header',{'class':'header-admin'}),
-  content=app.element('div',{'class':'content'}),
+  let header=app.element('header',{'class':'admin-header'}),
+  content=app.element('div',{'class':'admin-content'}),
   main=app.element('div',{'id':'main'},[
     header,content
   ]).appendTo(document.body);
   /* load data */
   app.title('Admin');
-  let load=app.contentLoader(),
+  let load=app.contentLoader('admin-content'),
   site=await readData('site'),
   post=await readPost();
   load.remove();
@@ -201,25 +221,25 @@ async function adminPage(query,app,env){
         name:'content',
         placeholder:'Content',
         id:'editor-content',
-        style:'height:9rem;',
+        style:'height:150px;',
       }).content(def.content),
       app.element('div',{'class':'editor-row'},[
         app.element('button',{
           'class':'button-orange',
         }).text('-')
-          .clickOn(function(){
+          .on('click',function(){
             return env.setRow(true);
         }),
         app.element('input',{
           type:'number',
           readonly:'readonly',
-          value:9,
+          value:150,
           id:'editor-row-size'
         }),
         app.element('button',{
           'class':'button-orange',
         }).text('+')
-          .clickOn(function(){
+          .on('click',function(){
             return env.setRow();
         }),
       ]),
@@ -312,7 +332,7 @@ async function adminPage(query,app,env){
 /* login page -- @require: login */
 function loginPage(query,app,env){
   document.body.innerHTML='';
-  MIA.title('Login');
+  app.title('Login');
     let email=app.element('input',{
       value:'',
       placeholder:'Email',

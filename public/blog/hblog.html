@@ -9,12 +9,18 @@
   const replacement=function(content){
     return content;
   },
-  host='',
+  host=[
+    'http://127.0.0.1:9301/', // --> 0
+    'http://127.0.0.1:9301/files/', // --> 1
+    'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 2
+    'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
+  ],
+  http=host[1]+'html/',
   route=async function(){
     let path=window.location.hash.substr(1).split('?')[0];
     path=path==''?'home.html':path;
     document.body.innerHTML='Loading...';
-    let content=await fetch(host+'files/html/'+path)
+    let content=await fetch(http+path)
       .then(r=>r.text())
       .catch(e=>'Failed to fetch: '+path);
     document.body.innerHTML=replacement(content);

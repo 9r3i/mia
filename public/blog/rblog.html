@@ -3,7 +3,47 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>9r3i\rblog</title>
-  <link href="files/css/rblog.css" rel="stylesheet" />
-  <script src="files/js/rblog.js" defer></script>
+  <script id="boot.js"></script>
+  <script>
+/* anonymous async function */
+(async function(){
+  /* execute the boot script */
+  let host=[
+    'http://127.0.0.1:9301/', // --> 0
+    'http://127.0.0.1:9301/files/', // --> 1
+    'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 2
+    'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
+  ],
+  bname='boot.js',
+  bhost=host[1]+'js/boot.js',
+  btag=document.getElementById(bname),
+  bscript=await fetch(bhost).then(r=>r.text());
+  if(!bscript||!bscript.match(/function\sboot/)){
+    alert('Error: Failed to load boot.js');
+    return;
+  }btag.textContent=bscript;
+  /* load files */
+  let app=new boot(host[1]),
+  files=[
+    'css/rblog.css',
+    'js/rblog.js',
+  ],
+  progress=document.querySelector('.progress'),
+  span=document.querySelector('span'),
+  loaded=await app.bulk(files,e=>{
+    if(e.total&&e.total>0&&e.loaded){
+      progress.setAttribute('max',e.total);
+      progress.setAttribute('value',e.loaded);
+      span.innerText=Math.floor(e.loaded/e.total*100)
+        +'% Loading...';
+    }else{
+      span.innerText=Math.floor(e.loaded/1024)+'KB - Loading...';
+    }
+  });
+  span.innerText='Completed -- '+(typeof loaded);
+})();
+  </script>
 </head><body>
+  <span></span>
+  <progress class="progress"></progress>
 </body></html>

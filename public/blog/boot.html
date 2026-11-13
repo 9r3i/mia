@@ -34,8 +34,14 @@ const GLOBALS={
 /* anonymous async function */
 (async function(){
   /* execute the boot script */
-  let bname='boot.js',
-  bhost='files/js/boot.js',
+  let host=[
+    'http://127.0.0.1:9301/', // --> 0
+    'http://127.0.0.1:9301/files/', // --> 1
+    'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 2
+    'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
+  ],
+  bname='boot.js',
+  bhost=host[1]+'js/boot.js',
   btag=document.getElementById(bname),
   bscript=await fetch(bhost).then(r=>r.text());
   if(!bscript||!bscript.match(/function\sboot/)){
@@ -43,17 +49,8 @@ const GLOBALS={
     return;
   }btag.textContent=bscript;
   /* load files */
-  // https://github.com/9r3i/static/archive/refs/heads/master.zip
-  // https://codeload.github.com/9r3i/static/zip/refs/heads/master
-  let host='https://raw.githubusercontent.com/9r3i/mia/master/public/files/',
-  //let host='https://rawfo.vercel.app/9r3i/mia/master/public/files/',
-  //let host='https://relfo.vercel.app/9r3i/static/mia.test.01/',
-  //let host='https://sabunjelly.com/files/cleanjelly/',
-  //let host='https://sabunjelly.com/files/image/jpeg/',
-  //let host='http://127.0.0.1:9301/files/',
-  app=new boot(host),
+  let app=new boot(host[1]),
   files=[
-    /**/
     'css/consola.css',
     'css/segoeuil.css',
     'css/mia.css',
@@ -65,21 +62,6 @@ const GLOBALS={
     'js/idb.js',
     'js/highlight.min.js',
     'js/mblog.js',
-    //*/
-    /**
-    'mia.css',
-    'mblog.css',
-    'mia.js',
-    'parser.js',
-    'mblog.js',
-    //*/
-    /**
-    'badr-battle-field-01.jpg',
-    'badr-battle-field-02.jpg',
-    'badr-battle-field-03.jpg',
-    'badr-battle-field-04.jpg',
-    'badr-battle-field-05.jpg',
-    //*/
   ],
   file='spanduk.jpg',
   progress=document.querySelector('.progress'),

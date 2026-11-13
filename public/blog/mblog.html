@@ -4,11 +4,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <!-- preload -->
   <link href="files/font/consola.ttf" rel="preload" as="font" />
-  <link href="files/css/consola.css" rel="preload" as="style" />
-  <link href="files/css/segoeuil.css" rel="preload" as="style" />
-  <link href="files/css/mia.css" rel="preload" as="style" />
-  <link href="files/css/mblog.css" rel="preload" as="style" />
-  <link href="files/css/atom-one-light.css" rel="preload" as="style" />
   <!-- common information -->
   <title>9r3i\mia\app:mblog</title>
   <meta name="keywords" content="9r3i, niner, mia" />
@@ -16,16 +11,11 @@
   <meta name="robots" content="follow,index" />
   <meta name="author" content="9r3i" />
   <meta name="uri" content="https://github.com/9r3i" />
-  <!-- style -->
-  <link href="files/css/consola.css" rel="stylesheet" />
-  <link href="files/css/segoeuil.css" rel="stylesheet" />
-  <link href="files/css/mia.css" rel="stylesheet" />
-  <link href="files/css/mblog.css" rel="stylesheet" />
-  <link href="files/css/atom-one-light.css" rel="stylesheet" />
   <link href="favicon.ico" rel="icon" type="image/x-icon" sizes="16x16" />
   <link href="files/image/blackapple.ico" rel="icon" type="image/x-icon" sizes="130x130" />
   <link href="files/image/blackapple.png" rel="icon" type="image/png" sizes="130x130" />
   <!-- script -->
+  <script id="boot.js"></script>
   <script>
 /* error message -- for development only */
 window.addEventListener('error',function(e){
@@ -40,8 +30,9 @@ window.addEventListener('error',function(e){
 });//*/
 /* GLOBALS VARIABLES */
 const GLOBALS={
-  host:'', // host of admin request (mia host)
-  // https://raw.githubusercontent.com/9r3i/mia/master/public/
+  host:'http://127.0.0.1:9301/', // host of admin request (mia host)
+  // host:'https://raw.githubusercontent.com/9r3i/mia/master/public/',
+  // host:'https://rawfo.vercel.app/9r3i/mia/master/public/',
   welcome:3, // post id for welcome page
   fakeloader:false, // using fake loader in every start
   haltstart:false, // do halt at start
@@ -53,14 +44,56 @@ const GLOBALS={
   content:null,
   footer:null,
 };
+/* anonymous async function */
+(async function(){
+  /* execute the boot script */
+  let host=[
+    'http://127.0.0.1:9301/', // --> 0
+    'http://127.0.0.1:9301/files/', // --> 1
+    'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 2
+    'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
+  ],
+  bname='boot.js',
+  bhost=host[1]+'js/boot.js',
+  btag=document.getElementById(bname),
+  bscript=await fetch(bhost).then(r=>r.text());
+  if(!bscript||!bscript.match(/function\sboot/)){
+    alert('Error: Failed to load boot.js');
+    return;
+  }btag.textContent=bscript;
+  /* load files */
+  let app=new boot(host[1]),
+  files=[
+    'css/consola.css',
+    'css/segoeuil.css',
+    'css/mia.css',
+    'css/mblog.css',
+    'css/atom-one-light.css',
+    'js/mia.js',
+    'js/parser.js',
+    'js/boot.js',
+    'js/idb.js',
+    'js/highlight.min.js',
+    'js/mblog.js',
+  ],
+  file='spanduk.jpg',
+  progress=document.querySelector('.progress'),
+  span=document.querySelector('span'),
+  loaded=await app.bulk(files,e=>{
+    if(e.total&&e.total>0){
+      progress.setAttribute('max',e.total);
+      progress.setAttribute('value',e.loaded);
+      span.innerText=Math.floor(e.loaded/e.total*100)
+        +'% Loading...';
+    }else{
+      span.innerText=Math.floor(e.loaded/1024)+'KB - Loading...';
+    }
+  });
+  span.innerText='Completed -- '+(typeof loaded);
+  return new mblog;
+})();
   </script>
-  <script src="files/js/mia.js"></script>
-  <script src="files/js/parser.js"></script>
-  <script src="files/js/boot.js"></script>
-  <script src="files/js/idb.js"></script>
-  <script src="files/js/highlight.min.js"></script>
-  <script src="files/js/mblog.js" defer></script>
-</head><body onload="new mblog">
+</head><body>
   <div class="splash">
     <span>Connecting...</span>
     <div class="progress-bar">

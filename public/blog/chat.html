@@ -19,8 +19,14 @@ window.addEventListener('error',function(e){
 /* anonymous async function */
 (async function(){
   /* execute the boot script */
-  let bname='boot.js',
-  bhost='files/js/boot.js',
+  let host=[
+    'http://127.0.0.1:9301/', // --> 0
+    'http://127.0.0.1:9301/files/', // --> 1
+    'https://raw.githubusercontent.com/9r3i/mia/master/public/files/',
+    'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
+  ],
+  bname='boot.js',
+  bhost=host[1]+'js/boot.js',
   btag=document.getElementById(bname),
   bscript=await fetch(bhost).then(r=>r.text());
   if(!bscript||!bscript.match(/function\sboot/)){
@@ -28,18 +34,12 @@ window.addEventListener('error',function(e){
     return;
   }btag.textContent=bscript;
   /* load files */
-  let host=[
-    'http://127.0.0.1:9301/', // --> 0
-    'http://127.0.0.1:9301/files/', // --> 1
-    'https://raw.githubusercontent.com/9r3i/mia/master/public/files/',
-    'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
-  ],
-  app=new boot(host[1]),
+  let app=new boot(host[1]),
   files=[
     'css/consola.css',
     'css/segoeuil.css',
-    //'css/mia.css',
-    //'css/chat.css',
+    'css/mia.css',
+    'css/chat.css',
     'js/binar.js',
     'js/mia.js',
     'js/chat.module.js',

@@ -51,11 +51,10 @@ this.__proto__.searchForm=function(key='text'){
 };
 /* =================[ loader -- css ]================= */
 /* content loader -- @require: css */
-this.__proto__.contentLoader=function(load=true){
+this.__proto__.contentLoader=function(cname='content'){
   let el=document.querySelector('.content-loader'),
-  content=document.querySelector('.content');
+  content=document.querySelector('.'+cname);
   if(el){el.remove();}
-  if(load===false){return;}
   el=document.createElement('div');
   el.classList.add('content-loader');
   if(content){

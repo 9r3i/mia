@@ -1,7 +1,7 @@
 /* quiz.js -- requires: mia.js (mia:client) */
 ;const quiz=function(){
 this.version='1.0.0';
-this.host='';
+this.host=GLOBALS.host||'';
 this.app=null;
 /* routers */
 this.routers=[
@@ -1027,19 +1027,19 @@ this.footers=[
       score:app.element('div',{},[
         app.element('img',{
           alt:'',
-          src:'files/image/score-80.png',
+          src:GLOBALS.host+'files/image/score-80.png',
         })
       ]),
       topic:app.element('div',{},[
         app.element('img',{
           alt:'',
-          src:'files/image/topic-80.png',
+          src:GLOBALS.host+'files/image/topic-80.png',
         })
       ]),
       account:app.element('div',{},[
         app.element('img',{
           alt:'',
-          src:'files/image/account-80.png',
+          src:GLOBALS.host+'files/image/account-80.png',
         })
       ]),
     },
