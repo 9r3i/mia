@@ -68,16 +68,26 @@ MIA.routes.push([
 /* home page route */
 MIA.routes.push(['','Home',async function(query,app,env){
   document.body.innerHTML='';
-  let load=app.contentLoader(),
+  let content=app.element('div',{'class':'content'}),
+  main=app.element('div',{id:'main'},[content])
+    .appendTo(document.body),
+  load=app.contentLoader(),
   url='https://sabunjel-default-rtdb.asia-southeast1.firebasedatabase.app/access/user.json',
-  post=await readPost(query.hasOwnProperty('pid')?query.pid:''),
-  access=await fetch(url).then(r=>r.json()).catch(e=>false),
-  user=await read('access/user');
+  post=await readPost(query.hasOwnProperty('pid')?query.pid:'');
   load.remove();
-  app.pre(post);
-  app.pre(access);
-  app.pre(user);
-  __speak('what the fuck?');
+  if(post.hasOwnProperty('content')){
+    let text=post.content;
+    app.pre(text);
+    __speak(text,'su-ID');
+    return;
+  }
+  for(let i in post){
+    let title=post[i].title;
+    app.element('div',{},[
+      app.element('a',{href:'#?pid='+i}).content(title),
+    ]).appendTo(content);
+  }
+  //app.pre(post);
 }]);
 
 

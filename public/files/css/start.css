@@ -417,3 +417,12 @@ button i,.button i{
 }
 
 
+/* =====================[ blog ]===================== */
+.content{
+  margin:4rem 0rem 1rem;
+  padding:1rem;
+  overflow-x:hidden;
+  background-color:#fff;
+}
+
+
