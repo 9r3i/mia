@@ -13,7 +13,7 @@
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:170,
+  value:172,
   writable:false,
 });
 /* the version */
@@ -62,6 +62,13 @@ this.__proto__.contentLoader=function(cname='content'){
   }else{
     document.body.append(el);
   }
+  let lds=document.createElement('div');
+  lds.classList.add('lds-ellipsis');
+  for(let i of [1,2,3,4]){
+    ld=document.createElement('div');
+    lds.append(ld);
+  }
+  el.append(lds);
   return el;
 };
 /* loader -- @require: css */
@@ -73,6 +80,13 @@ this.__proto__.loader=function(load=true){
   el.classList.add('loader');
   el.id='loader';
   document.body.append(el);
+  let lds=document.createElement('div');
+  lds.classList.add('lds-ellipsis');
+  for(let i of [1,2,3,4]){
+    ld=document.createElement('div');
+    lds.append(ld);
+  }
+  el.append(lds);
   return el;
 };
 /* =================[ basic ]================= */
@@ -224,16 +238,16 @@ this.__proto__.confirmCB=function(text,cback){
   return button;
 };
 /* alert */
-this.__proto__.alert=function(text){
+this.__proto__.alert=function(text,max=1){
   return new Promise(resolve=>{
-    this.alertCB(text,resolve);
+    this.alertCB(text,resolve,max);
   });
 };
 /* alert callback --> @return: button object */
-this.__proto__.alertCB=function(text,cb){
+this.__proto__.alertCB=function(text,cb,max=1){
   let old=document.getElementById('alert-bg');
   if(old){old.remove();}
-  text=typeof text==='string'?text:JSON.stringify(text);
+  text=typeof text==='string'?text:this.likeJSON(text,max);
   let button=this.element('button',{
         'class':'button-confirm',
         'id':'alert-button',

@@ -14,13 +14,15 @@ HOST=[
 DBNAME='starter',
 LOCK=new Audio(HOST[2]+'audio/car-lock.mp3'),
 NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
-
+// https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/.json
 
 /* ===================[ initialize ]=================== */
 
 /* anonymously initialize */
 ;(async function(){
-  document.body.innerHTML='Loading...';
+  //if(true){return;}
+  document.body.innerHTML='';
+  MIA.loader();
   /* get ready */
   let ready=await onFunctionReady('listen');
   document.body.innerHTML=JSON.stringify(ready);
@@ -71,8 +73,9 @@ MIA.routes.push(['','Home',async function(query,app,env){
   let content=app.element('div',{'class':'content'}),
   main=app.element('div',{id:'main'},[content])
     .appendTo(document.body),
-  load=app.contentLoader(),
+  load=app.contentLoader();
   url='https://sabunjel-default-rtdb.asia-southeast1.firebasedatabase.app/access/user.json',
+  urlSilsilah='https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/.json',
   post=await readPost(query.hasOwnProperty('pid')?query.pid:'');
   load.remove();
   if(post.hasOwnProperty('content')){
@@ -87,6 +90,9 @@ MIA.routes.push(['','Home',async function(query,app,env){
       app.element('a',{href:'#?pid='+i}).content(title),
     ]).appendTo(content);
   }
+  app.element('button',{'class':'button-red'}).appendTo(content).clickOn(function(){
+    uploadPage(query,app,env);
+  }).text('Upload');
   //app.pre(post);
 }]);
 
@@ -103,6 +109,56 @@ function __speak(s,l='en-US'){
   p.lang=l;
   window.speechSynthesis.speak(p);
   return true;
+};
+
+
+/* upload page */
+function uploadPage(query,app,env){
+  document.body.innerHTML='';
+  let content=app.element('div',{'class':'content'}),
+  main=app.element('div',{id:'main'},[content])
+    .appendTo(document.body),
+  input=app.element('input',{
+    'class':'family-photo-input',
+    'type':'file',
+    'accept':'image/*',
+  }).appendTo(content);
+  input.onchange=function(){
+    let file=this.files[0],
+    esize=200,
+    imgx=new Image;
+    imgx.onload=async function(){
+      let ratio=imgx.width>imgx.height
+               ?imgx.height/imgx.width
+               :imgx.width/imgx.height,
+          iw=imgx.width>imgx.height?ratio*imgx.width:imgx.width,
+          ih=imgx.height>imgx.width?ratio*imgx.height:imgx.height,
+          sx=imgx.width>imgx.height
+            ?(imgx.width-imgx.height)/2:0,
+          sy=imgx.height>imgx.width
+            ?(imgx.height-imgx.width)/2:0;
+      let canvas=app.element('canvas',{
+        width:esize,
+        height:esize,
+      }),
+      ctx=canvas.getContext('2d');
+      ctx.drawImage(imgx,sx,sy,iw,ih,0,0,esize,esize);
+      canvas.appendTo(content);
+      let base64ImageData=canvas.toDataURL(),
+      apikey='f03253cc7545c473174bb996f67fdcad',
+      url='https://api.imgbb.com/1/upload?key='+apikey,
+      imageData=base64ImageData
+        .replace('data:image/png;base64,',''),
+      fdata=new FormData;
+      fdata.append('image',imageData);
+      let res=await fetch(url,{
+        method:'POST',
+        body:fdata,
+      }).then(r=>r.json()).catch(e=>false);
+      app.alert(res,3);
+    };
+    imgx.src=URL.createObjectURL(file);
+  };
 };
 
 /* =====================[ blog ]===================== */

@@ -163,7 +163,7 @@ this.routers=[
       +'And also this is M-Blog that create this blog<br />'
       +'I got more blog sample:<br />'
       +[
-        '<a target="_blank" href="gblog/">G-Blog</a>',
+        '<a target="_blank" href="https://relfo.vercel.app/9r3i/9r3i.github.io/7.0.0/">G-Blog</a>',
       ].join(' -- ')
       +'<br />'
       +[
