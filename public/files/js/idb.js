@@ -1,12 +1,17 @@
 /* idb.js */
 ;function idb(dbname='database',table='table',key='path'){
-this.version='1.0.0';
+this.version='1.1.0';
 this.drive=window.indexedDB||window.mozIndexedDB
   ||window.webkitIndexedDB||window.msIndexedDB
   ||window.shimIndexedDB;
 this.dbname=dbname;
 this.table=table;
 this.key=key;
+/* table selection */
+this.select=function(table){
+  this.table=table;
+  return this.create();
+};
 /* create database */
 this.create=function(){
   let db=this.drive.open(this.dbname,1);
@@ -16,6 +21,22 @@ this.create=function(){
       .createIndex('index',['alias']);
   };
   return this;
+};
+/* get keys */
+this.getKeys=function(){
+  if(typeof path!=='string'){return false;}
+  return new Promise((resolve)=>{
+    let db=this.drive.open(this.dbname,1);
+    db.onsuccess=()=>{
+      let tx=db.result.transaction(this.table,'readonly'),
+      store=tx.objectStore(this.table),
+      index=store.index('index'),
+      data=store.getAllKeys();
+      data.onsuccess=function(){
+        return resolve(typeof data.result!=='undefined'?data.result:false);
+      };
+    };
+  });
 };
 /* set */
 this.set=function(path,content='',alias=''){
@@ -37,7 +58,7 @@ this.get=function(path){
   return new Promise((resolve)=>{
     let db=this.drive.open(this.dbname,1);
     db.onsuccess=()=>{
-      let tx=db.result.transaction(this.table,'readwrite'),
+      let tx=db.result.transaction(this.table,'readonly'),
       store=tx.objectStore(this.table),
       index=store.index('index'),
       data=store.get(path);
@@ -53,7 +74,7 @@ this.index=function(alias){
   return new Promise((resolve)=>{
     let db=this.drive.open(this.dbname,1);
     db.onsuccess=()=>{
-      let tx=db.result.transaction(this.table,'readwrite'),
+      let tx=db.result.transaction(this.table,'readonly'),
       store=tx.objectStore(this.table),
       index=store.index('index'),
       data=index.get([alias]);

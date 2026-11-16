@@ -25,7 +25,7 @@ NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
   MIA.loader();
   /* get ready */
   let ready=await onFunctionReady('listen');
-  document.body.innerHTML=JSON.stringify(ready);
+  document.body.innerHTML=JSON.stringify({ready});
   /* initialize */
   if(ready){
     MIA.init();
@@ -69,6 +69,11 @@ MIA.routes.push([
 
 /* home page route */
 MIA.routes.push(['','Home',async function(query,app,env){
+  
+}]);
+
+/* test page route */
+MIA.routes.push(['test','Test',async function(query,app,env){
   document.body.innerHTML='';
   let content=app.element('div',{'class':'content'}),
   main=app.element('div',{id:'main'},[content])
