@@ -13,7 +13,7 @@
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:172,
+  value:173,
   writable:false,
 });
 /* the version */
@@ -724,7 +724,7 @@ this.__proto__.title=function(s=''){
     }
   }else{
     t=document.createElement('title');
-    document.head.appendChild(t);
+    document.head.append(t);
     t.innerText=s;
   }return true;
 };
@@ -769,9 +769,9 @@ this.__proto__.error=function(s,c){
   sd.style.fontSize='11px';
   sd.style.fontFamily='consolas,monospace';
   sd.innerText='9r3i\\mia\\app';
-  n.appendChild(sp);
-  n.appendChild(sd);
-  document.body.appendChild(n);
+  n.append(sp);
+  n.append(sd);
+  document.body.append(n);
   return true;
 };
 /* parse url path -- protocol and hostname are not included */

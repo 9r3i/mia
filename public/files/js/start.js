@@ -12,6 +12,7 @@ HOST=[
   'https://9r3i.github.io/sabunjelly/files/', // --> 4
 ],
 DBNAME='starter',
+APPNAME='9r3i\\mia@firebase\\app',
 LOCK=new Audio(HOST[2]+'audio/car-lock.mp3'),
 NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
 // https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/.json
@@ -25,7 +26,8 @@ NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
   MIA.loader();
   /* get ready */
   let ready=await onFunctionReady('listen');
-  document.body.innerHTML=JSON.stringify({ready});
+  document.body.innerHTML='';
+  MIA.pre({ready});
   /* initialize */
   if(ready){
     MIA.init();
@@ -69,12 +71,17 @@ MIA.routes.push([
 
 /* home page route */
 MIA.routes.push(['','Home',async function(query,app,env){
-  
+  document.body.innerHTML='';
+  MIA.pre(APPNAME+'::home');
+  MIA.pre(location);
+  MIA.pre(MIA.parseQuery(location.search.substr(1)));
+  MIA.pre({loaded:window.loaded});
 }]);
 
 /* test page route */
 MIA.routes.push(['test','Test',async function(query,app,env){
   document.body.innerHTML='';
+  MIA.pre(APPNAME+'::test');
   let content=app.element('div',{'class':'content'}),
   main=app.element('div',{id:'main'},[content])
     .appendTo(document.body),
@@ -469,7 +476,7 @@ function onFunctionReadyCB(fn,cb,i=0){
     if(window.hasOwnProperty(fn)
       &&typeof window[fn]==='function'){
       return cb(true);
-    }else if(i>3000){
+    }else if(i>1000){
       return cb(false);
     }return onFunctionReadyCB(fn,cb,i+1);
   },1);

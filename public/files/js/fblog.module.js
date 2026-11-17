@@ -645,6 +645,7 @@ function searchForm(key='text'){
 
 /* content loader -- @require: loader.css */
 function contentLoader(load=true){
+  if(MIA){return MIA.contentLoader(load);}
   let el=document.querySelector('.content-loader'),
   content=document.querySelector('.content');
   if(el){el.remove();}
@@ -661,6 +662,7 @@ function contentLoader(load=true){
 
 /* loader -- @require: loader.css */
 function loader(load=true){
+  if(MIA){return MIA.loader(load);}
   let el=document.getElementById('loader');
   if(el){el.remove();}
   if(load===false){return;}

@@ -1,6 +1,6 @@
 /* mblog.js */
-const mblog=function(){
-this.version='1.3.0';
+;function mblog(){
+this.version='1.4.0';
 /* routers */
 this.routers=[
   /* redirect page */
@@ -10,7 +10,7 @@ this.routers=[
   }],
   /* hblog */
   ['hblog/','R-Blog',async function(query,app,env){
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     GLOBALS.content.html();
     let frame=app.element('iframe').appendTo(GLOBALS.content),
     doc=frame.contentDocument,
@@ -31,7 +31,7 @@ this.routers=[
   }],
   /* rblog */
   ['rblog/','R-Blog',async function(query,app,env){
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     GLOBALS.content.html();
     let frame=app.element('iframe').appendTo(GLOBALS.content),
     doc=frame.contentDocument,
@@ -52,7 +52,7 @@ this.routers=[
   }],
   /* gblog */
   ['gblog/','G-Blog',async function(query,app,env){
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     GLOBALS.content.html();
     let frame=app.element('iframe').appendTo(GLOBALS.content),
     doc=frame.contentDocument,
@@ -73,7 +73,7 @@ this.routers=[
   }],
   /* test page */
   ['test.js','Test Page',async function(query,app,env){
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     /**
     let db=(new idb).create();
     //db.set('test.txt','yang takkan pernah terlupakan selamanya');
@@ -325,7 +325,7 @@ this.routers=[
   }],
   /* posts page -- recent page */
   ['posts.js','Recent Posts',async function(query,app,env){
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     /* load the posts  */
     let json=await app.get('files/db/posts.json'),
     data=app.parseJSON(json),
@@ -460,7 +460,7 @@ this.routers=[
       return app.error('Not Found',404);
     }
     /* load the posts  */
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let json=await app.get('files/db/posts.json'),
     data=app.parseJSON(json),
     posts=Array.isArray(data)?data:[];
@@ -540,7 +540,7 @@ this.routers=[
     if(!app.key){
       return app.go('login.js');
     }
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let json=await app.post('file',{
       scan:true,
     }),
@@ -715,7 +715,7 @@ this.routers=[
     if(!app.key){
       return app.go('login.js');
     }
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let def={
       id:1,
       title:'',
@@ -894,7 +894,7 @@ this.routers=[
     if(!app.key){
       return app.go('login.js');
     }
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let json=await app.get('files/db/posts.json'),
     data=app.parseJSON(json),
     posts=Array.isArray(data)?data:[];

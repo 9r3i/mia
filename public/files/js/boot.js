@@ -57,7 +57,7 @@ this.exec=function(s,t,i){
   c.type=u[1];
   c.textContent=typeof s==='string'?s:'';
   c.id=typeof i==='string'?i:new Date().getTime();
-  document.head.appendChild(c);
+  document.head.append(c);
   return c;
 };
 /* fetch with progress -- @return: string or false */

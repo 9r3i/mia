@@ -1,6 +1,6 @@
 /* quiz.js -- requires: mia.js (mia:client) */
-;const quiz=function(){
-this.version='1.0.0';
+;function quiz(){
+this.version='1.1.0';
 this.host=GLOBALS.host||'';
 this.app=null;
 /* routers */
