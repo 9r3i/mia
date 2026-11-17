@@ -7,6 +7,7 @@ MIA=new mia,
 HOST=[
   'http://127.0.0.1:9301/', // --> 0
   'http://127.0.0.1:9301/files/', // --> 1
+  'https://9r3i.github.io/mia/public/',
   'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 2
   'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
   'https://9r3i.github.io/sabunjelly/files/', // --> 4

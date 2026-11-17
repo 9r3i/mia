@@ -49,8 +49,9 @@ const GLOBALS={
   theHost=[location.hostname,location.port].join(':'),
   hosts=[
     'http://'+theHost+'/', // --> 0
-    'https://raw.githubusercontent.com/9r3i/mia/master/public/', // --> 1
-    'https://rawfo.vercel.app/9r3i/mia/master/public/', // --> 2
+    'https://9r3i.github.io/mia/public/', // --> 1
+    'https://raw.githubusercontent.com/9r3i/mia/master/public/', // --> 2
+    'https://rawfo.vercel.app/9r3i/mia/master/public/', // --> 3
   ],
   host=hosts[isLocal?0:1],
   fhost=host+'files/';
