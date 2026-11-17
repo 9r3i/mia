@@ -5,11 +5,11 @@
   },
   host=[
     'http://127.0.0.1:9301/', // --> 0
-    'http://127.0.0.1:9301/files/', // --> 1
-    'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 2
-    'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
+    'https://9r3i.github.io/mia/public/', // --> 1
+    'https://raw.githubusercontent.com/9r3i/mia/master/public/', // --> 2
+    'https://rawfo.vercel.app/9r3i/mia/master/public/', // --> 3
   ],
-  http=host[1]+'html/',
+  http=GLOBALS.host+'files/html/',
   route=async function(){
     let path=window.location.hash.substr(1).split('?')[0];
     path=path==''?'home.html':path;
