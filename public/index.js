@@ -27,6 +27,18 @@ const GLOBALS={
   nav:null,
   content:null,
   footer:null,
+  apps:[
+    'start',
+    'hblog',
+    'rblog',
+    'fblog',
+    'mblog',
+    'chat',
+    'quiz',
+    'monitoring',
+    'gaino',
+    'force',
+  ],
 };
 /* anonymous async function */
 (async function(){
@@ -103,19 +115,18 @@ const GLOBALS={
       return eval(starter.param);
     }
   }
-  /* 9r3i\mia@firebase\app */
   /* ... */
 })();
 /* file content, logo and starter */
 function fileContent(appname='start'){
-  let files={
+  let libs={
     start:[
       'css/consola.css',
       'css/segoeuil.css',
       'css/firasans.css',
       'css/mia.css',
       'css/start.css',
-      'js/firebase.module.js',
+      'js/start.module.js',
       'js/mia.js',
       'js/binar.js',
       'js/start.js',
@@ -193,17 +204,33 @@ function fileContent(appname='start'){
       name:'init',
       param:null,
     },
+    gaino:{
+      type:'function',
+      name:'replaceURL',
+      param:GLOBALS.host+'blog/gaino/',
+    },
+    force:{
+      type:'function',
+      name:'replaceURL',
+      param:GLOBALS.host+'blog/force/',
+    },
   },
   logos={
     fblog:'image/cleanjelly.png',
   },
   icon=logos.hasOwnProperty(appname)
     ?logos[appname]:'image/blackapple.png',
-  starter=starts.hasOwnProperty(appname)?starts[appname]:null;
-  return {
-    files:files.hasOwnProperty(appname)?files[appname]:[],
-    appname,icon,starter,
-  };
+  starter=starts.hasOwnProperty(appname)?starts[appname]:null,
+  files=libs.hasOwnProperty(appname)?libs[appname]:[];
+  return {files,appname,icon,starter};
+}
+/* replace url */
+function replaceURL(url){
+  window.location.replace(url);
+}
+/* assign url */
+function assignURL(url){
+  window.location.assign(url);
 }
 /* meta content */
 function metaContent(){
@@ -222,6 +249,11 @@ function metaContent(){
   meta3.setAttribute('http-equiv','X-UA-Compatible');
   meta3.content='IE=edge,chrome=1';
   document.head.append(meta3);
+  /* set title */
+  let title=document.createElement('title');
+  title.innerText='9r3i\\mia@firebase\\app';
+  document.head.append(title);
+  /* 9r3i\mia@firebase\app */
 }
 /* splash content */
 function splashContent(logo){

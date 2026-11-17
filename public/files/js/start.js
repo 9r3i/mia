@@ -72,10 +72,19 @@ MIA.routes.push([
 /* home page route */
 MIA.routes.push(['','Home',async function(query,app,env){
   document.body.innerHTML='';
+  let content=app.element('div',{'class':'content'}),
+  main=app.element('div',{id:'main'},[content])
+    .appendTo(document.body);
   MIA.pre(APPNAME+'::home');
+  for(let appname of GLOBALS.apps){
+    let el=app.element('button',{'class':'button-blue','data-app':appname}).text(appname).clickOn(function(){
+      window.location.assign('?app='+this.dataset.app);
+    }).appendTo(content);
+  }
   MIA.pre(location);
   MIA.pre(MIA.parseQuery(location.search.substr(1)));
   MIA.pre({loaded:window.loaded});
+  MIA.pre(GLOBALS.apps);
 }]);
 
 /* test page route */
