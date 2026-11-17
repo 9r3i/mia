@@ -176,6 +176,9 @@ iframe{
   color:#333;
 }
 .alert-footer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
   text-align:center;
   border-top:1px solid #ccc;
   height:70px;
