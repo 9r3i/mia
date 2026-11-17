@@ -7,7 +7,7 @@ this.app=null;
 this.routers=[
   ['','Home',async function(query,app,env){
     /* load data */
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let json=await app.get('files/db/topic.json'),
     data=app.parseJSON(json),
     posts=Array.isArray(data)?data:[];
@@ -53,7 +53,7 @@ this.routers=[
   /* score page */
   ['score.js','Score',async function(query,app,env){
     /* load data */
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let json=await app.get('files/db/score.json'),
     data=app.parseJSON(json),
     posts=typeof data==='object'&&data!==null?data:{};
@@ -140,7 +140,7 @@ this.routers=[
       }
     }
     /* load all data */
-    let loader=app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content),
+    let loader=app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content),
     data=await env.load(app,query.id);
     loader.remove();
     /* check all data */
@@ -331,7 +331,7 @@ this.routers=[
       return app.error('Not Found',404);
     }
     /* load data */
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let json=await app.get('files/db/topic.json'),
     data=app.parseJSON(json),
     posts=Array.isArray(data)?data:[],
@@ -392,7 +392,7 @@ this.routers=[
     if(!query.hasOwnProperty('tid')){
       return app.error('Not Found',404);
     }
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let def={
       id:1,
       q:'',
@@ -636,7 +636,7 @@ this.routers=[
     if(!app.key){
       return app.go('login.js');
     }
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let def={
       id:1,
       username:app.user,
@@ -770,7 +770,7 @@ this.routers=[
       qbut.appendTo(form);
     }
     /* ---------- [QUESTION] ---------- */
-    let loader=app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content),
+    let loader=app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content),
     ganjel=app.element('div',{'class':'content-separator'}).appendTo(GLOBALS.content),
     search=app.searchForm().appendTo(GLOBALS.content),
     qdata=await env.load(app,query.id);
@@ -856,7 +856,7 @@ this.routers=[
       return app.go('login.js');
     }
     /* load data */
-    app.element('div',{'class':'content-loader'}).appendTo(GLOBALS.content);
+    app.element('div',{'class':'content-loader-min'}).appendTo(GLOBALS.content);
     let json=await app.get('files/db/topic.json'),
     data=app.parseJSON(json),
     posts=Array.isArray(data)?
