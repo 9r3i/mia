@@ -14,7 +14,8 @@ window.addEventListener('error',function(e){
 });//*/
 /* GLOBALS VARIABLES */
 const GLOBALS={
-  host:'http://127.0.0.1:9301/', // host of admin request (mia host)
+  host:'http://127.0.0.1:9301/', // host of mia server (mia host)
+  // host:'https://9r3i.github.io/mia/public/', // --> 1
   // host:'https://raw.githubusercontent.com/9r3i/mia/master/public/',
   // host:'https://rawfo.vercel.app/9r3i/mia/master/public/',
   welcome:3, // post id for welcome page
@@ -72,7 +73,11 @@ const GLOBALS={
   /* setup app name */
   let search=location.search.substr(1).split('&'),
   match=search[0].match(/^app=([a-z0-9]+)$/),
-  appname=match?match[1]:'start';
+  appname=match?match[1]:'start',
+  itag=document.getElementById('index.js');
+  if(itag&&itag.dataset.app){
+    appname=itag.dataset.app;
+  }
   /* initialize boot and files */
   let app=new boot(fhost),
   {files,starter,icon}=fileContent(appname),
