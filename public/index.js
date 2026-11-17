@@ -62,7 +62,7 @@ const GLOBALS={
   appname=match?match[1]:'start';
   /* initialize boot and files */
   let app=new boot(fhost),
-  {files,appname,starter,icon}=fileContent(appname),
+  {files,starter,icon}=fileContent(appname),
   logo=fhost+icon;
   let {progress,span}=splashContent(logo);
   /* load files */
