@@ -136,8 +136,10 @@ MIA.routes.push(['','Home',async function(query,app,env){
     return image;
   },
   viewsURL:async function(user,reg=false){
-    let color=[0xea,0x72,0x33].join(',');
-    return 'https://views-olive.vercel.app/?user='+user
+    let color=[0xea,0x72,0x33].join(','),
+    //host='views-olive.vercel.app';
+    host='blaster.xo.je';
+    return 'https://'+host+'/?user='+user
       +'&color='+color+'&time='+(new Date).getTime()
       +(reg?'&register=github.com/9r3i/views/tree/master':'');
     // https://views-olive.vercel.app/?user=9r3i-views&register=github.com/9r3i/views/tree/master
