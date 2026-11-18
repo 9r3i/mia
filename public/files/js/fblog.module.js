@@ -45,6 +45,7 @@ NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
 
 /* default page */
 MIA.routes.push(['','Home',async function(query,app,env){
+  icons();
   document.body.innerHTML='';
   /* main element */
   let header=div('header',{'class':'header','data-text':'CleanJelly'}),
@@ -65,6 +66,12 @@ MIA.routes.push(['','Home',async function(query,app,env){
   /* set title */
   app.title(site.name+' - '+site.description);
   header.text(site.description);
+  metaContent('description',site.description);
+  metaContent('keywords',site.keywords);
+  metaContent('robots',site.robots);
+  metaContent('robots',site.robots);
+  metaContent('og','https://9r3i.github.io/sabunjelly/files/cleanjelly/icons/icon-152.png','og:image');
+  metaContent('google-site-verification','_6u0NLdofOLp0oq1Yo3hM0wTkg_iVJ32Qbv67Ppxr_M');
   /* slider */
   if(!query.hasOwnProperty('pid')){
     let slide=slider(images);
@@ -174,6 +181,45 @@ window.pro=pro;
 
 
 /* =====================[ blog ]===================== */
+
+/* meta content*/
+function metaContent(name='',content='',property=''){
+  let el=document.createElement('meta');
+  el.name=name;
+  el.content=content;
+  el.property=property;
+  document.head.append(el);
+}
+
+/* icons */
+function icons(){
+  let sizes=[57,60,72,76,114,120,144,152,180];
+  for(let size of sizes){
+    let el=document.createElement('link');
+    el.rel='apple-touch-icon';
+    el.type='image/png';
+    el.sizes=size+'x'+size;
+    el.href='https://9r3i.github.io/sabunjelly/files/cleanjelly/icons/icon-'+size+'.png';
+    document.head.append(el);
+  }
+  let sizesi=[16,32,96,193];
+  for(let size of sizesi){
+    let el=document.createElement('link');
+    el.rel='icon';
+    el.type='image/png';
+    el.sizes=size+'x'+size;
+    el.href='https://9r3i.github.io/sabunjelly/files/cleanjelly/icons/icon-'+size+'.png';
+    document.head.append(el);
+  }
+  for(let size of sizesi){
+    let el=document.createElement('link');
+    el.rel='shortcut icon';
+    el.type='image/png';
+    el.sizes=size+'x'+size;
+    el.href='https://9r3i.github.io/sabunjelly/files/cleanjelly/icons/icon-'+size+'.png';
+    document.head.append(el);
+  }
+}
 
 /* slider -- @require: tns (tiny slider) and its css */
 function slider(images){
