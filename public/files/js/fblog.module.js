@@ -112,7 +112,9 @@ MIA.routes.push(['','Home',async function(query,app,env){
   viewsURL:async function(user){
     let color=[0xea,0x72,0x33].join(',');
     return 'https://views-olive.vercel.app/?user='+user
-      +'&color='+color+'&time='+(new Date).getTime();
+      +'&color='+color+'&time='+(new Date).getTime()
+      +'&register=github.com/9r3i/views/tree/master';
+    // https://views-olive.vercel.app/?user=9r3i-views&register=github.com/9r3i/views/tree/master
   },
   views:async function(user,reg=false){
     let base='https://viewsx-default-rtdb.asia-southeast1.firebasedatabase.app/views/';

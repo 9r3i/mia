@@ -539,7 +539,7 @@ select{
 }
 /* button */
 button,.button{
-  background-color:#fff;
+  background-color:#f9f9f9;
   border:0rem none;
   padding:0.3125rem 0.9375rem;
   margin:0rem;
@@ -555,10 +555,10 @@ button,.button{
   white-space:pre;
 }
 button:hover,.button:hover{
-  background-color:#f9f9f9;
+  background-color:#f1f1f1;
 }
 button:focus,.button:focus{
-  background-color:#f1f1f1;
+  background-color:#e9e9e9;
 }
 button:disabled,.button:disabled{
   opacity:0.8;
