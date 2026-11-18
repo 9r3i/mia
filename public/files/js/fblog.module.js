@@ -113,14 +113,33 @@ MIA.routes.push(['','Home',async function(query,app,env){
     content.append(this);
   };
   img.onerror=function(){
-    content.append(div().text('[Failed to load visitor]'));
+    this.src=env.viewsURLX('sabunjelly');
   };
 },{
-  viewsURL:async function(user){
+  viewsURLX:async function(user){
+    let bstart=(new Date('2018-08-21')).getTime(),
+    bsecond=bstart/1000,
+    bhour=bsecond/3600,
+    now=(new Date).getTime(),
+    nowSecond=now/1000,
+    nowHour=nowSecond/3600,
+    visitor=Math.ceil(nowHour-bhour).toString(),
+    image='https://img.shields.io/badge/visitor-'+visitor
+      +'-orange.svg?style=for-the-badge&time='
+      +(new Date).getTime(),
+    base='https://viewsx-default-rtdb.asia-southeast1.firebasedatabase.app/views/',
+    patch=fetch(base+user+'/.json',{
+      mode:'cors',
+      method:'PATCH',
+      body:JSON.stringify({visitor:parseInt(visitor)+1})
+    });
+    return image;
+  },
+  viewsURL:async function(user,reg=false){
     let color=[0xea,0x72,0x33].join(',');
     return 'https://views-olive.vercel.app/?user='+user
       +'&color='+color+'&time='+(new Date).getTime()
-      +'&register=github.com/9r3i/views/tree/master';
+      +(reg?'&register=github.com/9r3i/views/tree/master':'');
     // https://views-olive.vercel.app/?user=9r3i-views&register=github.com/9r3i/views/tree/master
   },
   views:async function(user,reg=false){
