@@ -7,36 +7,46 @@
  * @require: tree.css
  * @usage: (new tree).test()
  */
-function tree(config){
+function tree(host,config){
 this.version='1.2.0';
 this.element=null;
+this.host=host||'';
 this.config=typeof config==='object'&&config!==null?config:{};
-window._tree=this;
-/* test */
-this.uploadImage=function(){
-  let apikey='f03253cc7545c473174bb996f67fdcad',
-  url='https://api.imgbb.com/1/upload?key='+apikey;
-};
+globalThis._tree=this;
 /* test */
 this.test=async function(){
   document.body.innerHTML='';
-  let builder=_tree.buildElement;
-  let loader=builder('div',null,{'style':'text-align:center;'},[
+  let plant=await this.plant('nabi');
+};
+/* plant the family tree */
+this.plant=async function(path=''){
+  let builder=this.buildElement,
+  rootid='tree-root-'+path,
+  parent=builder('div',null,{'class':'tree-root','id':rootid}),
+  loader=builder('div',null,{'style':'text-align:center;'},[
     builder('div',null,{'class':'lds-ellipsis'},[
       builder('div'),builder('div'),
       builder('div'),builder('div'),
     ]),
-    builder('div','Loading...'),
+    builder('div','Loading...',{'class':'lds-text'}),
   ]);
-  loader.appendTo(document.body);
-  //if(true){return;}
-  const url='nabi.json',
-  dataArray=await this.fetchData(url),
-  data=this.generate(dataArray,1),
-  parent=document.body;
+  loader.appendTo(parent);
+  document.body.append(parent);
+  let url=this.host+path+'.json',
+  dataObject=await this.fetchData(url);
+  if(!dataObject||typeof dataObject!=='object'
+    ||dataObject===null){
+    parent.remove();
+    alert('Error: Failed to fetch data.');
+    return false;
+  }
+  let dataArray=Array.isArray(dataObject)
+    ?dataObject:Object.values(dataObject),
+  data=this.generate(dataArray,1);
   if(!data){
-    document.body.innerHTML='Failed to generate data.';
-    return;
+    parent.remove();
+    alert('Error: Failed to generate data.');
+    return false;
   }
   this.create(data,parent);
   let root=document.getElementById('root');
@@ -45,6 +55,16 @@ this.test=async function(){
     left:parent.offsetWidth/15,
     behavior:'smooth',
   });
+  let closer=builder('div','Close',{
+    'class':'tree-root-closer',
+    'data-rootid':rootid,
+  });
+  closer.addEventListener('click',function(){
+    let el=document.getElementById(this.dataset.rootid);
+    if(el){el.remove();}
+  },false);
+  parent.append(closer);
+  return parent;
 };
 /* generate */
 this.generate=function(data,id=1){

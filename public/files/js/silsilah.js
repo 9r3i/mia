@@ -495,30 +495,6 @@ function onFunctionReadyCB(fn,cb,i=0){
   },1);
 }
 
-/* decrypt -- @require: binar.js */
-function decrypt(s){
-  s=typeof s==='string'?s:JSON.stringify(s);
-  let a=/^([a-z]+):(\d+):/,
-  b=s.match(a);
-  if(!b){return null;}
-  let c=s.replace(a,''),
-  d=new binar(b[1],parseInt(b[2],10)),
-  e=d.decrypt(c);
-  return e||null;
-};
-
-/* encrypt -- @require: binar.js */
-function encrypt(s){
-  s=typeof s==='string'?s:JSON.stringify(s);
-  let a=Math.ceil(Math.random()*99),
-  b='abcdefghijklmnopqrstuvwxyz',
-  c=b.split('').sort(r=>Math.random()-0.5)
-    .join('').substr(0,9),
-  d=new binar(c,a),
-  e=d.encrypt(s);
-  return [c,a,e].join(':');
-};
-
 
 /* =====================[ data ]===================== */
 

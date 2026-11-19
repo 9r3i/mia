@@ -40,6 +40,7 @@ const GLOBALS={
     'gaino',
     'force',
     'tree',
+    'silsilah',
   ],
 };
 /* anonymous async function */
@@ -193,6 +194,7 @@ function fileContent(appname='start'){
       'js/fblog.js',
     ],
     tree:[
+      'css/fonts.tree.css',
       'css/tree.css',
       'js/tree.js',
     ],
@@ -202,11 +204,13 @@ function fileContent(appname='start'){
       'css/firasans.css',
       'css/mia.css',
       'css/start.css',
+      'css/fonts.tree.css',
+      'css/tree.css',
       'css/silsilah.css',
       'js/silsilah.module.js',
       'js/mia.js',
-      'js/binar.js',
-      'js/start.js',
+      'js/tree.js',
+      'js/silsilah.js',
     ],
   },
   starts={
