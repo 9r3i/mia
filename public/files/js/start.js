@@ -4,18 +4,21 @@ const FBUSER = {
   email: null,
 },
 MIA=new mia,
-HOST=[
+HOSTS=[
   'http://127.0.0.1:9301/', // --> 0
   'http://127.0.0.1:9301/files/', // --> 1
-  'https://9r3i.github.io/mia/public/',
-  'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 2
-  'https://rawfo.vercel.app/9r3i/mia/master/public/files/',
-  'https://9r3i.github.io/sabunjelly/files/', // --> 4
+  'https://9r3i.github.io/mia/public/', // --> 2
+  'https://raw.githubusercontent.com/9r3i/mia/master/public/files/', // --> 3
+  'https://rawfo.vercel.app/9r3i/mia/master/public/files/', // --> 4
+  'https://9r3i.github.io/sabunjelly/files/', // --> 5
+  'https://9r3i.github.io/mia/public/files/', // --> 6
 ],
+HKEY=6,
+HOST=HOSTS[HKEY],
 DBNAME='starter',
 APPNAME='9r3i\\mia@firebase\\app',
-LOCK=new Audio(HOST[2]+'audio/car-lock.mp3'),
-NOTE=new Audio(HOST[2]+'audio/iphone-notification.mp3');
+LOCK=new Audio(HOST+'audio/car-lock.mp3'),
+NOTE=new Audio(HOST+'audio/iphone-notification.mp3');
 // https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/.json
 
 /* ===================[ initialize ]=================== */
@@ -517,7 +520,7 @@ function encrypt(s){
 };
 
 
-/* =====================[ blog ]===================== */
+/* =====================[ data ]===================== */
 
 /* read post */
 async function readPost(path){

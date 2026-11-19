@@ -39,6 +39,7 @@ const GLOBALS={
     'monitoring',
     'gaino',
     'force',
+    'tree',
   ],
 };
 /* anonymous async function */
@@ -191,6 +192,22 @@ function fileContent(appname='start'){
       'js/fblog.module.js',
       'js/fblog.js',
     ],
+    tree:[
+      'css/tree.css',
+      'js/tree.js',
+    ],
+    silsilah:[
+      'css/consola.css',
+      'css/segoeuil.css',
+      'css/firasans.css',
+      'css/mia.css',
+      'css/start.css',
+      'css/silsilah.css',
+      'js/silsilah.module.js',
+      'js/mia.js',
+      'js/binar.js',
+      'js/start.js',
+    ],
   },
   starts={
     mblog:{
@@ -220,6 +237,12 @@ function fileContent(appname='start'){
       name:'replaceURL',
       param:GLOBALS.host+'blog/force/',
     },
+    tree:{
+      type:'class',
+      name:'tree',
+      param:null,
+      init:'test',
+    }
   },
   logos={
     fblog:'image/cleanjelly.png',
@@ -369,7 +392,7 @@ body{margin:0rem;}
   <meta http-equiv="content-type" content="text/html;charset=utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <script src="index.js"></script>
+  <script src="index.js" id="index.js" data-app="start"></script>
 </head><body>
 </body></html>
 `;
