@@ -11,19 +11,27 @@ function tree(host,config){
 this.version='1.2.0';
 this.element=null;
 this.host=host||'';
-this.config=typeof config==='object'&&config!==null?config:{};
+this.config=typeof config==='object'&&config!==null?config:{
+  hide:false,
+  zoomer:false,
+};
 globalThis._tree=this;
 /* test */
 this.test=async function(){
   document.body.innerHTML='';
-  let plant=await this.plant('nabi');
+  let builder=this.buildElement,
+  button=builder('button','Start',{});
+  document.body.append(button);
+  button.addEventListener('click',async function(){
+    let plant=await _tree.plant('nabi');
+  });
 };
 /* plant the family tree */
 this.plant=async function(path=''){
   let builder=this.buildElement,
   rootid='tree-root-'+path,
   parent=builder('div',null,{'class':'tree-root','id':rootid}),
-  loader=builder('div',null,{'style':'text-align:center;'},[
+  loader=builder('div',null,{'class':'lds-wrapper'},[
     builder('div',null,{'class':'lds-ellipsis'},[
       builder('div'),builder('div'),
       builder('div'),builder('div'),
@@ -34,8 +42,7 @@ this.plant=async function(path=''){
   document.body.append(parent);
   let url=this.host+path+'.json',
   dataObject=await this.fetchData(url);
-  if(!dataObject||typeof dataObject!=='object'
-    ||dataObject===null){
+  if(!dataObject||typeof dataObject!=='object'||dataObject===null){
     parent.remove();
     alert('Error: Failed to fetch data.');
     return false;
@@ -49,13 +56,15 @@ this.plant=async function(path=''){
     return false;
   }
   this.create(data,parent);
+  /* root scroll */
   let root=document.getElementById('root');
   parent.scrollTo({
     top:root.offsetTop-100,
     left:parent.offsetWidth/15,
     behavior:'smooth',
   });
-  let closer=builder('div','Close',{
+  /* closer */
+  let closer=builder('div',null,{
     'class':'tree-root-closer',
     'data-rootid':rootid,
   });
@@ -63,7 +72,40 @@ this.plant=async function(path=''){
     let el=document.getElementById(this.dataset.rootid);
     if(el){el.remove();}
   },false);
+  /* zoomer */
+  if(this.config.hasOwnProperty('zoomer')&&this.config.zoomer===true){
+    /* zoom out */
+    let zoomout=builder('div',null,{
+      'class':'tree-root-zoom-out',
+      'data-zoom':'100',
+    });
+    zoomout.addEventListener('click',function(){
+      let el=document.getElementById('family-tree'),
+      dzoom=parseInt(el.dataset.zoom,10),
+      nzoom=dzoom-5;
+      if(!el||nzoom<50){return;}
+      el.dataset.zoom=nzoom+'';
+      el.style.transform='scale('+nzoom+'%)';
+    },false);
+    /* zoom in */
+    let zoomin=builder('div',null,{
+      'class':'tree-root-zoom-in',
+      'data-zoom':'100',
+    });
+    zoomin.addEventListener('click',function(){
+      let el=document.getElementById('family-tree'),
+      dzoom=parseInt(el.dataset.zoom,10),
+      nzoom=dzoom+5;
+      if(!el||nzoom>200){return;}
+      el.dataset.zoom=nzoom+'';
+      el.style.transform='scale('+nzoom+'%)';
+    },false);
+  }
+  /* append */
   parent.append(closer);
+  parent.append(zoomout);
+  parent.append(zoomin);
+  /* return the parent */
   return parent;
 };
 /* generate */
@@ -145,6 +187,7 @@ this.create=function(data,parent){
   let ftree=document.createElement('div');
   this.element.classList.add('family-tree-root');
   ftree.id='family-tree';
+  ftree.dataset.zoom='100';
   this.element.append(ftree);
   if(typeof parent==='object'&&parent!==null
     &&typeof parent.append==='function'){

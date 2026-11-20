@@ -19,6 +19,10 @@
   top:0px;
   right:0px;
   bottom:0px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 .tree-root-closer{
   background-color:#b33;
@@ -31,7 +35,42 @@
   left:10px;
   bottom:10px;
   border-radius:5px;
-  box-shadow:0px 0px 5px #fff;
+  box-shadow:0px 0px 3px #fff;
+}
+.tree-root-closer:before{
+  content:'\2716';
+}
+.tree-root-zoom-out{
+  background-color:#3b7;
+  color:#fff;
+  margin:0px;
+  padding:7px 15px;
+  overflow:auto;
+  position:fixed;
+  z-index:999;
+  right:80px;
+  bottom:10px;
+  border-radius:5px;
+  box-shadow:0px 0px 3px #fff;
+}
+.tree-root-zoom-out:before{
+  content:'-\1F50E';
+}
+.tree-root-zoom-in{
+  background-color:#3b7;
+  color:#fff;
+  margin:0px;
+  padding:7px 15px;
+  overflow:auto;
+  position:fixed;
+  z-index:999;
+  right:10px;
+  bottom:10px;
+  border-radius:5px;
+  box-shadow:0px 0px 3px #fff;
+}
+.tree-root-zoom-in:before{
+  content:'+\1F50E';
 }
 .tree-root *{
   font-family:'segoeuil','arialnarrow','tahoma',consolas,monospace;
@@ -49,10 +88,9 @@
 /* family tree -- fixed */
 #family-tree{
   position:relative;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  transform-origin:top left;
+  transform:scale(100%);
+  transition:all 0.2s ease 0s;
 }
 #family-tree a{text-decoration:none;}
 .branch{
@@ -236,6 +274,10 @@
 /* outer style loader
  * <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
  */
+.lds-wrapper{
+  text-align:center;
+  padding:100px 10px;
+}
 .lds-text{
   font-family:'segoeuil','arialnarrow','tahoma',consolas,monospace;
   font-size:16px;
