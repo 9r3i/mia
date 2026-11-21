@@ -124,8 +124,11 @@
 .login-shake{
   animation:shake 0.3s ease 0s;
 }
-.login .other-button{
-  margin-left:1rem;
+.login .other-button-down{
+  margin-bottom:1rem;
+}
+.login .other-button-up{
+  margin-top:1rem;
 }
 @keyframes shake{
   0%{margin:4rem auto 5rem;}
@@ -260,7 +263,7 @@ select{
 }
 /* button */
 button,.button{
-  background-color:#fff;
+  background-color:#f9f9f9;
   border:0rem none;
   padding:0.3125rem 0.9375rem;
   margin:0rem;
@@ -276,7 +279,7 @@ button,.button{
   white-space:pre;
 }
 button:hover,.button:hover{
-  background-color:#f9f9f9;
+  background-color:#f5f5f5;
 }
 button:focus,.button:focus{
   background-color:#f1f1f1;
@@ -417,7 +420,7 @@ button i,.button i{
 }
 
 
-/* =====================[ blog ]===================== */
+/* =====================[ content ]===================== */
 .content{
   margin:1rem 0rem 1rem;
   padding:1rem;

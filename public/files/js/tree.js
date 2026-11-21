@@ -8,12 +8,14 @@
  * @usage: (new tree).test()
  */
 function tree(host,config){
-this.version='1.2.0';
+this.version='1.3.0';
 this.element=null;
 this.host=host||'';
 this.config=typeof config==='object'&&config!==null?config:{
   hide:false,
   zoomer:false,
+  closer:false,
+  sharer:false,
 };
 globalThis._tree=this;
 /* test */
@@ -27,16 +29,16 @@ this.test=async function(){
   });
 };
 /* plant the family tree */
-this.plant=async function(path=''){
+this.plant=async function(path='',rid=1){
   let builder=this.buildElement,
   rootid='tree-root-'+path,
   parent=builder('div',null,{'class':'tree-root','id':rootid}),
-  loader=builder('div',null,{'class':'lds-wrapper'},[
-    builder('div',null,{'class':'lds-ellipsis'},[
+  loader=builder('div',null,{'class':'tree-lds-wrapper'},[
+    builder('div',null,{'class':'tree-lds-ellipsis'},[
       builder('div'),builder('div'),
       builder('div'),builder('div'),
     ]),
-    builder('div','Loading...',{'class':'lds-text'}),
+    builder('div','Loading...',{'class':'tree-lds-text'}),
   ]);
   loader.appendTo(parent);
   document.body.append(parent);
@@ -49,7 +51,7 @@ this.plant=async function(path=''){
   }
   let dataArray=Array.isArray(dataObject)
     ?dataObject:Object.values(dataObject),
-  data=this.generate(dataArray,1);
+  data=this.generate(dataArray,rid);
   if(!data){
     parent.remove();
     alert('Error: Failed to generate data.');
@@ -64,14 +66,42 @@ this.plant=async function(path=''){
     behavior:'smooth',
   });
   /* closer */
-  let closer=builder('div',null,{
-    'class':'tree-root-closer',
-    'data-rootid':rootid,
-  });
-  closer.addEventListener('click',function(){
-    let el=document.getElementById(this.dataset.rootid);
-    if(el){el.remove();}
-  },false);
+  if(this.config.hasOwnProperty('closer')&&this.config.closer===true){
+    let closer=builder('div',null,{
+      'class':'tree-root-closer',
+      'data-rootid':rootid,
+    });
+    closer.addEventListener('click',function(){
+      let el=document.getElementById(this.dataset.rootid);
+      if(el){el.remove();}
+    },false);
+    parent.append(closer);
+  }
+  /* sharer */
+  if(this.config.hasOwnProperty('sharer')&&this.config.sharer===true){
+    let sharer=builder('div',null,{
+      'class':'tree-root-sharer',
+      'data-rootid':rootid,
+    });
+    sharer.addEventListener('click',async function(){
+      let sdata={
+        title:document.title,
+        text:'',
+        url:location.href,
+      };
+      if(navigator.share){
+        try{
+          await navigator.share(sdata);
+        }catch(e){}
+      }
+      else{
+        try{
+          await navigator.clipboard.writeText(sdata.url);
+        }catch(e){}
+      }
+    },false);
+    parent.append(sharer);
+  }
   /* zoomer */
   if(this.config.hasOwnProperty('zoomer')&&this.config.zoomer===true){
     /* zoom out */
@@ -100,11 +130,9 @@ this.plant=async function(path=''){
       el.dataset.zoom=nzoom+'';
       el.style.transform='scale('+nzoom+'%)';
     },false);
+    parent.append(zoomout);
+    parent.append(zoomin);
   }
-  /* append */
-  parent.append(closer);
-  parent.append(zoomout);
-  parent.append(zoomin);
   /* return the parent */
   return parent;
 };
@@ -352,7 +380,7 @@ this.infoOpen=function(id){
     if(!infoPhoto||infoImg){return;}
     let builder=_tree.buildElement;
     let loader=builder('div',null,{'style':'text-align:center;'},[
-      builder('div',null,{'class':'lds-ellipsis'},[
+      builder('div',null,{'class':'tree-lds-ellipsis'},[
         builder('div'),builder('div'),
         builder('div'),builder('div'),
       ]),

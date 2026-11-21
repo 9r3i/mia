@@ -1,7 +1,7 @@
 /* global constant */
-const FBUSER = {
-  uid: null,
-  email: null,
+const FBUSER={
+  uid:null,
+  email:null,
 },
 MIA=new mia,
 HOSTS=[
@@ -13,13 +13,12 @@ HOSTS=[
   'https://9r3i.github.io/sabunjelly/files/', // --> 5
   'https://9r3i.github.io/mia/public/files/', // --> 6
 ],
-HKEY=6,
+HKEY=1,
 HOST=HOSTS[HKEY],
 DBNAME='silsilah',
-APPNAME='9r3i\\mia@firebase\\app',
+APPNAME='9r3i\\mia\\app@firebase',
 LOCK=new Audio(HOST+'audio/car-lock.mp3'),
 NOTE=new Audio(HOST+'audio/iphone-notification.mp3');
-// https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/silsilah.json
 
 /* ===================[ initialize ]=================== */
 
@@ -45,7 +44,7 @@ NOTE=new Audio(HOST+'audio/iphone-notification.mp3');
 /* admin page route */
 MIA.routes.push([
   'admin',
-  'Admin',
+  'Members',
   async function(query,app,env){
     document.body.innerHTML='';
     app.loader();
@@ -74,51 +73,80 @@ MIA.routes.push([
 ]);
 
 /* home page route */
-MIA.routes.push(['','Home',async function(query,app,env){
+MIA.routes.push(['','Silsilah',async function(query,app,env){
   document.body.innerHTML='';
-  let content=app.element('div',{'class':'content'}),
-  main=app.element('div',{id:'main'},[content])
-    .appendTo(document.body);
-  MIA.pre(APPNAME+'::home');
-  for(let appname of GLOBALS.apps){
-    let el=app.element('button',{'class':'button-blue','data-app':appname}).text(appname).clickOn(function(){
-      window.location.assign('?app='+this.dataset.app);
-    }).appendTo(content);
-  }
-  MIA.pre(location);
-  MIA.pre(MIA.parseQuery(location.search.substr(1)));
-  MIA.pre({loaded:window.loaded});
-  MIA.pre(GLOBALS.apps);
-}]);
-
-/* test page route */
-MIA.routes.push(['test','Test',async function(query,app,env){
-  document.body.innerHTML='';
-  MIA.pre(APPNAME+'::test');
-  let content=app.element('div',{'class':'content'}),
-  main=app.element('div',{id:'main'},[content])
-    .appendTo(document.body),
-  load=app.contentLoader();
-  url='https://sabunjel-default-rtdb.asia-southeast1.firebasedatabase.app/access/user.json',
-  urlSilsilah='https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/.json',
-  post=await readPost(query.hasOwnProperty('pid')?query.pid:'');
-  load.remove();
-  if(post.hasOwnProperty('content')){
-    let text=post.content;
-    app.pre(text);
-    __speak(text,'su-ID');
+  let host='https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/'+DBNAME+'/';
+  /* tree element */
+  if(query.hasOwnProperty('tree')){
+    app.title('Family Tree');
+    let ftree=new tree(host),
+    rid=query.hasOwnProperty('root')?parseInt(query.root,10):1;
+    await ftree.plant(query.tree,rid);
     return;
   }
-  for(let i in post){
-    let title=post[i].title;
-    app.element('div',{},[
-      app.element('a',{href:'#?pid='+i}).content(title),
-    ]).appendTo(content);
+  /* main elements */
+  let content=app.element('div',{'class':'content'}),
+  header=app.element('div',{'class':'header'}),
+  footer=app.element('div',{'class':'footer'}),
+  main=app.element('div',{id:'main'},[header,content,footer])
+    .appendTo(document.body);
+  /* header and title */
+  let title=APPNAME+'::silsilah\\home';
+  header.dataset.text=title;
+  app.title(['Silsilah ',' Home'].join(String.fromCharCode(0x2015)));
+  /* samples */
+  let samples=[
+    {
+      title:'Sample Tree #1 (Adam as)',
+      content:'This is the sample <b>family tree of prophets</b>: '
+        +'from prophet Adam as to the last prophet Muhammad saw.',
+      image:'image/prophet-family-tree.png',
+      button:'Open Tree',
+      url:'?tree=nabi',
+    },
+    {
+      title:'Sample Tree #2 (Muhammad saw)',
+      content:'This is the sample family tree of <b>Prophet '
+        +'Muhammad saw</b> to his grandchildren. ',
+      image:'image/prophet-family-tree.png',
+      button:'Open Tree',
+      url:'?tree=nabi&root=190',
+    },
+    {
+      title:'Coming Soon...',
+      content:'Build your own family tree.'
+        +'<br />'
+        +'Right now, I\'m still working on stability and performance.',
+      image:'image/silsilah.png',
+      button:'Home',
+      url:'',
+    },
+  ];
+  for(let sample of samples){
+    let img=new Image,
+    post=app.element('div',{'class':'post'}).appendTo(content),
+    el=app.element('button',{
+      'class':'button-blue',
+      'data-url':sample.url,
+    }).text(sample.button).clickOn(function(){
+      app.go(this.dataset.url);
+    }),
+    t=app.element('div',{'class':'post-title'}).text(sample.title),
+    p=app.element('p',{'class':'post-time'}).html(sample.content);
+    img.src=HOST+sample.image;
+    img.onerror=function(){
+      this.remove();
+    };
+    post.append(img);
+    t.appendTo(post);
+    p.appendTo(post);
+    el.appendTo(post);
   }
-  app.element('button',{'class':'button-red'}).appendTo(content).clickOn(function(){
-    uploadPage(query,app,env);
-  }).text('Upload');
-  //app.pre(post);
+  /* pre */
+  app.pre([
+    title,
+    'git@github.com/9r3i/mia.git',
+  ].join('\n'));
 }]);
 
 
@@ -135,7 +163,6 @@ function __speak(s,l='en-US'){
   window.speechSynthesis.speak(p);
   return true;
 };
-
 
 /* upload page */
 function uploadPage(query,app,env){
@@ -181,14 +208,17 @@ function uploadPage(query,app,env){
         body:fdata,
       }).then(r=>r.json()).catch(e=>false);
       app.alert(res,3);
+      if(res.success){
+        // --> res.data.url;
+      }
     };
     imgx.src=URL.createObjectURL(file);
   };
 };
 
-/* =====================[ blog ]===================== */
+/* =====================[ admin ]===================== */
 
-/* admin page */
+/* admin page -- @require: logout */
 async function adminPage(query,app,env){
   document.body.innerHTML='';
   /* main element */
@@ -196,228 +226,280 @@ async function adminPage(query,app,env){
   content=app.element('div',{'class':'admin-content'}),
   main=app.element('div',{'id':'main'},[
     header,content
-  ]).appendTo(document.body);
+  ]).appendTo(document.body),
+  alias={
+    id:'ID',
+    name:'Name',
+    father:'Father',
+    mother:'Mother',
+    birth:'Birthdate',
+    death:'Deathdate',
+    spouse:'Spouse',
+    gender:'Gender',
+    order:'Family Order',
+    privilege:'Privilege',
+    phone:'Phone Number',
+    job:'Occupation',
+    address:'Address',
+    nickname:'Nickname',
+  };
   /* load data */
   app.title('Admin');
   let load=app.contentLoader('admin-content'),
-  site=await readData('site'),
-  post=await readPost();
+  members=await readData();
   load.remove();
-  /* logout */
-  app.element('button',{}).text('@'+FBUSER.email.split('@')[0]).appendTo(header).clickOn(function(){
-    app.go('admin');
-  });
+  /* header button */
+  app.element('button',{}).text('@'+FBUSER.email.split('@')[0]).appendTo(header).clickOn(()=>app.go('admin'));
   app.element('button',{'class':'button-red button-float-right'}).text('Logout').appendTo(header).clickOn(async function(){
     LOCK.play();
     let yes=await app.confirm('Logout now?\n'+FBUSER.email);
     if(!yes){return;}
     return await logout();
   });
-  app.element('button',{'class':'button-green button-float-right'}).text('New Post').appendTo(header).clickOn(async function(){
-    return MIA.go('admin?add');
-  });
-  app.element('button',{'class':'button-orange button-float-right'}).text('Config').appendTo(header).clickOn(async function(){
-    return MIA.go('admin?config');
-  });
-  /* config */
-  if(query.hasOwnProperty('config')){
-    /* set the form */
-    let scontent=app.likeJSON(site,9),
-    form=app.element('div',{'class':'editor'},[
-      app.element().text('Site Config'),
-      app.element('textarea',{
-        name:'content',
-        placeholder:'Content',
-        id:'editor-content',
-        style:'height:9rem;',
-      }).content(scontent),
-      app.element('div',{'class':'editor-row'},[
-        app.element('button',{
-          'class':'button-orange',
-        }).text('-')
-          .clickOn(function(){
-            return env.setRow(true);
-        }),
-        app.element('input',{
-          type:'number',
-          readonly:'readonly',
-          value:9,
-          id:'editor-row-size'
-        }),
-        app.element('button',{
-          'class':'button-orange',
-        }).text('+')
-          .clickOn(function(){
-            return env.setRow();
-        }),
-      ]),
-    ]).appendTo(content),
-    save=app.element('button',{'class':'button-blue'}).text('Save').appendTo(form);
-    /* save the post */
-    save.clickOn(async function(e){
-      let serial=app.formSerialize(),
-      data=null;
-      try{
-        data=JSON.parse(serial.content);
-      }catch(e){return false;}
-      if(!data){return await MIA.alert('Invalid JSON format!');}
-      let stext=this.innerText;
-      this.disabled=true;
-      this.text('Saving...');
-      let res=await writeData('site',data);
-      this.disabled=false;
-      this.text(stext);
-      if(!res){
-        let pre=app.element('pre').text('Failed to save!');
-        form.insertBefore(pre,save);
-        await app.sleep(2000);
-        pre.remove();
-        return;
-      }
-      let pre=app.element('pre').text('Saved!');
-      form.insertBefore(pre,save);
-      await app.sleep(2000);
-      pre.remove();
-    });
-    return;
-  }
+  app.element('button',{'class':'button-green button-float-right'}).html('&#xff0b;').appendTo(header).clickOn(()=>app.go('admin?add'));
   /* edit */
-  if(query.hasOwnProperty('edit')
-    ||query.hasOwnProperty('add')){
-    let def={
-      title:'',
-      content:'',
-      time:(new Date).getTime(),
-      author:'admin',
-    },
+  if(query.hasOwnProperty('edit')||query.hasOwnProperty('add')){
+    let def=defaultData(),
     isEdit=false;
-    if(query.hasOwnProperty('edit')
-      &&post.hasOwnProperty(query.edit)){
-      def=post[query.edit];
+    if(query.hasOwnProperty('edit')){
+      def=getMemberData(query.edit,members);
       isEdit=true;
+      if(!def){
+        return app.alert('Error: Member is not found.');
+      }
+      def=defaultData(def);
+    }else{
+      let last=lastID(members);
+      def.id=last;
     }
     /* set the form */
-    let pid=isEdit?query.edit:'0',
-    form=app.element('div',{'class':'editor'},[
-      app.element().text('Title'),
-      app.element('input',{
+    let id=isEdit?query.edit:'0',
+    table=app.table(),
+    input=app.element('input',{
+      'class':'member-photo-input',
+      'type':'file',
+      'accept':'image/*',
+    }),
+    img=new Image,
+    photo=app.element('div',{'class':'member-photo'},[img,input]),
+    hide=['id','privilege','photo'],
+    date=['birth','death'],
+    number=['order'],
+    selection=['father','mother','spouse'],
+    save=app.element('button',{'class':'button-blue','data-id':id}).text('Save');
+    table.appendTo(content);
+    /* photo */
+    let head=table.header(photo,2);
+    head.childNodes[0].style.backgroundColor='transparent';
+    img.src=def.photo||HOST+'image/user.png';
+    img.onload=function(){
+    };
+    img.onerror=function(){
+      this.src=HOST+'image/user.png';
+    };
+    /* each data of the member */
+    for(let key in def){
+      let value=def[key],
+      val=app.element('input',{
         type:'text',
-        name:'title',
+        name:key,
         maxlength:100,
-        placeholder:'Title',
-        value:def.title,
-      }),
-      app.element().text('Content'),
-      app.element('textarea',{
-        name:'content',
-        placeholder:'Content',
-        id:'editor-content',
-        style:'height:150px;',
-      }).content(def.content),
-      app.element('div',{'class':'editor-row'},[
-        app.element('button',{
-          'class':'button-orange',
-        }).text('-')
-          .on('click',function(){
-            return env.setRow(true);
-        }),
-        app.element('input',{
-          type:'number',
-          readonly:'readonly',
-          value:150,
-          id:'editor-row-size'
-        }),
-        app.element('button',{
-          'class':'button-orange',
-        }).text('+')
-          .on('click',function(){
-            return env.setRow();
-        }),
-      ]),
-      app.element('input',{
-        type:'hidden',
-        name:'time',
-        value:(new Date).getTime(),
-      }),
-      app.element('input',{
-        type:'hidden',
-        name:'author',
-        value:def.author,
-      }),
-    ]).appendTo(content),
-    save=app.element('button',{'class':'button-blue','data-pid':pid,}).text('Save').appendTo(form),
-    view=app.element('button',{
-      'class':'button-tosca other-button',
-      'data-pid':pid,
-    }).text('View').clickOn(async function(){
-        await this.save.click();
-        await this.mia.sleep(500);
-        this.mia.go('?pid='+this.dataset.pid);
+        placeholder:alias[key]+'...',
+        value:value,
       });
-    if(isEdit){
-      view.appendTo(form);
-      view.save=save;
+      if(hide.includes(key)){
+        val.type='hidden';
+        content.append(val);
+        continue;
+      }
+      else if(date.includes(key)){
+        val.type='date';
+      }
+      else if(number.includes(key)){
+        val.type='number';
+      }
+      else if(key=='gender'){
+        val=app.select({
+          '1':'Male',
+          '2':'Female',
+        },value,key);
+      }
+      else if(selection.includes(key)){
+        let gender=key=='father'?1:key=='mother'?2:def.gender==1?2:1;
+        gdata=getMemberByGender(gender,members,def.id);
+        val=app.select({...{'0':'-'},...gdata},value,key);
+      }
+      let row=table.row(alias[key],val);
     }
+    table.row('',save);
+    /* upload photo */
+    input.onchange=async function(){
+      let load=app.loader(),
+      file=this.files[0],
+      url=URL.createObjectURL(file),
+      iphoto=document.querySelector('input[name="photo"]'),
+      res=await upload(file,photo);
+      load.remove();
+      if(res){
+        img.src=url;
+        iphoto.value=res;
+      }
+    };
     /* save the post */
     save.clickOn(async function(e){
       let stext=this.innerText;
       this.disabled=true;
       this.text('Saving...');
-      let data=app.formSerialize();
-      data.time=parseInt(data.time);
-      let res=isEdit
-        ?await writeData('post/'+this.dataset.pid,data)
-        :await sendPost(data.title,data.content);
+      let data=app.formSerialize(),
+      ndata=Object.values(members);
+      data=defaultData(data);
+      if(isEdit){
+        let key=ndata.findIndex(d=>d.id==data.id);
+        if(key){ndata[key]=data;}
+        else{ndata.push(data);}
+      }else{
+        ndata.push(data);
+      }
+      let res=await writeData('',ndata);
       this.disabled=false;
       this.text(stext);
       if(!res){
-        let pre=app.element('pre').text('Failed to save!');
-        form.insertBefore(pre,save);
+        let pre=app.element('pre').text('Failed to save!'),
+        parent=this.parentNode;
+        parent.insertBefore(pre,save);
         await app.sleep(2000);
         pre.remove();
         return;
       }
-      if(query.hasOwnProperty('add')){
-        app.go('admin');
-        return;
-      }
-      let pre=app.element('pre').text('Saved!');
-      form.insertBefore(pre,save);
-      await app.sleep(2000);
-      pre.remove();
+      app.go('admin');
     });
     return;
   }
+  /* table */
+  let table=app.table(),
+  gender=['','male','female',
+    app.element('div',{'style':'white-space:nowrap;'},[
+      app.element('i',{'class':'member-gender-male'}),
+      app.element('i',{'class':'member-gender-female'})
+    ])
+  ];
+  table.appendTo(content);
+  table.rowHead('ID','Name',gender[3],'Father','Mother');
   /* search */
-  let search=app.searchForm('title'),
-  end=app.element().appendTo(content);
-  search.appendTo(content);
-  /* each post */
-  post=Object.fromEntries(
-    Object.entries(post).reverse()
-  );
-  for(let pid in post){
-    let p=post[pid],
-    title=app.element('div',{'class':'post-title'}).text(p.title),
-    time=app.element('div',{'class':'post-time'}).text(app.timeago(parseInt(p.time))),
-    view=app.element('button',{'class':'button-tosca','data-pid':pid}).text('View').clickOn(function(){
-      return MIA.go('?pid='+this.dataset.pid);
-    }),
-    edit=app.element('button',{'class':'button-blue','data-pid':pid}).text('Edit').clickOn(function(){
-      return MIA.go('admin?edit='+this.dataset.pid);
-    }),
-    del=app.element('button',{'class':'button-red','data-pid':pid}).text('Delete').clickOn(async function(){
-      let yes=await MIA.confirm('Delete this post?');
-      if(!yes){return;}
-      await writeData('post/'+this.dataset.pid,null);
-      this.parentNode.parentNode.remove();
-    }),
-    button=app.element('div',{'class':'post-button'},[view,edit,del]),
-    el=app.element('div',{'class':'post','data-title':p.title},[
-      title,time,button,
-    ]);
-    content.append(el);
+  table.row('',app.searchForm('name'),'',app.searchForm('father'),app.searchForm('mother'));
+  /* members loop */
+  for(let member of members){
+    let father=getMemberData(member.father,members),
+    mother=getMemberData(member.mother,members),
+    name=app.element('a',{'href':'#admin?edit='+member.id}).content(member.name),
+    ltr=app.element('a',{'href':'#?tree='+FBUSER.uid+'&root='+member.id}).content(member.id);
+    row=table.row(
+      ltr,
+      name,
+      app.element('div',{
+        'class':'member-gender-'+gender[member.gender],
+      }),
+      father?father.name:'',
+      mother?mother.name:'',
+    );
+    row.dataset.name=member.name;
+    row.dataset.father=father?father.name:'';
+    row.dataset.mother=mother?mother.name:'';
+    row.childNodes[0].classList.add('td-center');
+    row.childNodes[2].classList.add('td-center');
   }
+}
+
+/* register page -- @require: signup */
+function registerPage(query,app,env){
+  document.body.innerHTML='';
+  app.title('Register');
+    let email=app.element('input',{
+      value:'',
+      placeholder:'Email',
+      maxlength:100,
+      type:'email',
+      name:'email',
+      autocomplete:'off',
+      required:true,
+    }),
+    password=app.element('input',{
+      value:'',
+      placeholder:'Password',
+      maxlength:100,
+      type:'password',
+      name:'password',
+      autocomplete:'off',
+      required:true,
+    }),
+    cpassword=app.element('input',{
+      value:'',
+      placeholder:'Confirm Password',
+      maxlength:100,
+      type:'password',
+      name:'cpassword',
+      autocomplete:'off',
+      required:true,
+    }),
+    keyword=app.element('input',{
+      value:'',
+      placeholder:'Keyword',
+      maxlength:100,
+      type:'text',
+      name:'keyword',
+      autocomplete:'off',
+      required:true,
+    }),
+    reg=app.element('button',{'class':'button-tosca'}).text('Register'),
+    regForm=app.element('div',{'class':'login'},[
+      app.element().text('Email'),
+      email,
+      app.element().text('New Password'),
+      password,
+      app.element().text('Confirm Password'),
+      cpassword,
+      app.element().text('Keyword'),
+      keyword,
+      reg,
+    ]).appendTo(document.body);
+  reg.clickOn(async ()=>{
+    let stext=reg.innerText;
+    reg.disabled=true;
+    reg.text('Registering...');
+    let days=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'],
+    today=days[(new Date).getDay()],
+    text='Failed to register.',
+    ptrn=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!ptrn.test(email.value)){
+      text='Invalid email.';
+    }
+    else if(password.value!=cpassword.value){
+      text='Password doesn\'t match.';
+    }
+    else if(keyword.value.toLowerCase()!=today){
+      text='Invalid keyword.';
+    }
+    else{
+      let res=await signup(email.value,password.value);
+      if(res){
+        text='Registered!';
+        let pre=app.element('pre').text(text);
+        regForm.insertBefore(pre,reg);
+        reg.text('Redirecting...');
+        await app.sleep(1000);
+        return loginPage(query,app,env);
+      }
+    }
+    reg.text('Failed');
+    regForm.classList.add('login-shake');
+    let pre=app.element('pre').text(text);
+    regForm.insertBefore(pre,reg);
+    await app.sleep(1000);
+    reg.disabled=false;
+    reg.text(stext);
+    pre.remove();
+    regForm.classList.remove('login-shake');
+  });
 }
 
 /* login page -- @require: login */
@@ -442,15 +524,18 @@ function loginPage(query,app,env){
       autocomplete:'off',
       required:true,
     }),
-    submit=app.element('button',{'class':'button-orange'}).text('Login'),
+    submit=app.element('button',{'class':'button-orange other-button-down'}).text('Login'),
+    reg=app.element('button',{'class':'button-tosca'}).text('Register'),
     loginForm=app.element('div',{'class':'login'},[
       app.element().text('Email'),
       email,
       app.element().text('Password'),
       password,
       submit,
+      app.element().text('Have no account?'),
+      reg,
     ]).appendTo(document.body);
-    submit.onclick=async ()=>{
+    submit.clickOn(async ()=>{
       let stext=submit.innerText;
       submit.disabled=true;
       submit.text('Checking...');
@@ -469,9 +554,53 @@ function loginPage(query,app,env){
         return;
       }
       submit.text('Redirecting...');
-    };
+    });
+  reg.clickOn(()=>{
+    registerPage(query,app,env);
+  });
 }
 
+/* upload */
+function upload(file,content,esize=200){
+  return new Promise(resolve=>{
+    let imgx=new Image;
+    imgx.onload=async function(){
+      let ratio=imgx.width>imgx.height
+               ?imgx.height/imgx.width
+               :imgx.width/imgx.height,
+          iw=imgx.width>imgx.height?ratio*imgx.width:imgx.width,
+          ih=imgx.height>imgx.width?ratio*imgx.height:imgx.height,
+          sx=imgx.width>imgx.height
+            ?(imgx.width-imgx.height)/2:0,
+          sy=imgx.height>imgx.width
+            ?(imgx.height-imgx.width)/2:0;
+      let canvas=document.createElement('canvas');
+      canvas.width=esize;
+      canvas.height=esize;
+      ctx=canvas.getContext('2d');
+      ctx.drawImage(imgx,sx,sy,iw,ih,0,0,esize,esize);
+      content.append(canvas);
+      let base64ImageData=canvas.toDataURL(),
+      apikey='f03253cc7545c473174bb996f67fdcad',
+      url='https://api.imgbb.com/1/upload?key='+apikey,
+      imageData=base64ImageData
+        .replace('data:image/png;base64,',''),
+      fdata=new FormData;
+      fdata.append('image',imageData);
+      let res=await fetch(url,{
+        method:'POST',
+        body:fdata,
+      }).then(r=>r.json()).catch(e=>false);
+      canvas.remove();
+      if(res.success){
+        return resolve(res.data.url);
+      }else{
+        return resolve(false);
+      }
+    };
+    imgx.src=URL.createObjectURL(file);
+  });
+}
 
 /* ===================[ basic ]=================== */
 
@@ -498,43 +627,94 @@ function onFunctionReadyCB(fn,cb,i=0){
 
 /* =====================[ data ]===================== */
 
-/* read post */
-async function readPost(path){
-  return await readData('post'+(path?'/'+path:''));
+/* get member by gender */
+function getMemberByGender(gender=1,data={},xid=0){
+  data=typeof data==='object'&&data!==null?data:{};
+  gender=parseInt(gender,10);
+  let res={};
+  for(let key in data){
+    let d=data[key];
+    if(d.id==xid){continue;}
+    if(d.hasOwnProperty('gender')&&parseInt(d.gender,10)===gender){
+      res[d.id]=d.name;
+    }
+  }
+  return res;
 }
 
-/* send post */
-async function sendPost(title,content,author='admin'){
-  let data={
-    title,
-    content,
-    time:(new Date).getTime(),
-    author,
-  };
-  return await sendData('post',data);
+/* get member data */
+function getMemberData(id,data){
+  data=typeof data==='object'&&data!==null?data:{};
+  id=parseInt(id,10);
+  let res=null;
+  if(id==0){return res;}
+  for(let key in data){
+    let d=data[key];
+    if(d.hasOwnProperty('id')&&parseInt(d.id,10)===id){
+      res=d;
+    }
+  }
+  return defaultData(res);
+}
+
+/* get last id */
+function lastID(data){
+  data=typeof data==='object'&&data!==null?data:{};
+  let last=1;
+  for(let key in data){
+    let d=data[key];
+    if(d.hasOwnProperty('id')&&parseInt(d.id,10)>=last){
+      last=parseInt(d.id,10);
+    }
+  }
+  return last;
+}
+
+/* default data input */
+function defaultData(data){
+  let def={
+    id:1,
+    name:'',
+    father:0,
+    mother:0,
+    birth:'',
+    death:'',
+    spouse:0,
+    gender:1,
+    order:0,
+    privilege:'user',
+    phone:'',
+    job:'',
+    address:'',
+    nickname:'',
+    photo:'',
+  },
+  numbers=['id','father','mother','spouse','gender','order'],
+  res={};
+  data=typeof data==='object'&&data!==null?data:{};
+  for(let key in def){
+    let val=data.hasOwnProperty(key)?data[key]:def[key];
+    res[key]=numbers.includes(key)?parseInt('0'+val,10):val;
+  }
+  return res;
 }
 
 /* read data */
 async function readData(path){
-  return await read(DBNAME+'/'+path);
+  if(!FBUSER.uid){return false;}
+  return await read(DBNAME+'/'+FBUSER.uid+(path?'/'+path:''));
 }
 
-/* send data */
+/* send data -- push with new unique id */
 async function sendData(path,data){
-  return await send(DBNAME+'/'+path,data);
+  if(!FBUSER.uid){return false;}
+  return await send(DBNAME+'/'+FBUSER.uid,data);
 }
 
 /* write data */
 async function writeData(path,data){
-  return await write(DBNAME+'/'+path,data);
-}
-
-
-/* =================[ standalone ]================= */
-
-/* test word -- standalone */
-function testWord(){
-  return 'yang takkan pernah terlupakan selamanya dalam hidupku\nmeskipun hanya sekejap saja\nmeresap dalam jiwa, mengakar dalam hati\ntertanam dalam sukma, terpatri dalam sanubari';
+  if(!FBUSER.uid){return false;}
+  return await write(DBNAME+'/'+FBUSER.uid+(path?'/'+path:''),data);
 }
 
 

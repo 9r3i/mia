@@ -1,0 +1,113 @@
+
+
+
+/* =====================[ table ]===================== */
+.table{
+  max-width:100vw;
+}
+.table thead tr th{
+  margin:1px;
+  font-size:1rem;
+  background-color:#333;
+  color:#fff;
+  padding:0.5rem;
+}
+.table tbody tr{
+  background-color:#f9f9f9;
+}
+.table tbody tr:nth-child(2n){
+  background-color:#f1f1f1;
+}
+.table tbody tr td{
+  margin:1px;
+  font-size:1rem;
+  padding:0.2rem;
+}
+.table tbody tr td.td-center{
+  text-align:center;
+}
+
+/* =====================[ member ]===================== */
+.member-gender-male{color:#37b;font-weight:bold;}
+.member-gender-female{color:#b37;font-weight:bold;}
+.member-gender-male:before{content:"\2642\0020";}
+.member-gender-female:before{content:"\2640\0020";}
+.member-photo{
+  width:200px;
+  height:200px;
+  border-radius:200px;
+  overflow:hidden;
+  position:relative;
+  filter:drop-shadow(0.3rem 0.3rem 0.3rem #ccc);
+}
+.member-photo img{
+  position:relative;
+  width:200px;
+  height:200px;
+  filter:drop-shadow(0.3rem 0.3rem 0.3rem #ccc);
+}
+.member-photo-input{
+  position:absolute;
+  width:200px;
+  height:200px;
+  top:0px;
+  left:0px;
+  background-color:transparent;
+  opacity:0;
+}
+
+/* =====================[ content ]===================== */
+.header{
+  margin:1rem;
+  padding:1rem;
+  border-left:1rem solid #37b;
+  box-shadow:0.1rem 0.1rem 0.2rem #bdf;
+  border-radius:0rem 0rem 5rem 0rem;
+  background:linear-gradient(#fff 0%,#ffe 100%);
+}
+.header:before{
+  font-family:'Fira Sans Ultra';
+  font-weight:'bold';
+  font-size:0.9rem;
+  color:#777;
+  content:attr(data-text);
+}
+.footer{
+  margin:0rem;
+  padding:1rem;
+  text-align:center;
+  white-space:pre-wrap;
+  font-size:0.8rem;
+  color:#555;
+}
+.footer:before{
+  content:"Copyright \a9  2026, Silsilah. All right reserved.";
+}
+.footer:after{
+  content:"\0d\0aPowered by 9r3i";
+}
+.content{
+  margin:0rem 0rem 1rem;
+  padding:1rem;
+  overflow-x:hidden;
+  background-color:#fff;
+}
+.content-search{
+  margin:0rem;
+}
+.content button{
+  margin:0rem 0.5rem 0.5rem 0rem;
+}
+.content .post img{
+  float:right;
+  max-width:25%;
+  border-radius:0.2rem;
+  margin-left:0.5rem;
+}
+
+
+
+
+
+
+

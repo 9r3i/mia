@@ -13,7 +13,7 @@
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:173,
+  value:180,
   writable:false,
 });
 /* the version */
@@ -36,7 +36,7 @@ this.__proto__.searchForm=function(key='text'){
   });
   search.onkeyup=function(){
     let rg=new RegExp(this.value,'i'),
-    nm=document.querySelectorAll('div[data-'+key+']');
+    nm=document.querySelectorAll('[data-'+key+']');
     for(let i=0;i<nm.length;i++){
       if(nm[i].dataset[key].match(rg)){
         nm[i].style.removeProperty('display');
@@ -48,6 +48,21 @@ this.__proto__.searchForm=function(key='text'){
   return this.element('div',{'class':'content-search'},[
     search,
   ]);
+};
+/* select */
+this.__proto__.select=function(data,selected,name=''){
+  data=typeof data==='object'&&data!==null?data:{};
+  let sel=this.element('select',{'name':name});
+  for(let key in data){
+    let opt=this.element('option')
+      .content(data[key])
+      .appendTo(sel);
+    opt.value=key;
+    if(selected&&key==selected){
+      opt.selected='selected';
+    }
+  }
+  return sel;
 };
 /* =================[ loader -- css ]================= */
 /* content loader -- @require: css */
@@ -88,6 +103,43 @@ this.__proto__.loader=function(load=true){
   }
   el.append(lds);
   return el;
+};
+/* table */
+this.__proto__.table=function(tname){
+  tname=typeof tname==='string'?tname:'table';
+  let tbody=this.element('tbody'),
+  thead=this.element('thead'),
+  table=this.element('table',{'class':tname},[thead,tbody]);
+  table.tbody=tbody;
+  table.thead=thead;
+  table.row=function(){
+    let tr=this.mia.element('tr');
+    for(let arg of arguments){
+      let td=this.mia.element('td');
+      td.append(arg);
+      tr.append(td);
+    }
+    this.tbody.append(tr);
+    return tr;
+  };
+  table.rowHead=function(){
+    let tr=this.mia.element('tr');
+    for(let arg of arguments){
+      let td=this.mia.element('th');
+      td.append(arg);
+      tr.append(td);
+    }
+    this.thead.append(tr);
+    return tr;
+  };
+  table.header=function(val,col){
+    let th=this.mia.element('th',{'colspan':col}),
+    tr=this.mia.element('tr',{},[th]);
+    th.append(val);
+    this.thead.append(tr);
+    return tr;
+  };
+  return table;
 };
 /* =================[ basic ]================= */
 /* paste from clipboard */

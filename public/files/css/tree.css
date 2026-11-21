@@ -28,17 +28,45 @@
   background-color:#b33;
   color:#fff;
   margin:0px;
-  padding:7px 15px;
+  padding:2px;
   overflow:auto;
   position:fixed;
   z-index:999;
   left:10px;
   bottom:10px;
-  border-radius:5px;
-  box-shadow:0px 0px 3px #fff;
+  width:36px;
+  height:36px;
+  line-height:26px;
+  font-size:26px;
+  border-radius:36px;
+  box-shadow:0px 0px 5px #fff;
+  overflow:hidden;
+  text-align:center;
 }
 .tree-root-closer:before{
   content:'\2716';
+}
+.tree-root-sharer{
+  background-color:#7b3;
+  color:#fff;
+  margin:0px;
+  padding:2px;
+  overflow:auto;
+  position:fixed;
+  z-index:999;
+  left:56px;
+  bottom:10px;
+  width:36px;
+  height:36px;
+  line-height:26px;
+  font-size:26px;
+  border-radius:36px;
+  box-shadow:0px 0px 5px #fff;
+  overflow:hidden;
+  text-align:center;
+}
+.tree-root-sharer:before{
+  content:'\27a6';
 }
 .tree-root-zoom-out{
   background-color:#3b7;
@@ -274,21 +302,21 @@
 /* outer style loader
  * <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
  */
-.lds-wrapper{
+.tree-lds-wrapper{
   text-align:center;
   padding:100px 10px;
 }
-.lds-text{
+.tree-lds-text{
   font-family:'segoeuil','arialnarrow','tahoma',consolas,monospace;
   font-size:16px;
 }
-.lds-ellipsis{
+.tree-lds-ellipsis{
   display:inline-block;
   position:relative;
   width:80px;
   height:80px;
 }
-.lds-ellipsis div{
+.tree-lds-ellipsis div{
   position:absolute;
   top:33px;
   width:13px;
@@ -297,19 +325,19 @@
   background:#ddc;
   animation-timing-function:cubic-bezier(0,1,1,0);
 }
-.lds-ellipsis div:nth-child(1){
+.tree-lds-ellipsis div:nth-child(1){
   left:8px;
   animation:lds-ellipsis1 0.6s infinite;
 }
-.lds-ellipsis div:nth-child(2){
+.tree-lds-ellipsis div:nth-child(2){
   left:8px;
   animation:lds-ellipsis2 0.6s infinite;
 }
-.lds-ellipsis div:nth-child(3){
+.tree-lds-ellipsis div:nth-child(3){
   left:32px;
   animation:lds-ellipsis2 0.6s infinite;
 }
-.lds-ellipsis div:nth-child(4){
+.tree-lds-ellipsis div:nth-child(4){
   left:56px;
   animation:lds-ellipsis3 0.6s infinite;
 }
