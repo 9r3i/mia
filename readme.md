@@ -10,6 +10,12 @@ m... i... a...
 [![Release](https://img.shields.io/github/release/9r3i/mia.svg)](https://github.com/9r3i/mia/releases)
 [![Donate](https://img.shields.io/badge/donate-paypal-orange.svg)](https://paypal.me/9r3i)
 
+## Visitors
+
+[![9r3i Visitors](https://views-olive.vercel.app/?user=9r3i-mia&color=51,119,187&register=github.com/9r3i/views/tree/master)](https://github.com/9r3i)
+|---|
+| Since November 21st 2026 |
+
 
 
 # Usage
