@@ -3,6 +3,7 @@ const FBUSER={
   uid:null,
   email:null,
 },
+isLocal=/^localhost|127\.0\.0\.1$/.test(location.hostname),
 MIA=new mia,
 HOSTS=[
   'http://127.0.0.1:9301/', // --> 0
@@ -13,7 +14,7 @@ HOSTS=[
   'https://9r3i.github.io/sabunjelly/files/', // --> 5
   'https://9r3i.github.io/mia/public/files/', // --> 6
 ],
-HKEY=1,
+HKEY=isLocal?1:6,
 HOST=HOSTS[HKEY],
 DBNAME='silsilah',
 APPNAME='9r3i\\mia\\app@firebase',
@@ -40,37 +41,6 @@ NOTE=new Audio(HOST+'audio/iphone-notification.mp3');
 
 
 /* =====================[ pages ]===================== */
-
-/* admin page route */
-MIA.routes.push([
-  'admin',
-  'Members',
-  async function(query,app,env){
-    document.body.innerHTML='';
-    app.loader();
-    return userinfo(async user=>{
-      if(user){
-        FBUSER.uid=user.uid;
-        FBUSER.email=user.email;
-        return adminPage(query,app,env);
-      }else{
-        return loginPage(query,app,env);
-      }
-    });
-  },
-  {
-    setRow:function(minus=false){
-      let ec=document.getElementById('editor-content'),
-      ers=document.getElementById('editor-row-size');
-      if(!ec||!ers){return;}
-      let cmh=ec.style.height,
-      mh=parseInt(cmh),
-      vh=minus?mh-10:mh+10;
-      ec.style.height=vh+'px';
-      ers.value=vh;
-    },
-  }
-]);
 
 /* home page route */
 MIA.routes.push(['','Silsilah',async function(query,app,env){
@@ -122,6 +92,7 @@ MIA.routes.push(['','Silsilah',async function(query,app,env){
       url:'',
     },
   ];
+  /* sample loop */
   for(let sample of samples){
     let img=new Image,
     post=app.element('div',{'class':'post'}).appendTo(content),
@@ -146,8 +117,40 @@ MIA.routes.push(['','Silsilah',async function(query,app,env){
   app.pre([
     title,
     'git@github.com/9r3i/mia.git',
+    'isLocal:'+JSON.stringify(isLocal),
   ].join('\n'));
 }]);
+
+/* admin page route */
+MIA.routes.push([
+  'admin',
+  'Members',
+  async function(query,app,env){
+    document.body.innerHTML='';
+    app.loader();
+    return userinfo(async user=>{
+      if(user){
+        FBUSER.uid=user.uid;
+        FBUSER.email=user.email;
+        return adminPage(query,app,env);
+      }else{
+        return loginPage(query,app,env);
+      }
+    });
+  },
+  {
+    setRow:function(minus=false){
+      let ec=document.getElementById('editor-content'),
+      ers=document.getElementById('editor-row-size');
+      if(!ec||!ers){return;}
+      let cmh=ec.style.height,
+      mh=parseInt(cmh),
+      vh=minus?mh-10:mh+10;
+      ec.style.height=vh+'px';
+      ers.value=vh;
+    },
+  }
+]);
 
 
 /* =====================[ blog ]===================== */
