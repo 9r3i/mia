@@ -19,37 +19,19 @@ HOST=HOSTS[HKEY],
 DBNAME='silsilah',
 APPNAME='9r3i\\mia\\app@firebase',
 LOCK=new Audio(HOST+'audio/car-lock.mp3'),
-NOTE=new Audio(HOST+'audio/iphone-notification.mp3');
-
-/* ===================[ initialize ]=================== */
-
-/* anonymously initialize */
-;(async function(){
-  //if(true){return;}
-  document.body.innerHTML='';
-  MIA.loader();
-  /* get ready */
-  let ready=await onFunctionReady('listen');
-  document.body.innerHTML='';
-  MIA.pre({ready});
-  /* initialize */
-  if(ready){
-    MIA.init();
-  }
-  /* end of statement */
-})();
-
-
-/* =====================[ pages ]===================== */
-
-/* home page route */
-MIA.routes.push(['','Silsilah',async function(query,app,env){
+NOTE=new Audio(HOST+'audio/iphone-notification.mp3'),
+PAGES=[
+/* home page */
+['','Silsilah',async function(query,app,env){
   document.body.innerHTML='';
   let host='https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/'+DBNAME+'/';
   /* tree element */
   if(query.hasOwnProperty('tree')){
     app.title('Family Tree');
-    let ftree=new tree(host),
+    let ftree=new tree(host,{
+      closer:false,
+      sharer:false,
+    }),
     rid=query.hasOwnProperty('root')?parseInt(query.root,10):1;
     await ftree.plant(query.tree,rid);
     return;
@@ -88,8 +70,8 @@ MIA.routes.push(['','Silsilah',async function(query,app,env){
         +'<br />'
         +'Right now, I\'m still working on stability and performance.',
       image:'image/silsilah.png',
-      button:'Home',
-      url:'',
+      button:isLocal?'Admin':'Home',
+      url:isLocal?'admin':'',
     },
   ];
   /* sample loop */
@@ -113,18 +95,22 @@ MIA.routes.push(['','Silsilah',async function(query,app,env){
     p.appendTo(post);
     el.appendTo(post);
   }
+  /* grid */
+  let grid=app.element('div',{'class':'grid'}).appendTo(content);
+  for(let i=0;i<15;i++){
+    app.element().appendTo(grid);
+  }
   /* pre */
   app.pre([
     title,
     'git@github.com/9r3i/mia.git',
     'isLocal:'+JSON.stringify(isLocal),
   ].join('\n'));
-}]);
-
-/* admin page route */
-MIA.routes.push([
+}],
+/* admin page */
+[
   'admin',
-  'Members',
+  'Admin',
   async function(query,app,env){
     document.body.innerHTML='';
     app.loader();
@@ -150,8 +136,31 @@ MIA.routes.push([
       ers.value=vh;
     },
   }
-]);
+],
+];
 
+
+/* ===================[ initialize ]=================== */
+
+/* anonymously initialize */
+;(async function(app){
+  //if(true){return;}
+  document.body.innerHTML='';
+  app.loader();
+  /* get ready */
+  let ready=await onFunctionReady('listen');
+  document.body.innerHTML='';
+  app.pre({ready});
+  /* pages */
+  for(let page of PAGES){
+    app.routes.push(page);
+  }
+  /* initialize */
+  if(ready){
+    app.init();
+  }
+  /* end of statement */
+})(MIA);
 
 /* =====================[ blog ]===================== */
 
@@ -245,21 +254,77 @@ async function adminPage(query,app,env){
     job:'Occupation',
     address:'Address',
     nickname:'Nickname',
+    photo:'Photo URL',
   };
   /* load data */
-  app.title('Admin');
+  app.title('Members');
   let load=app.contentLoader('admin-content'),
   members=await readData();
+  members=typeof members==='object'&&members!==null
+    ?Object.values(members):[];
   load.remove();
   /* header button */
   app.element('button',{}).text('@'+FBUSER.email.split('@')[0]).appendTo(header).clickOn(()=>app.go('admin'));
-  app.element('button',{'class':'button-red button-float-right'}).text('Logout').appendTo(header).clickOn(async function(){
+  let logoutbtn=app.element('button',{'class':'button-red button-float-right'}).text('Logout').appendTo(header).clickOn(async function(){
     LOCK.play();
     let yes=await app.confirm('Logout now?\n'+FBUSER.email);
     if(!yes){return;}
     return await logout();
   });
-  app.element('button',{'class':'button-green button-float-right'}).html('&#xff0b;').appendTo(header).clickOn(()=>app.go('admin?add'));
+  let plusbtn=app.element('button',{'class':'button-green button-float-right','style':'font-size:0.95rem;'}).html('&#xff0b;').appendTo(header).clickOn(()=>app.go('admin?add'));
+  /* info */
+  if(query.hasOwnProperty('id')){
+    let member=getMemberData(query.id,members);
+    if(!member){
+        return app.alert('Error: Member is not found.');
+    }
+    /* set the form */
+    let table=app.table(),
+    img=new Image,
+    photo=app.element('div',{'class':'member-photo'},[img]),
+    hide=['privilege','photo'],
+    date=['birth','death'],
+    selection=['father','mother','spouse'],
+    edit=app.element('button',{'class':'button-blue'}).text('Edit').clickOn(e=>app.go('admin?edit='+member.id));
+    table.appendTo(content);
+    /* photo */
+    let head=table.header(photo,2);
+    head.childNodes[0].style.backgroundColor='transparent';
+    img.src=member.photo||HOST+'image/user.png';
+    img.onload=function(){
+    };
+    img.onerror=function(){
+      this.src=HOST+'image/user.png';
+    };
+    /* each data of the member */
+    for(let key in member){
+      let value=member[key],
+      val=value.toString();
+      if(hide.includes(key)){
+        continue;
+      }
+      else if(date.includes(key)){
+        let dp=app.parseDatetime(value);
+        val=dp.match(/\sat\s/)?dp.split(' at ')[0]:'-';
+      }
+      else if(key=='gender'){
+        val=['','Male','Female'][value];
+      }
+      else if(selection.includes(key)){
+        val='-';
+        let gdata=getMemberData(value,members);
+        if(gdata){
+          val=app.element('a',{
+            'href':'#admin?id='+value,
+          }).content(gdata.name);
+        }
+      }
+      let row=table.row(alias[key],val);
+    }
+    /* buttons */
+    table.row('',edit);
+    return;
+  }
   /* edit */
   if(query.hasOwnProperty('edit')||query.hasOwnProperty('add')){
     let def=defaultData(),
@@ -271,9 +336,11 @@ async function adminPage(query,app,env){
         return app.alert('Error: Member is not found.');
       }
       def=defaultData(def);
+      app.title('Edit Member #'+def.id);
     }else{
-      let last=lastID(members);
+      let last=lastID(members,true);
       def.id=last;
+      app.title('Add Member #'+def.id);
     }
     /* set the form */
     let id=isEdit?query.edit:'0',
@@ -285,11 +352,13 @@ async function adminPage(query,app,env){
     }),
     img=new Image,
     photo=app.element('div',{'class':'member-photo'},[img,input]),
-    hide=['id','privilege','photo'],
+    hide=['privilege','photo'],
     date=['birth','death'],
+    readonly=['id'],
     number=['order'],
     selection=['father','mother','spouse'],
-    save=app.element('button',{'class':'button-blue','data-id':id}).text('Save');
+    save=app.element('button',{'class':'button-blue'}).text('Save'),
+    del=app.element('button',{'class':'button-red','data-id':id}).text('Delete');
     table.appendTo(content);
     /* photo */
     let head=table.header(photo,2);
@@ -312,8 +381,14 @@ async function adminPage(query,app,env){
       });
       if(hide.includes(key)){
         val.type='hidden';
-        content.append(val);
+        val.appendTo(content);
         continue;
+      }
+      else if(readonly.includes(key)){
+        let clone=val.cloneNode(true),
+        text=app.element().text(value);
+        clone.type='hidden';
+        val=app.element('div',{},[text,clone]);
       }
       else if(date.includes(key)){
         val.type='date';
@@ -326,15 +401,27 @@ async function adminPage(query,app,env){
           '1':'Male',
           '2':'Female',
         },value,key);
+        val.dataset.spouse=def.spouse;
+        val.dataset.id=def.id;
+        val.addEventListener('change',function(){
+          let spouse=document.querySelector('select[name="spouse"]');
+          if(!spouse){return;}
+          let gdata=getMemberByGender(this.value==1?2:1,members,this.dataset.id),
+          parent=spouse.parentNode,
+          nsel=app.select({...{'0':'-'},...gdata},this.dataset.spouse,'spouse');
+          parent.innerHTML='';
+          parent.append(nsel);
+        },false);
       }
       else if(selection.includes(key)){
-        let gender=key=='father'?1:key=='mother'?2:def.gender==1?2:1;
+        let gender=key=='father'?1:key=='mother'?2:def.gender==1?2:1,
         gdata=getMemberByGender(gender,members,def.id);
         val=app.select({...{'0':'-'},...gdata},value,key);
       }
       let row=table.row(alias[key],val);
     }
-    table.row('',save);
+    /* buttons */
+    table.row('',app.element('div',{'class':'buttons'},[save,del]));
     /* upload photo */
     input.onchange=async function(){
       let load=app.loader(),
@@ -358,7 +445,7 @@ async function adminPage(query,app,env){
       data=defaultData(data);
       if(isEdit){
         let key=ndata.findIndex(d=>d.id==data.id);
-        if(key){ndata[key]=data;}
+        if(ndata.hasOwnProperty(key)){ndata[key]=data;}
         else{ndata.push(data);}
       }else{
         ndata.push(data);
@@ -376,6 +463,45 @@ async function adminPage(query,app,env){
       }
       app.go('admin');
     });
+    /* delete the entry */
+    del.clickOn(async function(){
+      LOCK.play();
+      let yes=await app.confirm('Delete this member?');
+      if(!yes){return;}
+      let ndata=Object.values(members),
+      key=ndata.findIndex(d=>d.id==this.dataset.id);
+      if(!ndata.hasOwnProperty(key)){return;}
+      delete ndata[key];
+      ndata=Object.values(ndata);
+      let stext=this.innerText;
+      this.disabled=true;
+      this.text('Deleting...');
+      let load=app.loader(),
+      res=await writeData('',ndata);
+      this.disabled=false;
+      this.text(stext);
+      if(!res){
+        await app.alert('Failed to delete.');
+        return;
+      }
+      app.go('admin');
+    });
+    return;
+  }
+  /* empty */
+  if(members.length==0){
+    app.element('div',{'class':'content-empty'}).appendTo(content).clickOn(async function(){
+      let yes=await app.confirm('Load from template?');
+      if(!yes){return;}
+      let temp=membersTemplate(),
+      load=app.loader(),
+      res=await writeData('',temp);
+      load.remove();
+      if(!res){
+        return await app.alert('Failed to save template.');
+      }
+      app.go('admin');
+    });
     return;
   }
   /* table */
@@ -387,23 +513,31 @@ async function adminPage(query,app,env){
     ])
   ];
   table.appendTo(content);
-  table.rowHead('ID','Name',gender[3],'Father','Mother');
+  table.rowHead('ID','Name',gender[3],'Father','Mother','');
   /* search */
-  table.row('',app.searchForm('name'),'',app.searchForm('father'),app.searchForm('mother'));
+  table.row('',app.searchForm('name'),'',app.searchForm('father'),app.searchForm('mother'),'');
   /* members loop */
   for(let member of members){
     let father=getMemberData(member.father,members),
     mother=getMemberData(member.mother,members),
-    name=app.element('a',{'href':'#admin?edit='+member.id}).content(member.name),
-    ltr=app.element('a',{'href':'#?tree='+FBUSER.uid+'&root='+member.id}).content(member.id);
+    hrefTree='#?tree='+FBUSER.uid+'&root='+member.id,
+    hrefEdit='#admin?id='+member.id,
+    name=app.element('a',{'href':hrefEdit}).content(member.name),
+    ltr=app.element('a',{'href':hrefTree}).content(member.id),
+    btn=app.element('button',{'class':'table-button','data-id':member.id}).html('&#x270e;').clickOn(function(){app.go('admin?edit='+this.dataset.id)}),
+    chart=app.element('button',{'class':'table-button','data-id':member.id}).html('&#x1F4CA;').clickOn(function(){
+      //app.go('?tree='+FBUSER.uid+'&root='+this.dataset.id);
+      frameTree(FBUSER.uid,this.dataset.id);
+    }),
     row=table.row(
-      ltr,
+      member.id,
       name,
       app.element('div',{
         'class':'member-gender-'+gender[member.gender],
       }),
       father?father.name:'',
       mother?mother.name:'',
+      chart,
     );
     row.dataset.name=member.name;
     row.dataset.father=father?father.name:'';
@@ -411,6 +545,11 @@ async function adminPage(query,app,env){
     row.childNodes[0].classList.add('td-center');
     row.childNodes[2].classList.add('td-center');
   }
+  /* test */
+  //plusbtn.style.maxHeight=logoutbtn.offsetHeight+'px';
+  //app.alert([header.offsetHeight,plusbtn.offsetHeight]);
+  //app.alert([logoutbtn.offsetHeight,plusbtn.offsetHeight]);
+  //app.alert(Array.isArray(members));
 }
 
 /* register page -- @require: signup */
@@ -596,13 +735,45 @@ function upload(file,content,esize=200){
       }).then(r=>r.json()).catch(e=>false);
       canvas.remove();
       if(res.success){
-        return resolve(res.data.url);
+        let url=res.data.url
+          .replace(/\/i\.ibb\.co\//,'/i.ibb.co.com/');
+        return resolve(url);
       }else{
         return resolve(false);
       }
     };
     imgx.src=URL.createObjectURL(file);
   });
+}
+
+/* frame of tree */
+function frameTree(uid,root=1){
+  let app=MIA,
+  frame=app.element('iframe',{
+    'src':'#?tree='+uid+'&root='+root,
+    'class':'frame-tree',
+  }),
+  closer=app.element('div',{'class':'frame-closer'}),
+  load=app.loader();
+  closer.frame=frame;
+  closer.clickOn(function(){
+    this.frame.remove();
+    this.remove();
+    document.body.style.removeProperty('overflow');
+  });
+  document.body.append(frame);
+  document.body.append(closer);
+  document.body.style.overflow='hidden';
+  frame.addEventListener('load',async ()=>{
+    load.remove();
+    await app.sleep(1000);
+    const doc=frame.contentDocument||frame.contentWindow.document;
+    let viewport=doc.querySelector('meta[name="viewport"]');
+    if(viewport){
+      viewport.content='width=device-width,initial-scale=0.8,maximum-scale=2,user-scalable=yes';
+    }
+  });
+  return {frame,closer};
 }
 
 /* ===================[ basic ]=================== */
@@ -629,6 +800,32 @@ function onFunctionReadyCB(fn,cb,i=0){
 
 
 /* =====================[ data ]===================== */
+
+/* get members template */
+function membersTemplate(){
+  let data=[
+    {id:1,name:'Grandfather'},
+    {id:2,name:'Father',father:1,spouse:5},
+    {id:3,name:'Uncle',father:1},
+    {id:4,name:'Aunt',father:1,gender:2},
+    {id:5,name:'Mother',father:0,gender:2,spouse:2},
+    {id:6,name:'Me',father:2,mother:5},
+    {id:7,name:'Brother',father:2,mother:5},
+    {id:8,name:'Sister',father:2,mother:5,gender:2},
+    {id:9,name:'Daughter',father:6,gender:2},
+    {id:10,name:'Son',father:6},
+    {id:11,name:'Grandson',mother:9},
+    {id:12,name:'Granddaughter',mother:9,gender:2},
+    {id:13,name:'Cousin',mother:4,gender:2},
+    {id:14,name:'Nephew',father:7},
+    {id:15,name:'Niece',father:7,gender:2},
+  ],
+  res=[];
+  for(let d of data){
+    res.push(defaultData(d));
+  }
+  return res;
+}
 
 /* get member by gender */
 function getMemberByGender(gender=1,data={},xid=0){
@@ -661,16 +858,16 @@ function getMemberData(id,data){
 }
 
 /* get last id */
-function lastID(data){
+function lastID(data,plus=false){
   data=typeof data==='object'&&data!==null?data:{};
-  let last=1;
+  let last=0;
   for(let key in data){
     let d=data[key];
-    if(d.hasOwnProperty('id')&&parseInt(d.id,10)>=last){
+    if(d.hasOwnProperty('id')&&parseInt(d.id,10)>last){
       last=parseInt(d.id,10);
     }
   }
-  return last;
+  return plus?last+1:last;
 }
 
 /* default data input */

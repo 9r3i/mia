@@ -17,6 +17,10 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
 } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
 
 /* main global constants */
@@ -33,8 +37,32 @@ window.write=write;
 window.login=login;
 window.logout=logout;
 window.signup=signup;
+window.loginGoogle=loginGoogle;
+window.loginGoogleResult=loginGoogleResult;
 
 /* =====================[ firebase ]===================== */
+
+/* login with google result */
+async function loginGoogleResult(){
+  try{
+    let result=await getRedirectResult(FBAUTH);
+    if(result){
+      let user=result.user,
+      credential=GoogleAuthProvider.credentialFromResult(result),
+      token=credential?.accessToken;
+      return {user,token};
+    }
+    return result;
+  }catch(error){
+    return error;
+  }
+}
+
+/* login with google */
+async function loginGoogle(){
+  let provider=new GoogleAuthProvider();
+  return await signInWithRedirect(FBAUTH,provider);
+}
 
 /* user info */
 function userinfo(cb){

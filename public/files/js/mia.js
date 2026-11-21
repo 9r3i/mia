@@ -13,7 +13,7 @@
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:180,
+  value:181,
   writable:false,
 });
 /* the version */
@@ -45,9 +45,7 @@ this.__proto__.searchForm=function(key='text'){
       }
     }
   };
-  return this.element('div',{'class':'content-search'},[
-    search,
-  ]);
+  return search;
 };
 /* select */
 this.__proto__.select=function(data,selected,name=''){

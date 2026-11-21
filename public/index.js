@@ -13,6 +13,7 @@ window.addEventListener('error',function(e){
   console.error(errorText);
 });//*/
 /* GLOBALS VARIABLES */
+/* upper-case GLOBALS for global variables */
 const GLOBALS={
   host:'http://127.0.0.1:9301/', // host of mia server (mia host)
   // host:'https://9r3i.github.io/mia/public/', // --> 1
