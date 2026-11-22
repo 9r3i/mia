@@ -175,6 +175,11 @@ PAGES=[
   let ready=await onFunctionReady('listen');
   document.body.innerHTML='';
   app.pre({ready});
+  /* unloaded */
+  if(GLOBALS.unloaded.length>0){
+    app.alert(GLOBALS.unloadedText);
+    return;
+  }
   /* initialize */
   for(let page of PAGES){
     app.routes.push(page);

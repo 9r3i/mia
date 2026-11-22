@@ -43,6 +43,8 @@ const GLOBALS={
     'tree',
     'silsilah',
   ],
+  unloaded:[],
+  unloadedText:'',
 };
 /* anonymous async function */
 (async function(){
@@ -98,27 +100,59 @@ const GLOBALS={
       span.innerText=Math.floor(e.loaded/1024)+'KB - Loading...';
     }
   }),
-  success=0;
+  success=0,
+  failed=0,
+  unloaded=[];
   window.loaded={};
   for(let path in loaded){
     window.loaded[path]=loaded[path]!==false;
     if(loaded[path]!==false){
       success++;
+    }else{
+      failed++;
+      unloaded.push(path);
     }
   }
   span.innerText='Completed ('+success+'/'
     +Object.keys(loaded).length+') --> Processing...';
+  /* failed info */
+  if(failed>0){
+    let text='Some files are not loaded: \n* '
+      +unloaded.join('\n* ');
+    document.body.innerHTML='<pre>'+text+'</pre>';
+    GLOBALS.unloaded=unloaded;
+    GLOBALS.unloadedText=text;
+    return;
+  }
   /* starter */
   if(starter){
     if(starter.type=='class'){
-      let obj=new window[starter.name](starter.param);
+      let obj=new window[starter.name](
+        starter.param,
+        starter.hasOwnProperty('param2')?starter.param2:null,
+        starter.hasOwnProperty('param3')?starter.param3:null,
+        starter.hasOwnProperty('param4')?starter.param4:null,
+        starter.hasOwnProperty('param5')?starter.param5:null,
+      );
       if(starter.init){
-        return obj[starter.init]();
+        return obj[starter.init](
+          starter.hasOwnProperty('iparam')?starter.iparam:null,
+          starter.hasOwnProperty('iparam2')?starter.iparam2:null,
+          starter.hasOwnProperty('iparam3')?starter.iparam3:null,
+          starter.hasOwnProperty('iparam4')?starter.iparam4:null,
+          starter.hasOwnProperty('iparam5')?starter.iparam5:null,
+        );
       }
       return obj;
     }
     if(starter.type=='function'){
-      return window[starter.name](starter.param);
+      return window[starter.name](
+        starter.param,
+        starter.hasOwnProperty('param2')?starter.param2:null,
+        starter.hasOwnProperty('param3')?starter.param3:null,
+        starter.hasOwnProperty('param4')?starter.param4:null,
+        starter.hasOwnProperty('param5')?starter.param5:null,
+      );
     }
     if(starter.type=='eval'){
       return eval(starter.param);
@@ -248,6 +282,7 @@ function fileContent(appname='start'){
       type:'class',
       name:'tree',
       param:'https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/silsilah/',
+      param2:{closer:true},
       init:'test',
     }
   },
