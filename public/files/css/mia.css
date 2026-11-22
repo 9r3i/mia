@@ -64,11 +64,15 @@ pre{
   font-family:consolas,monospace;
   font-size:0.8rem;
   white-space:pre-wrap;
-  background:linear-gradient(#fff 0%,#ffe 100%);
   word-break:break-all;
+  overflow-x:hidden;
   padding:0.5rem;
-  border:0.01rem solid #999;
+  border:0.01rem solid #ccc;
   border-left:0.5rem solid #fd3;
+  background-color:linear-gradient(rgba(255,255,255,0.5) 0%,rgba(255,255,240,0.6) 100%);
+  background-image:radial-gradient(#fe9 0.001rem,#fff 0.1rem,rgba(255,255,255,0.7) 1rem);
+  background-size:1rem 1rem;
+  background-position:-0.5rem -0.5rem;
 }
 video,audio{max-width:100%;}
 progress{

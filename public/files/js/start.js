@@ -1,7 +1,7 @@
 /* global constant */
-const FBUSER = {
-  uid: null,
-  email: null,
+const FBUSER={
+  uid:null,
+  email:null,
 },
 MIA=new mia,
 HOSTS=[
@@ -16,34 +16,92 @@ HOSTS=[
 HKEY=6,
 HOST=HOSTS[HKEY],
 DBNAME='starter',
-APPNAME='9r3i\\mia@firebase\\app',
+APPNAME='9r3i\\mia\\app@firebase::start',
 LOCK=new Audio(HOST+'audio/car-lock.mp3'),
-NOTE=new Audio(HOST+'audio/iphone-notification.mp3');
-// https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/.json
-
-/* ===================[ initialize ]=================== */
-
-/* anonymously initialize */
-;(async function(){
-  //if(true){return;}
+NOTE=new Audio(HOST+'audio/iphone-notification.mp3'),
+CONFIG={
+  appClicked:null,
+},
+PAGES=[
+/* home page route */
+['','Home',async function(query,app,env){
   document.body.innerHTML='';
-  MIA.loader();
-  /* get ready */
-  let ready=await onFunctionReady('listen');
-  document.body.innerHTML='';
-  MIA.pre({ready});
-  /* initialize */
-  if(ready){
-    MIA.init();
+  let content=app.element('div',{'class':'content'}),
+  main=app.element('div',{id:'main'},[content])
+    .appendTo(document.body);
+  app.pre(APPNAME+'\\home');
+  /* apps */
+  let apps=[
+    {ns:'start',name:'Start',icon:'image/blackapple.png'},
+    {ns:'silsilah',name:'Silsilah',icon:'image/silsilah.png'},
+    {ns:'quiz',name:'Quiz',icon:'image/score-80.png'},
+    {ns:'monitoring',name:'Monitoring',icon:'image/topic-80.png'},
+    {ns:'chat',name:'Chat',icon:'image/account-80.png'},
+    {ns:'fblog',name:'Cleanjelly',icon:'image/cleanjelly.png'},
+    {ns:'mblog',name:'M-Blog',icon:''},
+    {ns:'hblog',name:'H-Blog',icon:''},
+    {ns:'rblog',name:'R-Blog',icon:''},
+    {ns:'tree',name:'Family Tree',icon:'image/prophet-family-tree.png'},
+    {ns:'gaino',name:'Gaino Blog',icon:''},
+    {ns:'force',name:'Firesite',icon:''},
+  ],
+  aloaded=[],
+  grid=app.element('div',{'class':'grid'}).appendTo(content);
+  for(let ap of apps){
+    let gap=app.element('div',{
+      'data-ns':ap.ns,
+      'data-name':ap.name,
+      'class':'grid-each',
+    }).appendTo(grid);
+    gap.clickOn(async function(){
+      if(CONFIG.appClicked!==this.dataset.ns){
+        let eachs=document.getElementsByClassName('grid-each-selected');
+        for(let i=0;i<eachs.length;i++){
+          eachs[i].classList.remove('grid-each-selected');
+        }
+        this.classList.add('grid-each-selected');
+        CONFIG.appClicked=this.dataset.ns;
+        await app.sleep(2000);
+        CONFIG.appClicked=null;
+        this.classList.remove('grid-each-selected');
+        return;
+      }
+      CONFIG.appClicked=null;
+      this.classList.remove('grid-each-selected');
+      location.assign('?app='+this.dataset.ns);
+    });
+    let icon=new Image,
+    name=app.element('div',{'class':'grid-each-name'}).text(ap.name);
+    icon.onerror=function(){
+      this.src='files/image/thumb.jpg';
+    };
+    icon.src='files/'+ap.icon;
+    gap.append(icon);
+    gap.append(name);
+    aloaded.push(ap.ns);
   }
-  /* end of statement */
-})();
-
-
-/* =====================[ pages ]===================== */
-
+  /* buttons */
+  let buttons=app.element('div',{'class':'content-buttons'}).appendTo(content);
+  for(let appname of GLOBALS.apps){
+    if(aloaded.includes(appname)){continue;}
+    let el=app.element('button',{'class':'button-yellow','data-app':appname}).text(appname).clickOn(function(){
+      window.location.assign('?app='+this.dataset.app);
+    }).appendTo(buttons);
+  }
+  /* pre */
+  app.pre({
+    loaded:window.loaded,
+    path:location.pathname,
+    query:app.parseQuery(location.search.substr(1)),
+    powered:{
+      by:'9r3i',
+    },
+  });
+  //app.pre(location);
+  //app.pre(GLOBALS.apps);
+}],
 /* admin page route */
-MIA.routes.push([
+[
   'admin',
   'Admin',
   async function(query,app,env){
@@ -71,30 +129,11 @@ MIA.routes.push([
       ers.value=vh;
     },
   }
-]);
-
-/* home page route */
-MIA.routes.push(['','Home',async function(query,app,env){
-  document.body.innerHTML='';
-  let content=app.element('div',{'class':'content'}),
-  main=app.element('div',{id:'main'},[content])
-    .appendTo(document.body);
-  MIA.pre(APPNAME+'::home');
-  for(let appname of GLOBALS.apps){
-    let el=app.element('button',{'class':'button-blue','data-app':appname}).text(appname).clickOn(function(){
-      window.location.assign('?app='+this.dataset.app);
-    }).appendTo(content);
-  }
-  MIA.pre(location);
-  MIA.pre(MIA.parseQuery(location.search.substr(1)));
-  MIA.pre({loaded:window.loaded});
-  MIA.pre(GLOBALS.apps);
-}]);
-
+],
 /* test page route */
-MIA.routes.push(['test','Test',async function(query,app,env){
+['test','Test',async function(query,app,env){
   document.body.innerHTML='';
-  MIA.pre(APPNAME+'::test');
+  app.pre(APPNAME+'\\test');
   let content=app.element('div',{'class':'content'}),
   main=app.element('div',{id:'main'},[content])
     .appendTo(document.body),
@@ -118,8 +157,33 @@ MIA.routes.push(['test','Test',async function(query,app,env){
   app.element('button',{'class':'button-red'}).appendTo(content).clickOn(function(){
     uploadPage(query,app,env);
   }).text('Upload');
-  //app.pre(post);
-}]);
+  app.pre(post);
+}],
+];
+
+
+/* ===================[ initialize ]=================== */
+
+/* anonymously initialize */
+;(async function(app){
+  //if(true){return;}
+  document.body.innerHTML='';
+  app.loader();
+  /* get ready */
+  let ready=await onFunctionReady('listen');
+  document.body.innerHTML='';
+  app.pre({ready});
+  /* initialize */
+  for(let page of PAGES){
+    app.routes.push(page);
+  }
+  /* initialize */
+  if(ready){
+    app.init();
+  }
+  /* end of statement */
+})(MIA);
+
 
 
 /* =====================[ blog ]===================== */
@@ -214,10 +278,10 @@ async function adminPage(query,app,env){
     return await logout();
   });
   app.element('button',{'class':'button-green button-float-right'}).text('New Post').appendTo(header).clickOn(async function(){
-    return MIA.go('admin?add');
+    return app.go('admin?add');
   });
   app.element('button',{'class':'button-orange button-float-right'}).text('Config').appendTo(header).clickOn(async function(){
-    return MIA.go('admin?config');
+    return app.go('admin?config');
   });
   /* config */
   if(query.hasOwnProperty('config')){
@@ -260,7 +324,7 @@ async function adminPage(query,app,env){
       try{
         data=JSON.parse(serial.content);
       }catch(e){return false;}
-      if(!data){return await MIA.alert('Invalid JSON format!');}
+      if(!data){return await app.alert('Invalid JSON format!');}
       let stext=this.innerText;
       this.disabled=true;
       this.text('Saving...');
@@ -401,13 +465,13 @@ async function adminPage(query,app,env){
     title=app.element('div',{'class':'post-title'}).text(p.title),
     time=app.element('div',{'class':'post-time'}).text(app.timeago(parseInt(p.time))),
     view=app.element('button',{'class':'button-tosca','data-pid':pid}).text('View').clickOn(function(){
-      return MIA.go('?pid='+this.dataset.pid);
+      return app.go('?pid='+this.dataset.pid);
     }),
     edit=app.element('button',{'class':'button-blue','data-pid':pid}).text('Edit').clickOn(function(){
-      return MIA.go('admin?edit='+this.dataset.pid);
+      return app.go('admin?edit='+this.dataset.pid);
     }),
     del=app.element('button',{'class':'button-red','data-pid':pid}).text('Delete').clickOn(async function(){
-      let yes=await MIA.confirm('Delete this post?');
+      let yes=await app.confirm('Delete this post?');
       if(!yes){return;}
       await writeData('post/'+this.dataset.pid,null);
       this.parentNode.parentNode.remove();

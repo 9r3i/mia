@@ -13,7 +13,7 @@
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:181,
+  value:182,
   writable:false,
 });
 /* the version */
@@ -178,9 +178,10 @@ this.__proto__.pre=function(){
   el.style.color='#555';
   el.style.whiteSpace='pre-wrap';
   el.style.wordBreak='break-all';
-  el.style.fontSize='13px';
-  el.style.backgroundColor='#eed';
+  el.style.fontSize='12px';
+  el.style.backgroundColor='rgba(255,255,240,0.7)';
   el.style.borderLeft='11px solid #fd5';
+  el.style.fontFamily='monospace';
   return el;
 };
 /* serialize a form by elements name -- @require: parseQuery */

@@ -133,6 +133,7 @@ function fileContent(appname='start'){
       'css/consola.css',
       'css/segoeuil.css',
       'css/firasans.css',
+      'css/main.bg.css',
       'css/mia.css',
       'css/start.css',
       'js/start.module.js',

@@ -95,11 +95,6 @@ PAGES=[
     p.appendTo(post);
     el.appendTo(post);
   }
-  /* grid */
-  let grid=app.element('div',{'class':'grid'}).appendTo(content);
-  for(let i=0;i<15;i++){
-    app.element().appendTo(grid);
-  }
   /* pre */
   app.pre([
     title,
