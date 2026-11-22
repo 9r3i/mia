@@ -28,9 +28,16 @@ PAGES=[
   /* tree element */
   if(query.hasOwnProperty('tree')){
     app.title('Family Tree');
-    let ftree=new tree(host,{
-      closer:false,
-      sharer:false,
+    let ptrn=/^yes|true|1|on$/i,
+    hide=query.hasOwnProperty('hide')&&ptrn.test(query.hide),
+    sharer=query.hasOwnProperty('sharer')&&ptrn.test(query.sharer),
+    closer=query.hasOwnProperty('closer')&&ptrn.test(query.closer),
+    zoomer=query.hasOwnProperty('zoomer')&&ptrn.test(query.zoomer),
+    ftree=new tree(host,{
+      closer,
+      sharer,
+      hide,
+      zoomer,
     }),
     rid=query.hasOwnProperty('root')?parseInt(query.root,10):1;
     await ftree.plant(query.tree,rid);
@@ -74,6 +81,7 @@ PAGES=[
       url:isLocal?'admin':'',
     },
   ];
+  samples.reverse();
   /* sample loop */
   for(let sample of samples){
     let img=new Image,
@@ -96,11 +104,14 @@ PAGES=[
     el.appendTo(post);
   }
   /* pre */
+  let text='powered by 9r3i';
   app.pre([
-    title,
-    'git@github.com/9r3i/mia.git',
-    'isLocal:'+JSON.stringify(isLocal),
+    'init '+title,
+    'git clone git@github.com/9r3i/mia.git',
+    'tell me is this local: '+isLocal,
+    'please speak: '+text,
   ].join('\n'));
+  app.speak(text);
 }],
 /* admin page */
 [
@@ -157,19 +168,8 @@ PAGES=[
   /* end of statement */
 })(MIA);
 
-/* =====================[ blog ]===================== */
 
-function __speak(s,l='en-US'){
-  if(typeof s!=='string'){return false;}
-  var p=new SpeechSynthesisUtterance();
-  p.text=s;
-  p.volume=1;
-  p.rate=1;
-  p.pitch=1;
-  p.lang=l;
-  window.speechSynthesis.speak(p);
-  return true;
-};
+/* =====================[ other ]===================== */
 
 /* upload page */
 function uploadPage(query,app,env){
@@ -221,7 +221,8 @@ function uploadPage(query,app,env){
     };
     imgx.src=URL.createObjectURL(file);
   };
-};
+}
+
 
 /* =====================[ admin ]===================== */
 
@@ -745,7 +746,7 @@ function upload(file,content,esize=200){
 function frameTree(uid,root=1){
   let app=MIA,
   frame=app.element('iframe',{
-    'src':'#?tree='+uid+'&root='+root,
+    'src':'#?tree='+uid+'&root='+root+'&sharer=1&closer=1&zoomer=1',
     'class':'frame-tree',
   }),
   closer=app.element('div',{'class':'frame-closer'}),
@@ -770,6 +771,7 @@ function frameTree(uid,root=1){
   });
   return {frame,closer};
 }
+
 
 /* ===================[ basic ]=================== */
 

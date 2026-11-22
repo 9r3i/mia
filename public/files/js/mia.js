@@ -13,7 +13,7 @@
 this.production=false;
 /* the version code */
 Object.defineProperty(this,'versionCode',{
-  value:182,
+  value:190,
   writable:false,
 });
 /* the version */
@@ -449,6 +449,38 @@ this.__proto__.register=async function(data={}){
   }).then(r=>r.text());
 };
 /* =================[ standalone ]================= */
+/* speak */
+this.__proto__.speak=function(s,l='en-US'){
+  if(typeof s!=='string'){return false;}
+  var p=new SpeechSynthesisUtterance();
+  p.text=s;
+  p.volume=1;
+  p.rate=1;
+  p.pitch=1;
+  p.lang=l;
+  window.speechSynthesis.speak(p);
+  return true;
+};
+/* checksum, default: sha-256 */
+this.__proto__.checksum=async function(text,algo='sha-256'){
+  let encoder=new TextEncoder(),
+  data=encoder.encode(text),
+  hashBuffer=await crypto.subtle.digest(algo,data),
+  hashArray=Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b=>b.toString(16).padStart(2,'0')).join('');
+};
+/* encode utf-8 string to base64 */
+this.__proto__.encodeBase64=function(str){
+  const bytes=new TextEncoder().encode(str);
+  const binString=Array.from(bytes,(b)=>String.fromCodePoint(b)).join('');
+  return btoa(binString);
+};
+/* decode base64 to utf-8 string */
+this.__proto__.decodeBase64=function(base64){
+  const binString=atob(base64);
+  const bytes=Uint8Array.from(binString,(m)=>m.codePointAt(0));
+  return new TextDecoder().decode(bytes);
+};
 /* time ago [en-US] -- standalone */
 this.__proto__.timeago=function(time){
   let now=new Date(),

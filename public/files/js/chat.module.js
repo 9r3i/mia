@@ -113,6 +113,7 @@ async function chatPage(uid){
     this.đisabled=false;
     this.value='';
   };
+  content.classList.add('chat-bg');
   listen('chat',async function(data){
     let content=document.querySelector('#content');
     if(!content||!user){return;}

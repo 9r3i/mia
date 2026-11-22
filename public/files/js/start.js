@@ -29,6 +29,7 @@ PAGES=[
   let content=app.element('div',{'class':'content'}),
   main=app.element('div',{id:'main'},[content])
     .appendTo(document.body);
+  main.classList.add('chat-bg');
   app.pre(APPNAME+'\\home');
   /* apps */
   let apps=[
@@ -43,7 +44,7 @@ PAGES=[
     {ns:'rblog',name:'R-Blog',icon:''},
     {ns:'tree',name:'Family Tree',icon:'image/prophet-family-tree.png'},
     {ns:'gaino',name:'Gaino Blog',icon:''},
-    {ns:'force',name:'Firesite',icon:''},
+    {ns:'force',name:'Firesite',icon:'image/force.png'},
   ],
   aloaded=[],
   grid=app.element('div',{'class':'grid'}).appendTo(content);
@@ -80,6 +81,17 @@ PAGES=[
     gap.append(name);
     aloaded.push(ap.ns);
   }
+  /* pre */
+  app.pre({
+    loaded:window.loaded,
+    path:location.pathname,
+    query:app.parseQuery(location.search.substr(1)),
+    powered:{
+      by:'9r3i',
+      url:'https://github.com/9r3i',
+    },
+  });
+  //app.pre(location);
   /* buttons */
   let buttons=app.element('div',{'class':'content-buttons'}).appendTo(content);
   for(let appname of GLOBALS.apps){
@@ -88,17 +100,7 @@ PAGES=[
       window.location.assign('?app='+this.dataset.app);
     }).appendTo(buttons);
   }
-  /* pre */
-  app.pre({
-    loaded:window.loaded,
-    path:location.pathname,
-    query:app.parseQuery(location.search.substr(1)),
-    powered:{
-      by:'9r3i',
-    },
-  });
-  //app.pre(location);
-  //app.pre(GLOBALS.apps);
+  /* end of the page */
 }],
 /* admin page route */
 [

@@ -119,6 +119,9 @@ iframe{
   padding:1rem;
   overflow-x:hidden;
   background-color:#fff;
+  background-attachment:fixed;
+  background-size:cover;
+  background-position:center;
 }
 .content img{
   max-width:15%;

@@ -133,7 +133,7 @@ function fileContent(appname='start'){
       'css/consola.css',
       'css/segoeuil.css',
       'css/firasans.css',
-      'css/main.bg.css',
+      'css/chat.bg.css',
       'css/mia.css',
       'css/start.css',
       'js/start.module.js',
@@ -146,6 +146,7 @@ function fileContent(appname='start'){
       'css/segoeuil.css',
       'css/mia.css',
       'css/chat.css',
+      'css/chat.bg.css',
       'js/binar.js',
       'js/mia.js',
       'js/chat.module.js',
@@ -246,7 +247,7 @@ function fileContent(appname='start'){
     tree:{
       type:'class',
       name:'tree',
-      param:null,
+      param:'https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/silsilah/',
       init:'test',
     }
   },
