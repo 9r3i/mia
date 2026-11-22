@@ -38,9 +38,9 @@ bash server.sh
 # Versions
 * mia:version (server) 1.2.0 (Node.js)
 * mia:version (server) 2.1.0 (PHP)
-* mia:version (client) 1.8.2 (Browser)
+* mia:version (client) 1.9.0 (Browser)
 * firebase web sdk (client) 13.3.0
-* starter v26.11.22.0711
+* starter v26.11.22.1630
 
 # Sample
 [Sample Demo](https://9r3i.github.io/mia/public/)

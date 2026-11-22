@@ -51,7 +51,8 @@ PAGES=[
       hide,
       zoomer,
     }),
-    rid=query.hasOwnProperty('root')?parseInt(query.root,10):1,
+    pint=/^0x[a-f0-9]+$/i.test(query.root)?16:10,
+    rid=query.hasOwnProperty('root')?parseInt(query.root,pint):1,
     btn=app.element('button',{'class':'button-blue'}).text('Open Tree').appendTo(content).clickOn(async function(){
       await ftree.plant(query.tree,rid);
     });
@@ -764,8 +765,9 @@ function upload(file,content,esize=200){
 /* frame of tree */
 function frameTree(uid,root=1){
   let app=MIA,
+  rootHex='0x'+parseInt(root,10).toString(16),
   frame=app.element('iframe',{
-    'src':'#?tree='+uid+'&root='+root+'&sharer=1&closer=1&zoomer=1',
+    'src':'#?tree='+uid+'&root='+rootHex+'&sharer=1&closer=1&zoomer=1',
     'class':'frame-tree',
   }),
   closer=app.element('div',{'class':'frame-closer'}),
