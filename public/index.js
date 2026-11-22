@@ -288,7 +288,7 @@ function metaContent(){
   document.head.append(meta3);
   /* set title */
   let title=document.createElement('title');
-  title.innerText='9r3i\\mia@firebase\\app';
+  title.innerText='9r3i\\mia\\app@firebase::init';
   document.head.append(title);
   /* 9r3i\mia@firebase\app */
 }

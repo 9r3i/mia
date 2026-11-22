@@ -25,8 +25,20 @@ PAGES=[
 ['','Silsilah',async function(query,app,env){
   document.body.innerHTML='';
   let host='https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/'+DBNAME+'/';
+  /* main elements */
+  let content=app.element('div',{'class':'content'}),
+  header=app.element('div',{'class':'header'}),
+  footer=app.element('div',{'class':'footer'}),
+  main=app.element('div',{id:'main'},[header,content,footer])
+    .appendTo(document.body);
+  /* header and title */
+  let title=APPNAME+'::silsilah\\home';
+  header.dataset.text=title;
+  app.title(['Silsilah ',' Home'].join(String.fromCharCode(0x2015)));
   /* tree element */
   if(query.hasOwnProperty('tree')){
+    title=APPNAME+'::silsilah\\tree';
+    header.dataset.text=title;
     app.title('Family Tree');
     let ptrn=/^yes|true|1|on$/i,
     hide=query.hasOwnProperty('hide')&&ptrn.test(query.hide),
@@ -39,20 +51,13 @@ PAGES=[
       hide,
       zoomer,
     }),
-    rid=query.hasOwnProperty('root')?parseInt(query.root,10):1;
+    rid=query.hasOwnProperty('root')?parseInt(query.root,10):1,
+    btn=app.element('button',{'class':'button-blue'}).text('Open Tree').appendTo(content).clickOn(async function(){
+      await ftree.plant(query.tree,rid);
+    });
     await ftree.plant(query.tree,rid);
     return;
   }
-  /* main elements */
-  let content=app.element('div',{'class':'content'}),
-  header=app.element('div',{'class':'header'}),
-  footer=app.element('div',{'class':'footer'}),
-  main=app.element('div',{id:'main'},[header,content,footer])
-    .appendTo(document.body);
-  /* header and title */
-  let title=APPNAME+'::silsilah\\home';
-  header.dataset.text=title;
-  app.title(['Silsilah ',' Home'].join(String.fromCharCode(0x2015)));
   /* samples */
   let samples=[
     {
@@ -268,6 +273,20 @@ async function adminPage(query,app,env){
     return await logout();
   });
   let plusbtn=app.element('button',{'class':'button-green button-float-right','style':'font-size:0.95rem;'}).html('&#xff0b;').appendTo(header).clickOn(()=>app.go('admin?add'));
+  let dlbtn=app.element('button',{'class':'button-orange button-float-right','style':'font-size:0.95rem;'}).html('&#x2193;').appendTo(header).clickOn(()=>{
+    let textContent=JSON.stringify(members),
+    blob=new Blob([textContent],{type:"application/json;charset=utf-8"}),
+    downloadableUrl=URL.createObjectURL(blob),
+    link=app.element('a').content('Download');
+    link.href=downloadableUrl;
+    link.download='silsilah.json';
+    link.target='_blank';
+    link.clickOn(async function(){
+      await app.sleep(1000);
+      this.remove();
+    });
+    link.click();
+  });
   /* info */
   if(query.hasOwnProperty('id')){
     let member=getMemberData(query.id,members);
