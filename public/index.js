@@ -284,12 +284,14 @@ function fileContent(appname='start'){
       param:'https://silsilah200-default-rtdb.asia-southeast1.firebasedatabase.app/silsilah/',
       param2:{closer:true},
       init:'test',
+      iparam:null,
     }
   },
   logos={
     fblog:'image/cleanjelly.png',
     silsilah:'image/silsilah.png',
     chat:'image/chat.png',
+    quiz:'image/score-80.png',
   },
   icon=logos.hasOwnProperty(appname)
     ?logos[appname]:'image/blackapple.png',

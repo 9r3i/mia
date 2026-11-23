@@ -40,10 +40,10 @@ bash server.sh
 * mia:version (server) 2.1.0 (PHP)
 * mia:version (client) 1.9.0 (Browser)
 * firebase web sdk (client) 13.3.0
-* starter v26.11.22.1630
+* starter v26.11.23.1759
 
 # Sample
-[Sample Demo](https://9r3i.github.io/mia/public/)
+[Public](https://9r3i.github.io/mia/public/)
 
 [M-Blog](https://9r3i.github.io/)
 
