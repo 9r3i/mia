@@ -149,6 +149,31 @@ iframe{
   font-size:0.8rem;
 }
 
+/* typing */
+.typing{
+  position:fixed;
+  z-index:1000;
+  right:5rem;
+  bottom:150px;
+  padding:0.5rem 0.5rem 0.5rem;
+  border:0.01rem solid #ccc;
+  border-right:0.5rem solid #ccc;
+  background-color:#fff;
+  border-radius:1rem 0rem 1rem 1rem;
+}
+.typing:before{
+  content:"x";
+  color:transparent;
+  clip-path:polygon(0% 0%, 100% 0%, 0% 100%);
+  background-color:#ccc;
+  margin-left:calc(100% - 11.55rem);
+  position:fixed;
+  right:4.5rem;
+  bottom:calc(150px + 1.5rem);
+  width:1rem;
+  height:1rem;
+}
+
 /* content loader */
 .content-loader{
   background-image:url('files/image/preloader.gif');
@@ -263,8 +288,6 @@ iframe{
   content:"\2714";
   margin-right:-0.9rem;
 }
-
-
 
 
 /* footer */
@@ -508,6 +531,16 @@ iframe{
   position:absolute;
   margin-top:-2.1rem;
   margin-left:-0.7rem;
+}
+.post .online{
+  padding:0.2rem;
+  width:0.7rem;
+  height:0.7rem;
+  border-radius:3rem;
+  background-color:#7b3;
+  margin-left:3.5rem;
+  margin-top:-3.1rem;
+  float:left;
 }
 
 /* exam */

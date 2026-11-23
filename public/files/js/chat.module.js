@@ -107,13 +107,32 @@ async function chatPage(uid){
   user=FRIENDS.hasOwnProperty(uid)
     ?FRIENDS[uid]:await read('users/'+uid);
   input.onkeyup=async function(e){
-    if(e.keyCode!==13||this.value==''){return;}
+    if(e.keyCode!==13||this.value==''){
+      let now=(new Date).getTime(),
+      res=await write('typing/'+FBUSER.uid,now);
+      return;
+    }
     this.đisabled=true;
     await sendChat(this.dataset.uid,this.value);
     this.đisabled=false;
     this.value='';
   };
   content.classList.add('chat-bg');
+  input.onfocus=async function(){
+    let now=(new Date).getTime(),
+    res=await write('typing/'+FBUSER.uid,now);
+  };
+  listen('typing',async function(data){
+    let content=document.querySelector('#content');
+    if(!content||!user||!data.hasOwnProperty(user.uid)){return;}
+    let now=(new Date).getTime(),
+    typing=div('div',{'class':'typing'}).text('Typing...');
+    if(now-parseInt(data[user.uid],10)<10000){
+      typing.appendTo(main);
+      await sleep(5000);
+      typing.remove();
+    }
+  },e=>console.error(e));
   listen('chat',async function(data){
     let content=document.querySelector('#content');
     if(!content||!user){return;}
@@ -147,9 +166,13 @@ function chatMessage(cid,data,user){
   justify=data.to==user.uid?'left':'right',
   photo=data.to==user.uid?FBUSER.photo:user.photo,
   username=data.to==user.uid?FBUSER.username:user.username,
+  textHTML=text.replace('<','&lt;')
+    .replace(/https?:\/\/[^\s]+/g,function(m){
+    return div('a',{href:m,target:'_blank'}).content(m).outerHTML;
+  }),
   img=div('img',{src:photo,alt:username}),
   mimg=div('div',{'class':'message-photo'},[img]),
-  mtext=div('div',{'class':'message-text'}).text(text),
+  mtext=div('div',{'class':'message-text'}).html(textHTML),
   mtime=div('div',{'class':'message-time'},[
     data.to==user.uid?itime:'',stime
   ]),
@@ -161,6 +184,13 @@ function chatMessage(cid,data,user){
     ]),
     data.from==user.uid?mimg:'',
   ]).appendTo(content);
+  dm.dataset.message=text;
+  dm.addEventListener('contextmenu',async function(){
+    let text=await copy(this.dataset.message);
+    if(text){
+      MIA.alert('Copied to clipboard!');
+    }
+  });
   if(data.from==FBUSER.uid){
     if(data.read==true){
       itime.classList.add('read');
@@ -252,7 +282,11 @@ async function friendPage(){
       div('img',{src:user.photo}),
     ]),
     ptitle=div('div',{'class':'post-title','data-uid':uid}).text(user.username),
-    pemail=div('div',{'class':'post-time'}).text(
+    pemail=div('div',{
+      'class':'post-time',
+      'data-email':user.email,
+      'data-uid':user.uid,
+    }).text(
       user.email+'\n'+MIA.parseDatetime(user.online)
     ),
     button=div('button',{'class':'button-tosca','data-uid':uid}).text('Chat').clickOn(function(){
@@ -264,6 +298,39 @@ async function friendPage(){
     ]).appendTo(content);
     FRIENDS[uid]=user;
   }
+  data=await read('online');
+  if(data){
+    for(let uid in data){
+      let user=data[uid],
+      now=(new Date).getTime(),
+      oldot=div('div',{'class':'online'}),
+      uq='.post-time[data-uid="'+uid+'"]',
+      uel=document.querySelector(uq),
+      statement=chatMessageTime(user.online);
+      if(!uel){continue;}
+      if(now-user.online<60000){
+        statement='[ONLINE]';
+        uel.parentNode.append(oldot);
+      }
+      uel.text(uel.dataset.email+'\n'+statement);
+    }
+  }
+  listen('users',async function(data){
+    for(let uid in data){
+      let user=data[uid],
+      now=(new Date).getTime(),
+      oldot=div('div',{'class':'online'}),
+      uq='.post-time[data-uid="'+uid+'"]',
+      uel=document.querySelector(uq),
+      statement=chatMessageTime(user.online);
+      if(!uel){continue;}
+      if(now-user.online<60000){
+        statement='[ONLINE]';
+        uel.parentNode.append(oldot);
+      }
+      uel.text(uel.dataset.email+'\n'+statement);
+    }
+  },e=>console.error(e));
   listen('chat',async function(data){
     let total={},counter=0;
     for(let cid in data){
@@ -372,6 +439,16 @@ async function sendChat(to,message){
   };
   return await send('chat',data);
 };
+
+/* copy to clipboard */
+async function copy(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
 
 /* decrypt -- @require: binar */
 function decrypt(s){

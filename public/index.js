@@ -289,6 +289,7 @@ function fileContent(appname='start'){
   logos={
     fblog:'image/cleanjelly.png',
     silsilah:'image/silsilah.png',
+    chat:'image/chat.png',
   },
   icon=logos.hasOwnProperty(appname)
     ?logos[appname]:'image/blackapple.png',
