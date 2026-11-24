@@ -252,7 +252,7 @@ function fileContent(appname='start'){
     ],
     firebase:[
       'js/firebase.module.js',
-      'js/test.js',
+      'js/firebase.test.js',
     ],
   },
   starts={

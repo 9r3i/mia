@@ -263,7 +263,9 @@ function agoDays(date='2012-04-08'){
 Nama Asli: Luthfie Al Ansháry
 Lahir dan dibesarkan di Bandung.
 
-Berasal dari keluarga yang sangat sederhana disebuah kampung yang tenang dan sangat sederhana pula. Kampung yang jauh dari teknologi, meski akhirnya sekarang kampung tersebut melek dengan teknologi.</div></div>Ketertarikan saya pada komputer sudah dimulai sejak masih SD kelas 5, hanya bisa rental komputer, gak mampu beli. Dan memang sampai sekarang gak mampu beli, apalagi yang spek tinggi buat <em>games</em>, wah sudah gak bakal kesampaian.
+Berasal dari keluarga yang sangat sederhana disebuah kampung yang tenang dan sangat sederhana pula. Kampung yang jauh dari teknologi, meski akhirnya sekarang kampung tersebut melek dengan teknologi.
+
+Ketertarikan saya pada komputer sudah dimulai sejak masih SD kelas 5, hanya bisa rental komputer, gak mampu beli. Dan memang sampai sekarang gak mampu beli, apalagi yang spek tinggi buat <em>games</em>, wah sudah gak bakal kesampaian.
 
 Sempat ngiri lihat teman-teman sekolah yang bisa beli komputer, rasanya ingin juga bisa merasakan seperti mereka. Bahkan saya sempat nabung biar bisa beli komputer, belain gak jajan, disisihkan sehari seribu perak, tapi apa daya, saat itu orang tua gak bisa bayar spp, dan akhirnya tabungan habis untuk bayar spp.
 
