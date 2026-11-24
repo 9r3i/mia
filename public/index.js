@@ -42,6 +42,7 @@ const GLOBALS={
     'force',
     'tree',
     'silsilah',
+    'firebase',
   ],
   unloaded:[],
   unloadedText:'',
@@ -248,6 +249,10 @@ function fileContent(appname='start'){
       'js/mia.js',
       'js/tree.js',
       'js/silsilah.js',
+    ],
+    firebase:[
+      'js/firebase.module.js',
+      'js/test.js',
     ],
   },
   starts={

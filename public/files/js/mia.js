@@ -24,7 +24,13 @@ Object.defineProperty(this,'version',{
 this.host=host;
 this.key=null;
 this.user=null;
+this.aliases={};
 /* =================[  ]================= */
+/* alias -- @require: this.aliases */
+this.alias=function(text=''){
+  let aliases=typeof this.aliases==='object'&&this.aliases!==null?this.aliases:{};
+  return aliases.hasOwnProperty(text)?aliases[text]:text;
+};
 /* =================[  ]================= */
 /* search form -- @require: element */
 this.__proto__.searchForm=function(key='text'){
@@ -449,7 +455,209 @@ this.__proto__.register=async function(data={}){
   }).then(r=>r.text());
 };
 /* =================[ standalone ]================= */
-/* speak */
+/* geo location - promise -- standalone */
+this.__proto__.userLocation=function(){
+  return new Promise(resolve=>{
+    navigator.geolocation.getCurrentPosition(r=>{
+      return resolve(r);
+    });
+  });
+};
+/* page url -- @return: object {url:<url>,revoke()} -- standalone */
+this.__proto__.pageURL=function(data,type='text/html'){
+  data=typeof data!=='string'?JSON.stringify(data):data;
+  let blob=new Blob([data],{type}),
+  url=URL.createObjectURL(blob);
+  return {
+    url,
+    revoke:function(){
+      URL.revokeObjectURL(this.url);
+    }
+  };
+};
+/* ini object (class) -- standalone */
+this.__proto__.ini=function(){
+  return {
+    value:function(str){
+      if(str===null){
+        return 'null';
+      }else if(str===false){
+        return 'false';
+      }else if(str===true){
+        return 'true';
+      }
+      str=str.toString();
+      if(!str.match(/"|\n/g)){
+        return str;
+      }
+      return '"'+str
+        .replace(/\n/g,'\\n')
+        .replace(/"/g,'\\"')
+        +'"';
+    },
+    /* build an ini string */
+    build:function(data,nested=false){
+      if(typeof data!=='object'||data===null
+        ||Array.isArray(data)){
+        return;
+      }
+      let res=[];
+      for(let k in data){
+        let v=data[k],
+        col=k+'='+this.value(v);
+        if(nested){
+          col='['+k+']\n';
+          for(let i in v){
+            col+=i+'='+this.value(v[i]);
+          }
+        }res.push(col);
+      }return res.join('\n');
+    },
+    /* parse without section */
+    parseNoSection:function(data){
+      if(typeof data!=="string"){return {};}
+      let ln=data.split(/\r\n|\r|\n/g),
+      res={};
+      for(let p of ln){
+        let m=p.match(/^\s*([^=]+?)\s*=\s*(.*?)\s*$/);
+        if(!m){continue;}
+        res[m[1]]=m[2].match(/^"/)&&m[2].match(/"$/)
+          ?m[2].substr(1,m[2].length-2)
+            .replace(/\\"/g,'"')
+            .replace(/\\n/g,'\n')
+          :m[2];
+      }return res;
+    },
+    /** 
+     * ini.js
+     * ~ parse ini from string (nested only)
+     * ~ this could be parse multiline ini values
+     * @parameters:
+      *   data = string of ini data string
+        ** actually this is my old code, wrote 5 years ago
+        ** started at november 18th 2017
+        ** update at september 7th 2018
+     */
+    parse:function(data){
+      if(typeof data!=="string"){return;}
+      let ex=data.split(/\r\n|\r|\n/g);
+      let res={},store='',index='',pin='';
+      for(let i in ex){
+        if(ex[i]==''&&index==''){continue;}
+        else if(ex[i].match(/^;/g)){continue;}
+        else if(ex[i].match(/^\[(.*)\]/ig)){
+          pin=ex[i].replace(/^\[/ig,'').replace(/\]\s*$/ig,'');
+          res[pin]={};
+        }else if(ex[i].match(/^.+=\s*/ig)&&index==''){
+          let mt=ex[i].match(/^(.+)=\s*"(.*)"\s*$/ig);
+          let mi=ex[i].match(/^[^=]+/ig);
+          if(mt&&mi){
+            index=mi[0].replace(/^\s+|\s+$/ig,'');
+            res[pin][index]=mt[0].substr(mi[0].length).replace(/^\s*=\s*"|\s*"\s*$/ig,'');
+            index='';
+            continue;
+          }
+          let exi=ex[i].match(/^.+=\s*/ig);
+          if(mi){
+            index=mi[0].replace(/^\s+|\s+$/ig,'');
+          }else{
+            index=exi[0].replace(/=\s*$/ig,'').replace(/^\s+|\s+$/ig,'');
+          }
+          exi=ex[i].replace(/^.+=\s*/ig,'');
+          if(exi.match(/^".*"\s*$/ig)){
+            res[pin][index]=exi.substr(1).replace(/"\s*$/ig,'');
+            index='';
+          }else if(exi.match(/^"/ig)){
+            store=exi.substr(1)+'\r\n';
+          }else{
+            if(typeof res[pin]==='undefined'){continue;}
+            res[pin][index]=exi.replace(/^\s+|\s+$/ig,'');
+            index='';
+          }exi=null;
+        }else if(ex[i].match(/"\s*$/ig)&&index!==''){
+          if(typeof res[pin]==='undefined'){continue;}
+          store+=ex[i].replace(/"\s*$/ig,'')+'\r\n';
+          res[pin][index]=store;
+          store='',index='';
+        }else if(index!==''){
+          store+=ex[i]+'\r\n';
+        }
+      }return res;
+    },
+  };
+};
+/* local storage (class) -- standalone */
+this.__proto__.storage=function(prefix='local'){
+  return {
+    __prefix:prefix+'/',
+    size:function(){
+      let res=0,
+      length=this.__prefix.length;
+      for(let i=0;i<localStorage.length;i++){
+        let key=localStorage.key(i);
+        if(key.substring(0,length)==this.__prefix){
+          let value=localStorage.getItem(key);
+          res+=key.length+value.length+1;
+        }
+      }return res;
+    },
+    get:function(key=''){
+      key=typeof key!=='string'?JSON.stringify(key):key;
+      let res=false,
+      raw=localStorage.getItem(this.__prefix+key);
+      try{res=JSON.parse(raw);}catch(e){}
+      return res;
+    },
+    set:function(key='',value=''){
+      key=typeof key!=='string'?JSON.stringify(key):key;
+      value=typeof value!=='string'?JSON.stringify(value):value;
+      localStorage.setItem(this.__prefix+key,value);
+      return this.keys().indexOf(this.__prefix+key)>=0?true:false;
+    },
+    delete:function(key=''){
+      key=typeof key!=='string'?JSON.stringify(key):key;
+      localStorage.removeItem(this.__prefix+key);
+      return this.keys().indexOf(this.__prefix+key)<0?true:false;
+    },
+    keys:function(){
+      let res=[],
+      length=this.__prefix.length;
+      for(let i=0;i<localStorage.length;i++){
+        let key=localStorage.key(i);
+        if(key.substring(0,length)==this.__prefix){
+          res.push(key.substring(length));
+        }
+      }return res;
+    },
+    clear:function(){
+      let res=0,
+      length=this.__prefix.length;
+      for(let i=0;i<localStorage.length;i++){
+        let key=localStorage.key(i);
+        if(key.substring(0,length)==this.__prefix){
+          localStorage.removeItem(key);
+          res++;
+        }
+      }return res;
+    },
+  };
+};
+/* get data by key from dataArray -- @result: array (nobreak) or object or null -- standalone */
+this.__proto__.getDataByKey=function(key,value='',data=[],nobreak=false){
+  data=Array.isArray(data)?data:[];
+  let res=nobreak?[]:null;
+  for(let i of data){
+    if(i[key]==value){
+      if(nobreak){
+        res.push(i);
+      }else{
+        res=i;
+        break;
+      }
+    }
+  }return res;
+};
+/* speak -- standalone */
 this.__proto__.speak=function(s,l='en-US'){
   if(typeof s!=='string'){return false;}
   var p=new SpeechSynthesisUtterance();
@@ -461,7 +669,30 @@ this.__proto__.speak=function(s,l='en-US'){
   window.speechSynthesis.speak(p);
   return true;
 };
-/* checksum, default: sha-256 */
+/* JSON download -- standalone */
+this.__proto__.downloadJSON=function(data,out='data'){
+  data=JSON.stringify(data);
+  let blob=new Blob([data],{type:'application/json'}),
+  url=URL.createObjectURL(blob),
+  a=document.createElement('a');
+  a.href=url;
+  a.download=out+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  return url;
+};
+/* audio play -- standalone */
+this.__proto__.audioPlay=function(url){
+  return new Promise(function(resolve,reject){
+    let audio=new Audio();
+    audio.preload="auto";
+    audio.autoplay=true;
+    audio.onerror=reject;
+    audio.onplay=resolve;
+    audio.src=url;
+  });
+};
+/* checksum, @default: sha-256 -- standalone */
 this.__proto__.checksum=async function(text,algo='sha-256'){
   let encoder=new TextEncoder(),
   data=encoder.encode(text),
@@ -469,13 +700,13 @@ this.__proto__.checksum=async function(text,algo='sha-256'){
   hashArray=Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b=>b.toString(16).padStart(2,'0')).join('');
 };
-/* encode utf-8 string to base64 */
+/* encode utf-8 string to base64 -- standalone */
 this.__proto__.encodeBase64=function(str){
   const bytes=new TextEncoder().encode(str);
   const binString=Array.from(bytes,(b)=>String.fromCodePoint(b)).join('');
   return btoa(binString);
 };
-/* decode base64 to utf-8 string */
+/* decode base64 to utf-8 string -- standalone */
 this.__proto__.decodeBase64=function(base64){
   const binString=atob(base64);
   const bytes=Uint8Array.from(binString,(m)=>m.codePointAt(0));
@@ -524,7 +755,7 @@ this.__proto__.reader=function(file){
     reader.readAsDataURL(file);
   });
 };
-/* fetch -- standalone */
+/* fetch -- with download progress -- standalone */
 this.__proto__.fetch=async function(url,dl){
   url=typeof url==='string'?url:'';
   dl=typeof dl==='function'?dl:function(){};
@@ -551,7 +782,7 @@ this.__proto__.fetch=async function(url,dl){
   }));
   return await res.text();
 };
-/* parse date and time -- standalone */
+/* parse date and time -- @default:en-US -- standalone */
 this.__proto__.parseDatetime=function(value,format='en-US'){
   let date=new Date(value),
   options={
@@ -563,6 +794,27 @@ this.__proto__.parseDatetime=function(value,format='en-US'){
     minute:'numeric',
   };
   return date.toLocaleDateString(format,options);
+};
+/* parse date -- @default: en-US -- standalone */
+this.__proto__.parseDate=function(value,format='en-US'){
+  value=value?value:(new Date).getTime();
+  let date=new Date(value),
+  options={
+    weekday:'long',
+    year:'numeric',
+    month:'long',
+    day:'numeric',
+  };
+  return date.toLocaleDateString(format,options);
+};
+/* parse nominal -- @default: USD -- standalone */
+this.__proto__.parseNominal=function(nominal=0,format='en-US',currency='USD',decimal=0){
+  let money=new Intl.NumberFormat(format,{
+    style:'currency',
+    currency:currency,
+    maximumFractionDigits:decimal,
+  });
+  return money.format(nominal);
 };
 /* parse object to json string -- standalone */
 this.__proto__.likeJSON=function(obj,limit,space,pad){
@@ -644,6 +896,15 @@ this.__proto__.sleep=function(ms){
   return new Promise(resolve=>{
     setTimeout(resolve,ms);
   });
+};
+/* array range -- standalone */
+this.__proto__.range=function(s,t){
+  s=s?s:0;
+  t=t?Math.max(s,t):0;
+  let r=[];
+  for(let i=s;i<=t;i++){
+    r.push(i);
+  }return r;
 };
 /* create element -- standalone */
 this.__proto__.element=function(name='div',attr={},children=[]){
@@ -900,6 +1161,30 @@ this.__proto__.parseQueryKey=function(obj,m,v,i){
   }
   obj[mi]=this.parseQueryKey(obj[mi],m,v,i+1);
   return obj;
+};
+/* buildQuery v2, build http query recusively */
+this.__proto__.buildQuery=function(data,key){
+  let ret=[],dkey=null;
+    for(let d in data){
+      dkey=key?key+'['
+            +encodeURIComponent(d)
+              .replace(/\(/g,'%28')
+              .replace(/\)/g,'%29')
+            +']'
+          :encodeURIComponent(d)
+            .replace(/\(/g,'%28')
+            .replace(/\)/g,'%29');
+      if(typeof data[d]=='object'&&data[d]!==null){
+        ret.push(this.buildQuery(data[d],dkey));
+      }else{
+        ret.push(
+          dkey+"="
+            +encodeURIComponent(data[d])
+            .replace(/\(/g,'%28')
+            .replace(/\)/g,'%29')
+        );
+      }
+  }return ret.join("&");
 };
 /* =================[ nothing ]================= */
 /* nothing statement */
