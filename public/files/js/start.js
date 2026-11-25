@@ -157,7 +157,30 @@ PAGES=[
   if(post.hasOwnProperty('content')){
     let text=post.content;
     app.pre(text);
-    __speak(text,'su-ID');
+    let locale={
+      'Sunda':'su-ID',
+      'Indonesia':'id-ID',
+      'Jawa':'jv-ID',
+      'Russian':'ru-RU',
+      'Arab':'ar-AR',
+      'German':'de-DE',
+      'China':'zh-CN',
+      'Japan':'ja-JP',
+      'Korea':'ko-KR',
+      'English US':'en-US',
+      'English UK':'en-UK',
+      'Hindi':'hi-IN',
+    };
+    for(let lang in locale){
+      app.element('button',{
+        'class':'button-orange',
+        'data-text':'sorodot gaplok',
+        'data-locale':locale[lang],
+        'data-lang':lang,
+      }).appendTo(content).text(lang).clickOn(function(){
+        __speak(this.dataset.lang+', '+this.dataset.text+'. '+text,this.dataset.locale);
+      });
+    }
     return;
   }
   for(let i in post){
@@ -211,7 +234,7 @@ function __speak(s,l='en-US'){
   var p=new SpeechSynthesisUtterance();
   p.text=s;
   p.volume=1;
-  p.rate=1;
+  p.rate=1.03;
   p.pitch=1;
   p.lang=l;
   window.speechSynthesis.speak(p);

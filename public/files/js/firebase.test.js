@@ -14,6 +14,9 @@ window.addEventListener('error',function(e){
 const FBUSER={
   uid:null,
   email:null,
+  emailVerified:null,
+  displayName:null,
+  photoURL:null,
 };
 
 /* initialize */
@@ -32,6 +35,9 @@ const FBUSER={
       pro('Logged in',user);
       FBUSER.uid=user.uid;
       FBUSER.email=user.email;
+      FBUSER.displayName=user.displayName;
+      FBUSER.photoURL=user.photoURL;
+      FBUSER.emailVerified=user.emailVerified;
       div('button').text('Logout')
         .appendTo(document.body)
         .clickOn(async function(){

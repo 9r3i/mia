@@ -38,6 +38,9 @@ const FBAPP  = initializeApp(config),
       FBUSER = {
         uid:null,
         email:null,
+        emailVerified:null,
+        displayName:null,
+        photoURL:null,
       };
 /* login with google */
 this.loginGoogle=async function(cback,error,redirect=false){
@@ -69,6 +72,9 @@ this.userinfo=function(cb){
         return cb({
           uid:user.uid,
           email:user.email,
+          emailVerified:user.emailVerified,
+          displayName:user.displayName,
+          photoURL:user.photoURL,
         });
       }else{
         return cb(null);
