@@ -35,14 +35,14 @@ const FBUSER={
       div('button').text('Logout')
         .appendTo(document.body)
         .clickOn(async function(){
-        pro(await logout());
+        pro(await fb.logout());
       });
     }else{
       pro('Logged out');
       div('button').text('Login with Google')
         .appendTo(document.body)
         .clickOn(async function(){
-        await loginGoogle(pro,pro);
+        await fb.loginGoogle(pro,pro);
       });
     }
     pro('ok3');

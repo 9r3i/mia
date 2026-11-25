@@ -45,7 +45,8 @@ PAGES=[
     {ns:'rblog',name:'R-Blog',icon:''},
     {ns:'gaino',name:'Gaino Blog',icon:''},
     {ns:'force',name:'Firesite',icon:'image/force.png'},
-    {ns:'firebase',name:'Firebase Test',icon:''},
+    {ns:'firebase',name:'Firebase Test',icon:'image/firebase.png'},
+    {ns:'test',name:'Just Test',icon:''},
   ],
   aloaded=[],
   grid=app.element('div',{'class':'grid'}).appendTo(content);
@@ -145,7 +146,6 @@ PAGES=[
 ['test','Test',async function(query,app,env){
   document.body.innerHTML='';
   app.pre(APPNAME+'\\test');
-  app.pre(app);
   let content=app.element('div',{'class':'content'}),
   main=app.element('div',{id:'main'},[content])
     .appendTo(document.body),
@@ -163,13 +163,14 @@ PAGES=[
   for(let i in post){
     let title=post[i].title;
     app.element('div',{},[
-      app.element('a',{href:'#?pid='+i}).content(title),
+      app.element('a',{href:'#test?pid='+i}).content(title),
     ]).appendTo(content);
   }
   app.element('button',{'class':'button-red'}).appendTo(content).clickOn(function(){
     uploadPage(query,app,env);
   }).text('Upload');
   app.pre(post);
+  app.pre(app);
 }],
 ];
 

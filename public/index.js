@@ -43,6 +43,7 @@ const GLOBALS={
     'tree',
     'silsilah',
     'firebase',
+    'test',
   ],
   unloaded:[],
   unloadedText:'',
@@ -84,6 +85,7 @@ const GLOBALS={
   if(itag&&itag.dataset.app){
     appname=itag.dataset.app;
   }
+  setTitle(appname);
   /* initialize boot and files */
   let app=new boot(fhost),
   {files,starter,icon}=fileContent(appname),
@@ -254,6 +256,9 @@ function fileContent(appname='start'){
       'js/firebase.module.js',
       'js/firebase.test.js',
     ],
+    test:[
+      'js/test.js',
+    ],
   },
   starts={
     mblog:{
@@ -297,6 +302,7 @@ function fileContent(appname='start'){
     silsilah:'image/silsilah.png',
     chat:'image/chat.png',
     quiz:'image/score-80.png',
+    firebase:'image/firebase.png',
   },
   icon=logos.hasOwnProperty(appname)
     ?logos[appname]:'image/blackapple.png',
@@ -311,6 +317,16 @@ function replaceURL(url){
 /* assign url */
 function assignURL(url){
   window.location.assign(url);
+}
+/* set title */
+function setTitle(text){
+  text=text?text:'init';
+  let title=document.querySelector('title');
+  if(!title){
+    title=document.createElement('title');
+    document.head.append(title);
+  }
+  title.innerText='9r3i\\mia\\app@firebase::'+text;
 }
 /* meta content */
 function metaContent(){
@@ -330,10 +346,7 @@ function metaContent(){
   meta3.content='IE=edge,chrome=1';
   document.head.append(meta3);
   /* set title */
-  let title=document.createElement('title');
-  title.innerText='9r3i\\mia\\app@firebase::init';
-  document.head.append(title);
-  /* 9r3i\mia@firebase\app */
+  setTitle();
 }
 /* splash content */
 function splashContent(logo){
