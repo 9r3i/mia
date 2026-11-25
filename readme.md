@@ -1,21 +1,27 @@
 # mia
 m... i... a...
+```js
+/*                                  _          */
+/*  _ __   _____      __  _ __ ___ (_) __ _ _  */
+/* | '_ \ / _ \ \ /\ / / | '_ ` _ \| |/ _` (_) */
+/* | | | |  __/\ V  V /  | | | | | | | (_| |_  */
+/* |_| |_|\___| \_/\_/   |_| |_| |_|_|\__,_( ) */
+/*                                         |/  */
+new mia;
+```
 
 ## ---
 [![Author](https://img.shields.io/badge/author-9r3i-lightgrey.svg)](https://github.com/9r3i)
 [![License](https://img.shields.io/github/license/9r3i/mia.svg)](https://github.com/9r3i/mia/blob/master/LICENSE)
-[![Forks](https://img.shields.io/github/forks/9r3i/mia.svg)](https://github.com/9r3i/mia/network)
-[![Stars](https://img.shields.io/github/stars/9r3i/mia.svg)](https://github.com/9r3i/mia/stargazers)
-[![Issues](https://img.shields.io/github/issues/9r3i/mia.svg)](https://github.com/9r3i/mia/issues)
 [![Release](https://img.shields.io/github/release/9r3i/mia.svg)](https://github.com/9r3i/mia/releases)
-[![Donate](https://img.shields.io/badge/donate-paypal-orange.svg)](https://paypal.me/9r3i)
+[![Issues](https://img.shields.io/github/issues/9r3i/mia.svg)](https://github.com/9r3i/mia/issues)
+[![Donate](https://img.shields.io/badge/donate-paypal-yellow.svg)](https://paypal.me/9r3i)
 
-## Visitors
+## ---
 
-[![9r3i Visitors](https://views-olive.vercel.app/?user=9r3i-mia&color=51,119,187&register=github.com/9r3i/views/tree/master)](https://github.com/9r3i)
-|---|
-| Since November 21st 2026 |
+[![9r3i Visitors](https://views-olive.vercel.app/?user=9r3i-mia&color=51,119,187&register=github.com/9r3i/views/tree/master)](https://github.com/9r3i/mia)
 
+[![Since](https://img.shields.io/badge/Since-November_21st_2026-orange.svg)](https://github.com/9r3i/mia)
 
 
 # Usage

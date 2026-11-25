@@ -145,6 +145,7 @@ PAGES=[
 ['test','Test',async function(query,app,env){
   document.body.innerHTML='';
   app.pre(APPNAME+'\\test');
+  app.pre(app);
   let content=app.element('div',{'class':'content'}),
   main=app.element('div',{id:'main'},[content])
     .appendTo(document.body),

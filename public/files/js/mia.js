@@ -25,13 +25,15 @@ this.host=host;
 this.key=null;
 this.user=null;
 this.aliases={};
-/* =================[  ]================= */
+/* =================[ alias ]================= */
+this.__proto__._______ALIAS_______=function(){};
 /* alias -- @require: this.aliases */
-this.alias=function(text=''){
+this.__proto__.alias=function(text=''){
   let aliases=typeof this.aliases==='object'&&this.aliases!==null?this.aliases:{};
   return aliases.hasOwnProperty(text)?aliases[text]:text;
 };
-/* =================[  ]================= */
+/* =================[ form ]================= */
+this.__proto__._______FORM_______=function(){};
 /* search form -- @require: element */
 this.__proto__.searchForm=function(key='text'){
   let search=this.element('input',{
@@ -69,6 +71,7 @@ this.__proto__.select=function(data,selected,name=''){
   return sel;
 };
 /* =================[ loader -- css ]================= */
+this.__proto__._______LOADER_______=function(){};
 /* content loader -- @require: css */
 this.__proto__.contentLoader=function(cname='content'){
   let el=document.querySelector('.content-loader'),
@@ -146,6 +149,7 @@ this.__proto__.table=function(tname){
   return table;
 };
 /* =================[ basic ]================= */
+this.__proto__._______BASIC_______=function(){};
 /* paste from clipboard */
 this.__proto__.paste=async function(text){
   try{
@@ -222,6 +226,7 @@ this.__proto__.formSerialize=function(idata=false){
   return res;
 };
 /* =================[ fake-loader ]================= */
+this.__proto__._______FAKE_LOADER_______=function(){};
 /* fake loader -- promise */
 this.__proto__.fakeLoader=function(dl,s=10){
   return new Promise(resolve=>{
@@ -249,6 +254,7 @@ this.__proto__.fakeLoaderCB=function(cb,dl,s=10,i=0){
   },s);
 };
 /* =================[ alert -- css ]================= */
+this.__proto__._______ALERT_______=function(){};
 /* prompt */
 this.__proto__.prompt=function(text,value,ok,no){
   return new Promise(resolve=>{
@@ -348,6 +354,7 @@ this.__proto__.alertCB=function(text,cb,max=1){
   return button;
 };
 /* =================[ client ]================= */
+this.__proto__._______CLIENT_______=function(){};
 /* get file content, @return: string text */
 this.__proto__.get=async function(file){
   return await fetch(this.host+file)
@@ -455,6 +462,7 @@ this.__proto__.register=async function(data={}){
   }).then(r=>r.text());
 };
 /* =================[ standalone ]================= */
+this.__proto__._______STANDALONE_______=function(){};
 /* geo location - promise -- standalone */
 this.__proto__.userLocation=function(){
   return new Promise(resolve=>{
@@ -957,6 +965,7 @@ this.__proto__.element=function(name='div',attr={},children=[]){
   return main;
 };
 /* =================[ router ]================= */
+this.__proto__._______ROUTER_______=function(){};
 /* array of defined headers and footers
  * add using .push()
  * each contains: a function (query,app,page)
