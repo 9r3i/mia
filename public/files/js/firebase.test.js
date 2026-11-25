@@ -47,17 +47,16 @@ const FBUSER={
     }
     pro('ok3');
   });
-  pro('loading...');
-  let read=await fb.read('posts');
-  pro('loaded');
-  pro(read);
-  /*
-  pro(await fb.write('posts',[
-    {id:1,title:'judul',content:'content'},
-    {id:2,title:'judul',content:'content'},
-    {id:3,title:'judul',content:'content'},
+  let read=await fb.read('data');
+  pro(likeJSON(read,4));
+  /**
+  pro(await fb.write('data/'+FBUSER.uid+'/posts',[
+    {id:1,title:'judul',content:'content',date:'2025-06-09'},
+    {id:2,title:'judul',content:'content',date:'2025-11-19'},
+    {id:3,title:'judul',content:'content',date:'2026-06-29'},
+    {id:4,title:'judul',content:'content',date:'2026-11-25'},
   ]));
-  */
+  //*/
   
   
 })();
@@ -241,21 +240,27 @@ function agoHours(date='2018-08-21'){
     nowSecond=now/1000,
     nowHour=nowSecond/3600,
     hours=Math.ceil(nowHour-bhour).toString();
-  return hours;
+    return hours;
 }
 
-/* ago days */
-function agoDays(date='2012-04-08'){
-    let bstart=(new Date(date)).getTime(),
-    bsecond=bstart/1000,
-    bhour=bsecond/3600,
-    bday=bhour/24,
-    now=(new Date).getTime(),
-    nowSecond=now/1000,
-    nowHour=nowSecond/3600,
-    nowDay=nowHour/24,
-    days=Math.ceil(nowDay-bday).toString(16);
-  return days;
+/* ago */
+function ago(date='2012-04-08',type='year'){
+  let start=(new Date(date)).getTime(),
+  now=(new Date).getTime(),
+  types={
+    second:1000,
+    minute:60,
+    hour:60,
+    day:24,
+    month:30,
+    year:12,
+  },
+  res=now-start;
+  for(let t in types){
+    res/=types[t];
+    if(t==type){break;}
+  }
+  return Math.floor(res);
 }
 
 /*

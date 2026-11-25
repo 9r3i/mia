@@ -109,11 +109,11 @@ MIA.routes.push(['','Home',async function(query,app,env){
   let visitorIMG=await env.viewsURL('sabunjelly'),
   img=new Image;
   img.src=visitorIMG;
+  content.append(img);
   img.onload=function(){
-    content.append(this);
   };
   img.onerror=function(){
-    this.src=env.viewsURLX('sabunjelly');
+    //this.src=env.viewsURLX('sabunjelly');
   };
 },{
   viewsURLX:async function(user){
@@ -137,8 +137,7 @@ MIA.routes.push(['','Home',async function(query,app,env){
   },
   viewsURL:async function(user,reg=false){
     let color=[0xea,0x72,0x33].join(','),
-    //host='views-olive.vercel.app';
-    host='blaster.xo.je';
+    host='views-olive.vercel.app';
     return 'https://'+host+'/?user='+user
       +'&color='+color+'&time='+(new Date).getTime()
       +(reg?'&register=github.com/9r3i/views/tree/master':'');
