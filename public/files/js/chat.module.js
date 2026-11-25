@@ -1,5 +1,5 @@
 /* import */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
 import { 
   getDatabase, 
   ref, 
@@ -8,7 +8,7 @@ import {
   onValue,
   get,
   child,
-} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
 import { 
   getAuth, 
   signInAnonymously, 
@@ -17,7 +17,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
-} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
 
 /* main global constants */
 const FBAPP  = initializeApp(config()),
@@ -95,7 +95,6 @@ MIA.init();
 /* end of statement */
 })();
 
-
 /* chat page -- @require: div */
 async function chatPage(uid){
   document.body.innerHTML='';
@@ -107,21 +106,18 @@ async function chatPage(uid){
   user=FRIENDS.hasOwnProperty(uid)
     ?FRIENDS[uid]:await read('users/'+uid);
   input.onkeyup=async function(e){
-    if(e.keyCode!==13||this.value==''){
+    if(e.keyCode!==13&&this.value!=''){
       let now=(new Date).getTime(),
       res=await write('typing/'+FBUSER.uid,now);
       return;
     }
+    if(e.keyCode!==13||this.value==''){return;}
     this.đisabled=true;
     await sendChat(this.dataset.uid,this.value);
     this.đisabled=false;
     this.value='';
   };
   content.classList.add('chat-bg');
-  input.onfocus=async function(){
-    let now=(new Date).getTime(),
-    res=await write('typing/'+FBUSER.uid,now);
-  };
   listen('typing',async function(data){
     let content=document.querySelector('#content');
     if(!content||!user||!data.hasOwnProperty(user.uid)){return;}
@@ -129,7 +125,7 @@ async function chatPage(uid){
     typing=div('div',{'class':'typing'}).text('Typing...');
     if(now-parseInt(data[user.uid],10)<10000){
       typing.appendTo(main);
-      await sleep(5000);
+      await sleep(3000);
       typing.remove();
     }
   },e=>console.error(e));

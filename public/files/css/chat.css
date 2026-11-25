@@ -115,6 +115,7 @@ iframe{
 
 /* content */
 .content{
+  min-height:calc(100vh - 120px);
   margin:0rem 0rem 120px;
   padding:1rem;
   overflow-x:hidden;

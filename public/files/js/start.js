@@ -45,6 +45,7 @@ PAGES=[
     {ns:'rblog',name:'R-Blog',icon:''},
     {ns:'gaino',name:'Gaino Blog',icon:''},
     {ns:'force',name:'Firesite',icon:'image/force.png'},
+    {ns:'firebase',name:'Firebase Test',icon:''},
   ],
   aloaded=[],
   grid=app.element('div',{'class':'grid'}).appendTo(content);
@@ -80,6 +81,14 @@ PAGES=[
     gap.append(icon);
     gap.append(name);
     aloaded.push(ap.ns);
+    gap.on('contextmenu',function(e){
+      e.preventDefault();
+      app.alert({
+        namespace:this.dataset.ns,
+        appname:this.dataset.name,
+      });
+      return false;
+    });
   }
   /* pre */
   app.pre({
