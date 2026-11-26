@@ -1,13 +1,16 @@
 /* load mia library */
-const {mia}=require(__dirname+'/private/mia/mia');
+import {mia} from './private/mia/mia.js';
 /* export handler */
 export default function handler(req,res){
   /* initialize mia */
-  globalThis.MIA=new mia;
+  const app=new mia;
   /* start the server */
-  globalThis.MIA.requestListener(req,res);
-  /* keep origin script */
+  app.requestListener(req,res);
+  /* set as global variable */
+  globalThis.MIA=app;
+  /* stop the script */
   if(true){return;}
+  /* keep origin script */
   const {url,method}=req;
   if(url==='/api/health'){
     return res.status(200).json({
