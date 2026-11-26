@@ -1,3 +1,6 @@
+/* load mia library */
+const {mia}=require(__dirname+'/private/mia/mia');
+/* export handler */
 export default function handler(req,res){
   /* initialize mia */
   globalThis.MIA=new mia;
