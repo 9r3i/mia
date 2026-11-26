@@ -44,6 +44,7 @@ const GLOBALS={
     'silsilah',
     'firebase',
     'test',
+    'space',
   ],
   unloaded:[],
   unloadedText:'',
@@ -191,6 +192,25 @@ function onFunctionReadyCB(fn,cb,i=0){
 /* file content, logo and starter */
 function fileContent(appname='start'){
   let libs={
+    space:[
+      'css/consola.css',
+      'css/segoeuil.css',
+      'css/firasans.css',
+      'css/neuropol.css',
+      'css/menu-header.bg.css',
+      'css/fontawesome-webfont.css',
+      'css/chat.bg.css',
+      'css/mia.css',
+      'css/space.css',
+      'css/fontawesome.min.css',
+      'js/firebase.module.js',
+      'js/mia.js',
+      'js/binar.js',
+      'js/space.login.js',
+      'js/space.admin.js',
+      'js/space.account.js',
+      'js/space.js',
+    ],
     start:[
       'css/consola.css',
       'css/segoeuil.css',
@@ -328,6 +348,7 @@ function fileContent(appname='start'){
     chat:'image/chat.png',
     quiz:'image/score-80.png',
     firebase:'image/firebase.png',
+    space:'image/space.png',
   },
   icon=logos.hasOwnProperty(appname)
     ?logos[appname]:'image/blackapple.png',

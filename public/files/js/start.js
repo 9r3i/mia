@@ -47,6 +47,7 @@ PAGES=[
     {ns:'force',name:'Firesite',icon:'image/force.png'},
     {ns:'firebase',name:'Firebase Test',icon:'image/firebase.png'},
     {ns:'test',name:'Just Test',icon:''},
+    {ns:'space',name:'Space',icon:'image/space.png'},
   ],
   aloaded=[],
   grid=app.element('div',{'class':'grid'}).appendTo(content);
@@ -224,8 +225,6 @@ PAGES=[
   }
   /* end of statement */
 })(MIA);
-
-
 
 /* =====================[ blog ]===================== */
 

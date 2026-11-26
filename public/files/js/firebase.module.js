@@ -1,5 +1,5 @@
 /* import */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 import { 
   getDatabase, 
   ref, 
@@ -8,7 +8,7 @@ import {
   onValue,
   get,
   child,
-} from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 import { 
   getAuth, 
   signInAnonymously, 
@@ -17,11 +17,12 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
+  sendEmailVerification,
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
-} from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 
 /* ==================[ import to window ]================== */
 window.Firebase=Firebase;

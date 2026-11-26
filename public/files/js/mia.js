@@ -27,6 +27,21 @@ this.user=null;
 this.aliases={};
 /* =================[ alias ]================= */
 this.__proto__._______ALIAS_______=function(){};
+/* alias register bulk -- @require: this.aliases */
+this.__proto__.aliasRegBulk=function(data){
+  data=typeof data==='object'&&data!==null?data:{};
+  for(let key in data){
+    let value=data[key];
+    this.aliasReg(key,value);
+  }
+  return this.aliases;
+};
+/* alias register -- @require: this.aliases */
+this.__proto__.aliasReg=function(key,value){
+  this.aliases=typeof this.aliases==='object'&&this.aliases!==null?this.aliases:{};
+  this.aliases[key]=value;
+  return this.aliases;
+};
 /* alias -- @require: this.aliases */
 this.__proto__.alias=function(text=''){
   let aliases=typeof this.aliases==='object'&&this.aliases!==null?this.aliases:{};
@@ -1196,6 +1211,7 @@ this.__proto__.buildQuery=function(data,key){
   }return ret.join("&");
 };
 /* =================[ nothing ]================= */
+this.__proto__._______NOTHING_______=function(){};
 /* nothing statement */
 this.__proto__.nothing=function(){
   return arguments;
