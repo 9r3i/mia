@@ -386,8 +386,6 @@ this.hash=function(s){
   }
   return r.join('');
 };
-/* start the server automatically */
-return this.start();
 };
 
 
