@@ -7,33 +7,32 @@ const FBUSER={
   photoURL:null,
 }
 MIA=new mia(GLOBALS.host),
-CONFIG={},
-PAGES=[
-  [
-    '',
-    '__space',
-    async function(query,app,env){
-      /* initialize firebase */
-      app.db.userinfo(async user=>{
-        document.body.innerHTML='';
-        if(user){
-          FBUSER.uid=user.uid;  
-          FBUSER.email=user.email;
-          FBUSER.displayName=user.displayName;
-          FBUSER.photoURL=user.photoURL;
-          FBUSER.emailVerified=user.emailVerified;
-          /* admin page */
-          let admin=new SpaceAdmin(query,app,env);
-          return await admin.init();
-        }else{
-          /* login page */
-          let login=new SpaceLogin(query,app,env);
-          return await login.init();
-        }
-      });
-    },
-  ]
-];
+PAGE={
+  callback:async function(query,app,env){
+    /* initialize firebase */
+    app.db.userinfo(async user=>{
+      document.body.innerHTML='';
+      if(user){
+        FBUSER.uid=user.uid;  
+        FBUSER.email=user.email;
+        FBUSER.displayName=user.displayName;
+        FBUSER.photoURL=user.photoURL;
+        FBUSER.emailVerified=user.emailVerified;
+        /* admin page */
+        let admin=new SpaceAdmin(query,app,env);
+        return await admin.init();
+      }else{
+        /* login page */
+        let login=new SpaceLogin(query,app,env);
+        return await login.init();
+      }
+    });
+  },
+  env:{
+    path:location.hash.substr(1).split('?')[0],
+    title:'__space',
+  },
+};
 /* initialize */
 ;(async function(app){
   /* check if everyting is ready */
@@ -43,8 +42,13 @@ PAGES=[
     return;
   }
   /* push the pages */
-  for(let page of PAGES){
-    app.routes.push(page);
+  for(let path of ['']){
+    app.routes.push([
+      path,
+      PAGE.env.title+(path?':'+path:''),
+      PAGE.callback,
+      PAGE.env,
+    ]);
   }
   /* prepare boot loader */
   app.boot=new boot(app.host);
@@ -66,7 +70,7 @@ function onFunctionReadyCB(fn,cb,i=0){
     if(window.hasOwnProperty(fn)
       &&typeof window[fn]==='function'){
       return cb(true);
-    }else if(i>1000){
+    }else if(i>100){
       return cb(false);
     }return onFunctionReadyCB(fn,cb,i+1);
   },1);

@@ -19,7 +19,9 @@ this.init=async function(){
     bodyHeader=div('div',{'class':'body-header'}),
     bodyContent=div('div',{'class':'body-content'},[title,content]),
     bodyClear=div('div',{'style':'clear:both;'}),
-    body=div('div',{'class':'body'},[bodyHeader,bodyContent,bodyClear]),
+    body=div('div',{'class':'body chat-bg'},[
+      bodyHeader,bodyContent,bodyClear
+    ]),
     main=div('main',{id:'main'},[header,body]).appendTo(document.body);
   /* menu button */
   menuButton.menu=menu;
@@ -39,18 +41,58 @@ this.init=async function(){
   this.menuMovable();
   /* menu header: user email */
   menuHeader.dataset.email=FBUSER.email;
-  /* body header -- top left below logo */
-  bodyHeader.text('Admin');
   /* logout menu */
   let logoutMenu=this.addMenu('Logout','power-off',async function(){
     let yes=await app.confirm('Logout now?\n'+FBUSER.email);
     if(!yes){return;}
     await app.db.logout();
   },'#b33');
+  /* body header -- top left below logo */
+  bodyHeader.text('Section');
+  bodyHeader.divisions=['profile','account'];
+  /* body header */
+  bodyHeader.dataset.open='0';
+  bodyHeader.dataset.width=(bodyHeader.offsetWidth+15)+'px';
+  bodyHeader.style.width=(bodyHeader.offsetWidth+15)+'px';
+  bodyHeader.clickOn(async function(){
+    if(this.dataset.open=='1'){return;}
+    this.dataset.open='1';
+    this.style.width='12.5rem';
+    this.dataset.text=this.innerText;
+    if(Object.keys(this.divisions).length<2){
+      await app.sleep(500);
+      this.style.width=this.dataset.width;
+      this.dataset.open='0';
+      return;
+    }
+    let divisions={};
+    for(let divis of this.divisions.sort()){
+      divisions[divis]=divis.split(/[^a-z]+/i).map(v=>{
+        if(v.length<1){return '';}
+        return v[0].toUpperCase()+v.substr(1);
+      }).join('');
+    }
+    let sel=app.select(divisions,this.dataset.division,'division');
+    sel.style.width='100%';
+    this.innerHTML='';
+    this.append(sel);
+    sel.focus();
+    sel.onblur=async e=>{
+      await app.sleep(500);
+      this.style.width=this.dataset.width;
+      this.dataset.open='0';
+      this.innerText=this.dataset.text;
+    };
+    sel.onchange=function(){
+      app.go('?section='+this.value);
+    };
+  });
   /* app section or division */
   let section=query.hasOwnProperty('section')
-    ?query.section:'account',
-  sectionName=section[0].toUpperCase()+section.substr(1),
+    ?query.section:'profile',
+  sectionName=section.split(/[^a-z]+/i).map(v=>{
+    return v[0].toUpperCase()+v.substr(1);
+  }).join(''),
   sectionMethod=query.hasOwnProperty('method')
     ?query.method:'dashboard',
   fname='Space'+sectionName,
@@ -65,6 +107,8 @@ this.init=async function(){
   /* initialize section */
   let spaceSection=new window[fname](query,app,env);
   bodyHeader.text(sectionName);
+  bodyHeader.dataset.division=section;
+  app.title(env.title+'\\'+section);
   /* menus */
   let menus=spaceSection.hasOwnProperty('menus')
     &&Array.isArray(spaceSection.menus)

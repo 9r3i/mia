@@ -146,6 +146,8 @@ iframe{
   font-family:'Fira Sans Ultra';
   text-shadow:0.1rem 0.1rem 0.08rem #37b;
   filter:drop-shadow(0.2rem 0.2rem 0.2rem #ccc);
+  -webkit-text-stroke:0.3rem #37b;
+  paint-order:stroke fill;
 }
 .header:before{
   content:attr(data-text);
@@ -163,6 +165,8 @@ iframe{
   top:3.8rem;
   border-radius:0rem 0rem 5rem 0rem;
   box-shadow:0rem 0.5rem 1rem #bdf;
+  -webkit-text-stroke:0.3rem #37b;
+  paint-order:stroke fill;
 }
 
 /* content */
@@ -243,6 +247,8 @@ iframe{
   color:#fff;
   text-shadow:0.1rem 0.1rem 0.1rem #37b;
   background-color:#fd5;
+  -webkit-text-stroke:0.2rem #37b;
+  paint-order:stroke fill;
 }
 .footer-bottom{
   margin:0rem 0rem 0rem;
@@ -252,8 +258,10 @@ iframe{
   background-color:#159;
   color:#fff;
   font-family:'Fira Sans Ultra';
-  text-shadow:0.001rem 0.001rem 0.001rem #fff;
+  text-shadow:0.001rem 0.001rem 0.001rem #b73;
   border-radius:0rem 5rem 0rem 0rem;
+  -webkit-text-stroke:0.2rem #b73;
+  paint-order:stroke fill;
 }
 .footer-left-top{
   font-family:'Fira Sans Ultra';
@@ -261,6 +269,8 @@ iframe{
   font-weight:100;
   color:#fff;
   text-shadow:0.1rem 0.1rem 0.1rem #37b;
+  -webkit-text-stroke:0.2rem #37b;
+  paint-order:stroke fill;
 }
 .footer-left-bottom{
   margin-top:1rem;

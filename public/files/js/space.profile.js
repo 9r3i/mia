@@ -1,11 +1,13 @@
-/* space.account.js */
-function SpaceAccount(_query,_app,_env){
+/* space.profile.js */
+function SpaceProfile(_query,_app,_env){
 const query=_query,
   app=_app,
   env=_env;
 this.menus=[
   {namespace:'dashboard',name:'Dashboard',icon:'dashboard'},
   {namespace:'ok'},
+  {namespace:'error'},
+  {namespace:'temp'},
 ];
 this.dashboard=async function(){
   /* get title and content element */
@@ -15,9 +17,14 @@ this.dashboard=async function(){
   /* title */
   title.text('Dashboard');
   /*  */
+  let loader=app.contentLoader(),
+  read=await app.db.read('private/'+FBUSER.uid);
+  loader.remove();
   /*  */
   /* content */
-  app.pre('Logged in',FBUSER);
+  app.pre('path:'+env.path);
+  app.pre('user',FBUSER);
+  app.pre('private',read);
   
   /* write profile *
   app.pre(await app.db.write('private/'+FBUSER.uid+'/profile',{
@@ -29,11 +36,8 @@ this.dashboard=async function(){
   }));
   //*/
   
-  let read=await app.db.read('private');
-  //let read=await app.db.read('private'+FBUSER.uid);
-  app.pre('private',app.likeJSON(read,4));
   
-  /* */
+  /* public */
   read=await app.db.read('public');
   app.pre('public',app.likeJSON(read,4));
   
@@ -48,7 +52,7 @@ this.dashboard=async function(){
   
   /* verify */
   div('button').text('Verify').appendTo(content).clickOn(async function(){
-    await app.alert('Sent!');
+    app.go('?section=damai/cinta/mu');
   });
   //*/
   

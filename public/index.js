@@ -208,7 +208,7 @@ function fileContent(appname='start'){
       'js/binar.js',
       'js/space.login.js',
       'js/space.admin.js',
-      'js/space.account.js',
+      'js/space.profile.js',
       'js/space.js',
     ],
     start:[
