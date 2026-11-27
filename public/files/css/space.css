@@ -36,6 +36,8 @@ html{
   font-size:calc(20 * var(--size-factor));
   margin:0rem;
   padding:0rem;
+  -webkit-overscroll-behavior:none;
+  overscroll-behavior:none;
 }
 body{
   margin:0rem;
@@ -768,6 +770,54 @@ button i,.button i{
   font-weight:bold;
   padding-left:0.625rem;
   line-height:42px;
+}
+
+/* =====================[ table ]===================== */
+.table{
+  max-width:100vw;
+}
+.table thead tr th{
+  margin:1px;
+  font-size:1rem;
+  background-color:#333;
+  color:#fff;
+  padding:0.5rem;
+}
+.table tbody tr{
+  background-color:#f9f9f9;
+}
+.table tbody tr:nth-child(2n){
+  background-color:#f1f1f1;
+}
+.table tbody tr td{
+  margin:1px;
+  font-size:1rem;
+  padding:0.2rem;
+}
+.table tbody tr td.td-center{
+  text-align:center;
+}
+.table tr button.table-button{
+  background-color:#f9f9f9;
+  border:0rem none;
+  padding:0.1rem 0.3rem;
+  margin:0rem;
+  width:auto;
+  font-size:0.8rem;
+  font-weight:bold;
+  color:#333;
+  transition:all 0.3s ease 0s;
+  outline:none;
+  border-radius:0.1rem;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  user-select:none;
+  white-space:pre;
+  color:#37b;
+}
+.table tr .buttons button{
+  margin-right:0.5rem;
+  margin-bottom:0.5rem;
 }
 
 /* ----- media screen ----- *

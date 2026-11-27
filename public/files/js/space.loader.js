@@ -1,5 +1,5 @@
-/* space.admin.js */
-function SpaceAdmin(_query,_app,_env){
+/* space.loader.js */
+function SpaceLoader(_query,_app,_env){
 const query=_query,
   app=_app,
   env=_env;
@@ -11,8 +11,8 @@ this.init=async function(){
     menu=div('div',{'class':'menu menu-hide'},[menuHeader]),
     header=div('header',{
       'class':'header',
-      'data-text':'__space',
-      'data-version':'1.0.0'
+      'data-text':env.title,
+      'data-version':env.version,
     },[menuButton,menu]),
     title=div('div',{'class':'title'}),
     content=div('div',{'class':'content'}),
@@ -47,15 +47,26 @@ this.init=async function(){
     if(!yes){return;}
     await app.db.logout();
   },'#b33');
-  /* body header -- top left below logo */
-  bodyHeader.text('Section');
-  bodyHeader.divisions=['profile','account'];
+  /* body header -- top left below logo -- loading */
+  bodyHeader.text('Loader');
+  let load=app.contentLoader(),
+  scopes=await app.db.read([
+    'private',FBUSER.uid,'scope'
+  ].join('/'))||['profile'];
+  Object.defineProperty(env,'isAdmin',{
+    value:await app.db.read('access')||false,
+    writable:false,
+  });
+  load.remove();
   /* body header */
+  bodyHeader.divisions=Object.values(scopes).sort();
+  bodyHeader.dataset.division='loader';
   bodyHeader.dataset.open='0';
-  bodyHeader.dataset.width=(bodyHeader.offsetWidth+15)+'px';
-  bodyHeader.style.width=(bodyHeader.offsetWidth+15)+'px';
   bodyHeader.clickOn(async function(){
     if(this.dataset.open=='1'){return;}
+    this.dataset.width=(this.offsetWidth)+'px';
+    this.style.width=(this.offsetWidth)+'px';
+    await app.sleep(100);
     this.dataset.open='1';
     this.style.width='12.5rem';
     this.dataset.text=this.innerText;
@@ -63,10 +74,12 @@ this.init=async function(){
       await app.sleep(500);
       this.style.width=this.dataset.width;
       this.dataset.open='0';
+      await app.sleep(100);
+      this.style.removeProperty('width');
       return;
     }
     let divisions={};
-    for(let divis of this.divisions.sort()){
+    for(let divis of this.divisions){
       divisions[divis]=divis.split(/[^a-z]+/i).map(v=>{
         if(v.length<1){return '';}
         return v[0].toUpperCase()+v.substr(1);
@@ -78,26 +91,34 @@ this.init=async function(){
     this.append(sel);
     sel.focus();
     sel.onblur=async e=>{
-      await app.sleep(500);
+      await app.sleep(100);
       this.style.width=this.dataset.width;
       this.dataset.open='0';
       this.innerText=this.dataset.text;
+      await app.sleep(100);
+      this.style.removeProperty('width');
     };
     sel.onchange=function(){
-      app.go('?section='+this.value);
+      app.go(this.value);
     };
   });
   /* app section or division */
-  let section=query.hasOwnProperty('section')
-    ?query.section:'profile',
+  let path=this.getPath(),
+  section=path.section,
   sectionName=section.split(/[^a-z]+/i).map(v=>{
     return v[0].toUpperCase()+v.substr(1);
   }).join(''),
-  sectionMethod=query.hasOwnProperty('method')
-    ?query.method:'dashboard',
-  fname='Space'+sectionName,
-  loader=app.contentLoader(),
-  ready=await onFunctionReady(fname);
+  sectionMethod=path.method,
+  fname='Space'+sectionName;
+  app.title(env.title+'\\'+section+'\\'+sectionMethod);
+  if(!scopes.includes(section)){
+    title.text('Page is not available.');
+    content.text('Error: "'+sectionName+'" is out of scope.');
+    return;
+  }
+  /* load section or divisio */
+  let loader=app.contentLoader(),
+  ready=await env.onFunctionReady(fname);
   loader.remove();
   if(!ready){
     title.text('Page is not available.');
@@ -108,11 +129,14 @@ this.init=async function(){
   let spaceSection=new window[fname](query,app,env);
   bodyHeader.text(sectionName);
   bodyHeader.dataset.division=section;
-  app.title(env.title+'\\'+section);
   /* menus */
   let menus=spaceSection.hasOwnProperty('menus')
     &&Array.isArray(spaceSection.menus)
-    ?spaceSection.menus:[];
+    ?spaceSection.menus:[],
+  dashMenu=[{namespace:'dashboard',name:'Dashboard',icon:'dashboard'}];
+  if(!menus.find(v=>v.namespace=='dashboard')){
+    menus=[...dashMenu,...menus];
+  }
   for(let mn of menus){
     this.addMenu(
       typeof mn.name==='string'?mn.name
@@ -120,7 +144,7 @@ this.init=async function(){
       typeof mn.icon==='string'?mn.icon:'thumb-tack',
       typeof mn.callback==='function'?mn.callback:function(){
         if(typeof mn.namespace==='string'){
-          return app.go('?section='+section+'&method='+mn.namespace);
+          return env.go([section,mn.namespace]);
         }
       },
       typeof mn.color==='string'?mn.color:'#ddd'
@@ -133,7 +157,17 @@ this.init=async function(){
     content.text('Error: "'+fname+'\\'+sectionMethod+'" is not available.');
     return;
   }
-  return spaceSection[sectionMethod]();
+  return spaceSection[sectionMethod](path.param);
+};
+/* get path */
+this.getPath=function(){
+  let path=location.hash.substr(1).split('?')[0].split('/');
+  path=path.map(v=>decodeURIComponent(v));
+  return {
+    section:path[0]?decodeURIComponent(path[0]):'profile',
+    method:path[1]?decodeURIComponent(path[1]):'dashboard',
+    param:path[2]?decodeURIComponent(path[2]):null,
+  };
 };
 /* menu add */
 this.addMenu=function(text,icon,cb,color='#ddd'){

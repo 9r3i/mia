@@ -6,7 +6,7 @@ const query=_query,
 this.menus=[
   {namespace:'dashboard',name:'Dashboard',icon:'dashboard'},
 ];
-this.dashboard=async function(){
+this.dashboard=async function(param){
   /* get title and content element */
   let title=document.querySelector('.title'),
   content=document.querySelector('.content'),
@@ -14,15 +14,28 @@ this.dashboard=async function(){
   /* title */
   title.text('Dashboard');
   /* content */
-  app.pre('Logged in',FBUSER);
+  app.pre('isAdmin:'+env.isAdmin);
+  app.pre('path:'+env.path());
+  app.pre('param:'+param);
+  app.pre('user',FBUSER);
   
   /* read private data */
-  let read=await app.db.read('private'+FBUSER.uid);
-  app.pre('private',app.likeJSON(read,4));
+  let private=await app.db.read('private/'+FBUSER.uid);
+  app.pre('private',app.likeJSON(private,4));
   
   /* read public data */
-  read=await app.db.read('public');
-  app.pre('public',app.likeJSON(read,4));
+  let public=await app.db.read('public');
+  app.pre('public',app.likeJSON(public,4));
+  
+  /* dynamic */
+  div('button').text('Dynamic').appendTo(content).clickOn(async function(){
+    let path=['profile','temp','yang takkan pernah terlupakan selamanya'];
+    path=path.map(v=>encodeURIComponent(v));
+    env.go(path);
+  });
+  div('button').text('Zurmia').appendTo(content).clickOn(async function(){
+    app.go('zurmia');
+  });
   
   /* button font */
   div('button').text('Font').appendTo(content).clickOn(async function(){

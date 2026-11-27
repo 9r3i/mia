@@ -207,8 +207,9 @@ function fileContent(appname='start'){
       'js/mia.js',
       'js/binar.js',
       'js/space.login.js',
-      'js/space.admin.js',
+      'js/space.loader.js',
       'js/space.profile.js',
+      'js/space.zurmia.js',
       'js/space.js',
     ],
     start:[
@@ -340,7 +341,14 @@ function fileContent(appname='start'){
       param2:{closer:true},
       init:'test',
       iparam:null,
-    }
+    },
+    space:{
+      type:'class',
+      name:'Space',
+      param:null,
+      init:'init',
+      iparam:null,
+    },
   },
   logos={
     fblog:'image/cleanjelly.png',

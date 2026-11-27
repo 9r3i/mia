@@ -4,41 +4,63 @@ const query=_query,
   app=_app,
   env=_env;
 this.menus=[
-  {namespace:'dashboard',name:'Dashboard',icon:'dashboard'},
   {namespace:'ok'},
   {namespace:'error'},
   {namespace:'temp'},
 ];
-this.dashboard=async function(){
+this.dashboard=async function(param){
   /* get title and content element */
   let title=document.querySelector('.title'),
   content=document.querySelector('.content'),
   div=app.element;
   /* title */
   title.text('Dashboard');
-  /*  */
+  /* content */
+  app.pre('isAdmin:'+env.isAdmin);
+  app.pre('path:'+env.path());
+  app.pre('param:'+param);
+  app.pre('user',FBUSER);
+  /* dynamic */
+  div('button').text('Dynamic').appendTo(content).clickOn(async function(){
+    let path=['profile','temp','yang takkan pernah terlupakan selamanya'];
+    path=path.map(v=>encodeURIComponent(v));
+    env.go(path);
+  });
+  div('button').text('Zurmia').appendTo(content).clickOn(async function(){
+    app.go('zurmia');
+  });
+};
+this.temp=async function(param='empty'){
+  /* get title and content element */
+  let title=document.querySelector('.title'),
+  content=document.querySelector('.content'),
+  div=app.element;
+  /* title */
+  title.text('Temp');
+  /* private */
   let loader=app.contentLoader(),
-  read=await app.db.read('private/'+FBUSER.uid);
+  private=await app.db.read('private/'+FBUSER.uid);
   loader.remove();
   /*  */
   /* content */
-  app.pre('path:'+env.path);
+  app.pre('isAdmin:'+env.isAdmin);
+  app.pre('path:'+env.path());
+  app.pre('param:'+param);
   app.pre('user',FBUSER);
-  app.pre('private',read);
+  app.pre('private',private);
   
   /* write profile *
-  app.pre(await app.db.write('private/'+FBUSER.uid+'/profile',{
-    uid:FBUSER.uid,
-    email:FBUSER.email,
-    emailVerified:false,
-    displayName:'Abu Ayyub',
-    photoURL:'https://avatars.githubusercontent.com/u/3212290?v=4',
-  }));
+  app.pre(await app.db.write('private/'+FBUSER.uid+'/profile',FBUSER));
   //*/
   
+  /* write scope */
+  app.pre('scope',await app.db.write('admin/'+FBUSER.uid+'/scope',[
+    'profile',
+  ]));
+  //*/
   
   /* public */
-  read=await app.db.read('public');
+  let read=await app.db.read('public');
   app.pre('public',app.likeJSON(read,4));
   
   /* *
@@ -50,9 +72,16 @@ this.dashboard=async function(){
   ]));
   //*/
   
+  /* dynamic */
+  div('button').text('Dynamic').appendTo(content).clickOn(async function(){
+    let path=['profile','temp','yang takkan pernah terlupakan selamanya'];
+    path=path.map(v=>encodeURIComponent(v));
+    env.go(path);
+  });
+  
   /* verify */
   div('button').text('Verify').appendTo(content).clickOn(async function(){
-    app.go('?section=damai/cinta/mu');
+    env.go(['damai.cinta.mu']);
   });
   //*/
   
