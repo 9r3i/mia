@@ -30,7 +30,7 @@ for(let file of MIAX.libFiles){
  * continued at october 7th 2026
  * @usage: new mia;
  **/
-exports.mia=function(port=9301,host='127.0.0.1',root){
+module.exports=function(port=9301,host='127.0.0.1',root){
 /* set to true before compile to appbase */
 this.production=false;
 /* the version code */

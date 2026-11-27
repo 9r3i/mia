@@ -11,5 +11,16 @@
       "src": "/(.*)",
       "dest": "/vercel.handler.js"
     }
+  ],
+  "functions": {
+    "vercel.handler.js": {
+      "includeFiles": "{private/**,public/**}"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/vercel.handler.js"
+    }
   ]
 }
