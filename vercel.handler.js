@@ -1,22 +1,20 @@
 /* load mia library */
-const mia=require(__dirname+'/private/mia/mia');
+//const mia=require(__dirname+'/private/mia/mia');
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
-/* export handler */
+/* export handler *
 module.exports=function(req,res){
-  /* initialize mia */
   const app=new mia;
-  /* start the server */
   app.requestListener(req,res);
-  /* set as global variable */
   globalThis.MIA=app;
 }
-/*
+//*/
+/* */
 module.exports=(req, res) => {
   try {
     // Always resolve paths relative to process.cwd() or __dirname
-    const filePath = path.join(process.cwd(), 'data', 'sample.txt');
+    const filePath = path.join(process.cwd(), 'public', 'index.html');
     const fileContent = fs.readFileSync(filePath, 'utf8');
 
     res.statusCode = 200;
