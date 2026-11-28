@@ -10,7 +10,7 @@ const FBUSER={
 function Space(){
 /* space environment */
 this.title='__space';
-this.version='1.0.0';
+this.version='v1.0.0';
 /* scope */
 this.scopes=['profile','user','account','zurmia'];
 /* path */

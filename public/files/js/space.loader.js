@@ -50,6 +50,7 @@ this.init=async function(){
   /* body header -- top left below logo -- loading */
   bodyHeader.text('Loader');
   let load=app.contentLoader(),
+  select=this.select,
   scopes=await app.db.read([
     'private',FBUSER.uid,'scope'
   ].join('/'))||['profile'];
@@ -68,7 +69,7 @@ this.init=async function(){
     this.style.width=(this.offsetWidth)+'px';
     await app.sleep(100);
     this.dataset.open='1';
-    this.style.width='12.5rem';
+    this.style.width='200px';
     this.dataset.text=this.innerText;
     if(Object.keys(this.divisions).length<2){
       await app.sleep(500);
@@ -85,8 +86,7 @@ this.init=async function(){
         return v[0].toUpperCase()+v.substr(1);
       }).join('');
     }
-    let sel=app.select(divisions,this.dataset.division,'division');
-    sel.style.width='100%';
+    let sel=select(divisions,this.dataset.division,'division');
     this.innerHTML='';
     this.append(sel);
     sel.focus();
@@ -108,7 +108,10 @@ this.init=async function(){
   sectionName=section.split(/[^a-z]+/i).map(v=>{
     return v[0].toUpperCase()+v.substr(1);
   }).join(''),
-  sectionMethod=path.method,
+  sectionMethod=path.method.split(/[^a-z]+/i).map((v,k)=>{
+    if(k==0){return v;}
+    return v[0].toUpperCase()+v.substr(1);
+  }).join(''),
   fname='Space'+sectionName;
   app.title(env.title+'\\'+section+'\\'+sectionMethod);
   if(!scopes.includes(section)){
@@ -158,6 +161,65 @@ this.init=async function(){
     return;
   }
   return spaceSection[sectionMethod](path.param);
+};
+/* select */
+this.select=function(data={},selected='',name=''){
+  let div=app.element,
+    init=div('div',{'class':'select-init'}),
+    opts=div('div',{'class':'select-options'}),
+  main=div('div',{
+    'class':'select',
+    'tabindex':'0',
+    'contenteditable':'false',
+    'name':name,
+  },[init,opts]);
+  main.value='';
+  init.opts=opts;
+  init.main=main;
+  init.clickOn(function(){
+    this.opts.classList.remove('select-options-hide');
+    if(this.main.style.width==''){
+      this.main.style.width=this.main.offsetWidth+'px';
+      this.opts.style.maxWidth=this.main.offsetWidth+'px';
+    }
+  });
+  for(let key in data){
+    let value=data[key],
+    opt=div('div',{
+      'class':'select-option',
+      'data-value':key,
+      'data-text':value,
+    }).text(value).appendTo(opts);
+    opt.main=main;
+    opt.init=init;
+    opt.opts=opts;
+    opt.clickOn(async function(){
+      this.opts.classList.add('select-options-hide');
+      if(typeof this.main.onchange==='function'
+        &&this.main.value!=this.dataset.value){
+        this.main.value=this.dataset.value;
+        this.main.onchange(this.main);
+      }
+      this.main.value=this.dataset.value;
+      this.init.text(this.dataset.text);
+      let opts=document.querySelectorAll('div.select-option-selected');
+      for(let i=0;i<opts.length;i++){
+        opts[i].classList.remove('select-option-selected');
+      }
+      this.classList.add('select-option-selected');
+    });
+    if((init.innerText==''&&!data.hasOwnProperty(selected))
+      ||key==selected){
+      init.text(value);
+      main.value=key;
+      opt.classList.add('select-option-selected');
+    }
+  }
+  if(init.innerText==''){
+    init.text('...');
+  }
+  opts.classList.add('select-options-hide');
+  return main;
 };
 /* get path */
 this.getPath=function(){
@@ -209,7 +271,7 @@ this.menuMovable=function(){
     window.MENU_MOVABLE_LEFT=false;
     if(!isHide){
       menuButton.click();
-    }else if(left<-100){
+    }else if(left<-50){
       let shadow=document.querySelector('.menu-shadow');
       if(shadow){shadow.click();}
     }
@@ -221,7 +283,7 @@ this.menuMovable=function(){
     let x=e.changedTouches?e.changedTouches[0].pageX:e.screenX,
     l=menu.offsetLeft;
     if(l===0||x>15){
-      if(x>250){
+      if(x>100){
         window.MENU_MOVABLE_LEFT={x:x,l:l,menu:menu,hide:true};
       }return;
     }window.MENU_MOVABLE_LEFT={x:x,l:l,menu:menu,hide:false};

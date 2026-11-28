@@ -63,7 +63,7 @@ a{
 a:hover{color:#951;}
 pre{
   font-family:consolas,monospace;
-  font-size:0.8rem;
+  font-size:0.6rem;
   white-space:pre-wrap;
   background:linear-gradient(#fff 0%,#fed 100%);
   word-break:break-all;
@@ -360,12 +360,11 @@ button i,.button i{
 .button-dark-orange i{color:#fff;}
 
 
-
 /* header */
 .header{
   background-image:url('files/image/space.png');
   background-repeat:no-repeat;
-  background-position:calc(100% - 0.625rem) center;
+  background-position:calc(100% - 10px) center;
   background-size:32px 32px;
   background-color:#fff;
   padding:0px;
@@ -379,18 +378,18 @@ button i,.button i{
   left:0px;
   right:0px;
   display:block;
-  box-shadow:0px 9px 5px -5px #ddd;
+  box-shadow:0px 9px 5px -5px #999;
 }
 .header:before{
   text-align:right;
-  font-size:12px;
+  font-size:10px;
   text-shadow:1px 1px 1px #999;
   margin-right:52px;
   color:#777;
   content:attr(data-version);
   white-space:pre;
   display:block;
-  line-height:38px;
+  line-height:35px;
   position:absolute;
   right:0px;
   top:14px;
@@ -432,6 +431,7 @@ button i,.button i{
   padding:0px;
   margin:4px 0px 0px;
   border-radius:3px;
+  box-shadow:3px 3px 3px #777;
 }
 .menu-button div:nth-child(1){
   margin-top:5px;
@@ -445,8 +445,8 @@ button i,.button i{
 
 /* menu header */
 .menu{
-  width:15.625rem;
-  height:100%;
+  width:200px;
+  height:100vh;
   background-color:#333;
   position:fixed;
   z-index:9;
@@ -464,44 +464,47 @@ button i,.button i{
   -ms-overflow-style:none; /* for Internet Explorer, Edge */
   scrollbar-width:none; /* for Firefox */
 }
-.menu::-webkit-scrollbar {
+.menu::-webkit-scrollbar{
   display:none; /* for Chrome, Safari, and Opera */
 }
 .menu .menu-header{
   background-color:#222;
-  background-size:15.625rem 6.375rem;
+  background-size:200px 125px;
   background-repeat:no-repeat;
   background-position:center center;
   width:auto;
-  height:6.375rem;
+  height:125px;
   padding:0px;
   margin:0px 0px 5px;
   display:block;
 }
 .menu .menu-header:before{
   text-align:right;
-  font-size:0.7rem;
+  font-size:12px;
   text-shadow:1px 1px 1px #fff;
-  margin-right:1rem;
-  margin-top:4.6rem;
+  margin-right:10px;
+  margin-top:88px;
   color:#111;
   content:attr(data-email);
-  white-space:pre;
   display:block;
   position:absolute;
   right:0rem;
-  -webkit-text-stroke:2px #fff;
+  -webkit-text-stroke:1px rgba(255,255,255,0.8);
   paint-order:stroke fill;
+  max-width:calc(200px -200px);
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
 }
 .menu .menu-each{
   display:block;
-  padding:0.5rem;
+  padding:5px 10px;
   margin:0px 0px 2px;
   width:auto;
   height:auto;
   border-radius:0px;
   background-color:#333;
-  font-size:1.25rem;
+  font-size:20px;
   color:#ddd;
   transition:all 0.3s ease 0s;
   -webkit-user-select:none;
@@ -512,18 +515,15 @@ button i,.button i{
 .menu .menu-each:hover{
   background-color:#222;
   color:#ddd;
-  padding:13px 12px 13px 14px;
-}
-.menu .menu-each-linked{
-  background-color:#ddc;
+  padding:5px 9px 5px 11px;
 }
 .menu .menu-each i{
   display:inline-block;
   vertical-align:0px;
-  font-size:1.25rem;
+  font-size:20px;
   width:32px;
   text-align:center;
-  margin-right:0.625rem;
+  margin-right:12px;
   color:#ddd;
 }
 .menu .menu-each i.menu-external{
@@ -532,17 +532,21 @@ button i,.button i{
 .menu .menu-each .menu-text{
   display:inline-block;
   vertical-align:top;
-  font-size:1rem;
+  font-size:16px;
   text-align:left;
-  margin:-0.1rem 0rem 0rem;
+  margin:0px 0px 0px;
   padding:0px;
   color:#ddd;
-  width:10.3125rem;
+  width:calc(200px - 62px);
+  height:32px;
+  line-height:28px;
+  vertical-align:middle;
   overflow:hidden;
-  white-space:pre;
+  white-space:nowrap;
+  text-overflow:ellipsis;
 }
 .menu-hide{
-  left:-16rem;
+  left:-250px;
 }
 .menu-show{
   left:0px;
@@ -580,8 +584,9 @@ button i,.button i{
 }
 .body-header{
   margin:0px;
-  padding:5px 15px 9px 15px;
+  padding:7px 17px 7px 20px;
   text-align:left;
+  font-size:20px;
   background-color:#555;
   color:#fff;
   position:fixed;
@@ -589,10 +594,20 @@ button i,.button i{
   top:57px;
   right:0px;
   border:0px none;
-  border-radius:0.625rem 0px 0px 0.625rem;
+  border-top-left-radius:15px 10px;
+  border-bottom-left-radius:15px 10px;
   transition:all 0.2s ease 0s;
   box-shadow:0px 5px 15px -5px #333;
   white-space:nowrap;
+}
+.body-header .select{
+  font-size:20px !important;
+  width:100%;
+  border:0px none;
+  border-radius:5px;
+  padding:0px 10px;
+  background-color:rgba(43,43,43,0.5);
+  color:#fff;
 }
 .body-content{
   display:inline-block;
@@ -797,6 +812,9 @@ button i,.button i{
 .table tbody tr td.td-center{
   text-align:center;
 }
+.table tbody tr td.td-right{
+  text-align:right;
+}
 .table tr button.table-button{
   background-color:#f9f9f9;
   border:0rem none;
@@ -818,6 +836,66 @@ button i,.button i{
 .table tr .buttons button{
   margin-right:0.5rem;
   margin-bottom:0.5rem;
+}
+
+/* =====================[ select ]===================== */
+.select{
+  position:relative;
+  display:inline-block;
+  width:auto;
+  border:1px solid #222;
+  border-radius:2px;
+  padding:5px 10px;
+  margin:0px;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  appearance:none;
+  font-size:16px;
+  transition:all 0.3s ease 0s;
+  background-color:rgba(43,43,43,0.5);
+  color:#fff;
+  outline:none;
+}
+.select:disabled{
+  opacity:0.8;
+}
+.select .select-init{
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden;
+  background-color:transparent;
+  color:inherit;
+  font-size:inherit;
+  width:100%;
+}
+.select .select-options{
+  position:absolute;
+  width:100%;
+  background-color:inherit;
+  overflow-x:hidden;
+  overflow-y:auto;
+  display:block;
+  max-height:150px;
+}
+.select .select-options::-webkit-scrollbar{
+  display:none; /* for Chrome, Safari, and Opera */
+}
+.select .select-options-hide{
+  display:none;
+}
+.select .select-option{
+  background-color:inherit;
+  padding:5px;
+  white-space:pre;
+  color:inherit;
+  font-size:inherit;
+  text-overflow:ellipsis;
+}
+.select .select-option:hover{
+  background-color:rgba(38,38,38,0.6);
+}
+.select .select-option-selected{
+  background-color:rgba(32,32,32,0.7);
 }
 
 /* ----- media screen ----- *

@@ -20,14 +20,6 @@ this.dashboard=async function(param){
   app.pre('param:'+param);
   app.pre('user',FBUSER);
   
-  /* read private data */
-  let private=await app.db.read('private/'+FBUSER.uid);
-  app.pre('private',app.likeJSON(private,4));
-  
-  /* read public data */
-  let public=await app.db.read('public');
-  app.pre('public',app.likeJSON(public,4));
-  
   /* dynamic */
   div('button').text('Dynamic').appendTo(content).clickOn(async function(){
     let path=['profile','temp','yang takkan pernah terlupakan selamanya'];
@@ -37,6 +29,14 @@ this.dashboard=async function(param){
   div('button').text('Money').appendTo(content).clickOn(async function(){
     env.go(['zurmia','money']);
   });
+  
+  /* read private data */
+  let private=await app.db.read('private/'+FBUSER.uid);
+  app.pre('private',app.likeJSON(private,4));
+  
+  /* read public data */
+  let public=await app.db.read('public');
+  app.pre('public',app.likeJSON(public,4));
   
   /* button font */
   div('button').text('Font').appendTo(content).clickOn(async function(){
@@ -101,20 +101,48 @@ this.money=async function(param){
     for(let k in dataMoney){
       let v=dataMoney[k];
       if(v.hasOwnProperty(i)){
-        vals.push(v[i]);
+        let span=div('span',{
+          'data-value':v[i],
+          'data-key':k,
+          'style':'color:'+(v[i]<0?'#b33':'#7b3')+';',
+        }).text(v[i]).on('contextmenu',async function(){
+          let yes=await app.confirm(
+            'Delete this value?\n'
+            +'\nkey: '+this.dataset.key
+            +'\nvalue: '+this.dataset.value
+          );
+          if(!yes){return;}
+          let key=this.dataset.key,
+          value=parseInt(this.dataset.value,10),
+          id=dataMoney[key].indexOf(value);
+          if(id>=0){delete dataMoney[key][id];}
+          dataMoney[key]=Object.values(dataMoney[key]);
+          let load=app.loader(),
+          res=await app.db.write(pathMoney,dataMoney);
+          app.go(env.path());
+        });
+        vals.push(span);
       }else{
         vals.push('');
       }
     }
     let row=table.row.apply(table,vals);
+    for(let iv in vals){
+      row.childNodes[iv].classList.add('td-right');
+    }
   }
   table.row.apply(table,inputs);
   let totalValues=Object.values(dataMoney).map(v=>this.getTotal(v)),
   totalRow=table.row.apply(table,totalValues),
   lower=table.row(button,'Grand Total',this.getTotal(totalValues));
   lower.childNodes[0].setAttribute('colspan','2');
-  lower.childNodes[1].setAttribute('colspan','2');
-  lower.childNodes[2].setAttribute('colspan','3');
+  lower.childNodes[1].setAttribute('colspan','3');
+  lower.childNodes[2].setAttribute('colspan','2');
+  lower.childNodes[1].classList.add('td-right');
+  lower.childNodes[2].classList.add('td-right');
+  for(let iv in totalValues){
+    totalRow.childNodes[iv].classList.add('td-right');
+  }
   button.clickOn(async function(){
     for(let input of inputs){
       let key=input.name,
@@ -125,7 +153,7 @@ this.money=async function(param){
     }
     app.pre(dataMoney);
     let load=app.loader(),
-    res=app.db.write(pathMoney,dataMoney);
+    res=await app.db.write(pathMoney,dataMoney);
     app.go(env.path());
   });
   //app.pre(pathMoney,dataMoney);

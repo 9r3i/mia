@@ -5,7 +5,7 @@ const query=_query,
   env=_env;
 this.menus=[
   {namespace:'ok'},
-  {namespace:'error'},
+  {namespace:'error karena panjang banget tulisannya'},
   {namespace:'temp'},
 ];
 this.dashboard=async function(param){
@@ -16,18 +16,18 @@ this.dashboard=async function(param){
   /* title */
   title.text('Dashboard');
   /* content */
-  app.pre('isAdmin:'+env.isAdmin);
-  app.pre('path:'+env.path());
-  app.pre('param:'+param);
-  app.pre('user',FBUSER);
+  app.pre('isAdmin:'+env.isAdmin).style.fontSize='0.7rem';
+  app.pre('path:'+env.path()).style.fontSize='0.7rem';
+  app.pre('param:'+param).style.fontSize='0.7rem';
+  app.pre('user',FBUSER).style.fontSize='0.7rem';
   /* dynamic */
   div('button').text('Dynamic').appendTo(content).clickOn(async function(){
     let path=['profile','temp','yang takkan pernah terlupakan selamanya'];
     path=path.map(v=>encodeURIComponent(v));
     env.go(path);
   });
-  div('button').text('Zurmia').appendTo(content).clickOn(async function(){
-    app.go('zurmia');
+  div('button').text('Zurmia Money').appendTo(content).clickOn(async function(){
+    env.go(['zurmia','money']);
   });
 };
 this.temp=async function(param='empty'){
